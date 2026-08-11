@@ -6,8 +6,6 @@ jobs:
   create-scaffold:
     runs-on: ubuntu-latest
     env:
-      GIT_COMMITTER_NAME: github-actions[bot]
-      GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout main
@@ -25,15 +23,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Branch name with timestamp
           BRANCH="scaffold/vite-react-$(date +%s)"
           echo "Creating branch: $BRANCH"
           git checkout -b "$BRANCH"
 
-          # Ensure directories exist
+          # Ensure directories
           mkdir -p src src/templates src/lib scripts .github/workflows
 
-          # Write files (README, LICENSE, .gitignore, package.json, tsconfig, index.html, src files, tailwind, postcss, templates, validator, verify script, CI workflow)
+          # README
           cat > README.md <<'EOF'
 # CraftMyPage
 
@@ -62,6 +59,7 @@ What’s included
 - CI workflow that runs install, build and verification script
 EOF
 
+          # LICENSE
           cat > LICENSE <<'EOF'
 MIT License
 
@@ -86,6 +84,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 EOF
 
+          # .gitignore
           cat > .gitignore <<'EOF'
 node_modules
 dist
@@ -96,6 +95,7 @@ dist
 coverage
 EOF
 
+          # package.json
           cat > package.json <<'EOF'
 {
   "name": "craftmypage",
@@ -125,6 +125,7 @@ EOF
 }
 EOF
 
+          # tsconfig.json
           cat > tsconfig.json <<'EOF'
 {
   "compilerOptions": {
@@ -137,4 +138,232 @@ EOF
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  },
+  "include": ["src"]
+}
+EOF
+
+          # index.html
+          cat > index.html <<'EOF'
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CraftMyPage</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+EOF
+
+          # src/main.tsx
+          cat > src/main.tsx <<'EOF'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
+import './index.css'
+
+createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
+EOF
+
+          # src/App.tsx
+          cat > src/App.tsx <<'EOF'
+import React from 'react'
+
+function Nav() {
+  return (
+    <nav className="p-4 border-b">
+      <a href="/" className="mr-4 font-bold">CraftMyPage</a>
+      <a href="/invitation-maker" className="mr-2">Invitation Maker</a>
+      <a href="/resume-builder">Resume Builder</a>
+    </nav>
+  )
+}
+
+export default function App() {
+  const path = typeof window !== 'undefined' ? window.location.pathname : '/'
+
+  let Page: React.ReactNode
+  if (path.startsWith('/invitation-maker')) {
+    Page = <div className="p-6"><h1 className="text-2xl font-semibold">Invitation Maker (placeholder)</h1><p className="mt-2">Editor coming soon.</p></div>
+  } else if (path.startsWith('/resume-builder')) {
+    Page = <div className="p-6"><h1 className="text-2xl font-semibold">Resume Builder (placeholder)</h1><p className="mt-2">Editor coming soon.</p></div>
+  } else {
+    Page = (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold">Create free invitations, resumes and printable designs</h1>
+        <p className="mt-2">Customize original templates and download high-quality PDFs or images. No account, no watermark and no file uploads.</p>
+        <div className="mt-6">
+          <a href="/invitation-maker" className="inline-block bg-blue-600 text-white px-4 py-2 rounded mr-3">Create an Invitation</a>
+          <a href="/resume-builder" className="inline-block border px-4 py-2 rounded">Build a Resume</a>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen font-sans text-gray-900">
+      <Nav />
+      {Page}
+    </div>
+  )
+}
+EOF
+
+          # src/index.css
+          cat > src/index.css <<'EOF'
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+EOF
+
+          # tailwind.config.cjs
+          cat > tailwind.config.cjs <<'EOF'
+module.exports = {
+  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx,html}"],
+  theme: {
+    extend: {}
+  },
+  plugins: []
+}
+EOF
+
+          # postcss.config.js
+          cat > postcss.config.js <<'EOF'
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
+}
+EOF
+
+          # example template
+          cat > src/templates/example-template.json <<'EOF'
+{
+  "id": "birthday-modern-blue",
+  "category": "birthday",
+  "canvas": { "width": 1500, "height": 2100 },
+  "elements": [
+    { "type": "text", "key": "guestName", "editable": true, "default": "Guest Name" },
+    { "type": "text", "key": "date", "editable": true, "default": "01 Jan 2027" }
+  ]
+}
+EOF
+
+          # template validator
+          cat > src/lib/template-validator.ts <<'EOF'
+export type Template = {
+  id: string
+  category: string
+  canvas: { width: number; height: number }
+  elements: Array<{ type: string; key: string; editable?: boolean; default?: string }>
+}
+
+export function validateTemplate(obj: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = []
+  if (!obj || typeof obj !== 'object') {
+    return { valid: false, errors: ['Template must be an object'] }
+  }
+  if (!obj.id || typeof obj.id !== 'string') errors.push('id (string) is required')
+  if (!obj.category || typeof obj.category !== 'string') errors.push('category (string) is required')
+  if (!obj.canvas || typeof obj.canvas.width !== 'number' || typeof obj.canvas.height !== 'number') errors.push('canvas.width and canvas.height (numbers) are required')
+  if (!Array.isArray(obj.elements)) errors.push('elements (array) is required')
+  else {
+    obj.elements.forEach((el: any, i: number) => {
+      if (!el.type || typeof el.type !== 'string') errors.push(`elements[${i}].type (string) is required`)
+      if (!el.key || typeof el.key !== 'string') errors.push(`elements[${i}].key (string) is required`)
+    })
+  }
+  return { valid: errors.length === 0, errors }
+}
+EOF
+
+          # verify script
+          cat > scripts/verify-templates.js <<'EOF'
+#!/usr/bin/env node
+const fs = require('fs')
+const path = require('path')
+const validator = require('../src/lib/template-validator')
+
+const templatesDir = path.join(__dirname, '..', 'src', 'templates')
+const files = fs.readdirSync(templatesDir).filter(f => f.endsWith('.json'))
+let ok = true
+for (const f of files) {
+  const content = JSON.parse(fs.readFileSync(path.join(templatesDir, f), 'utf8'))
+  const res = validator.validateTemplate(content)
+  if (!res.valid) {
+    ok = false
+    console.error(`Template ${f} is invalid:`)
+    res.errors.forEach(e => console.error('  -', e))
+  } else {
+    console.log(`Template ${f} OK`)
+  }
+}
+process.exit(ok ? 0 : 1)
+EOF
+          chmod +x scripts/verify-templates.js
+
+          # CI workflow (basic)
+          cat > .github/workflows/ci.yml <<'EOF'
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Verify templates
+        run: npm run verify
+EOF
+
+          # Commit and push
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Scaffold: Vite + React + TypeScript + Tailwind (auto)"
+          git push origin "$BRANCH"
+
+          # Create PR via GitHub API
+          REPO="${GITHUB_REPOSITORY}"
+          PR_TITLE="Scaffold: Vite + React + TypeScript + Tailwind"
+          PR_BODY="Initial scaffold for CraftMyPage (generated by workflow)."
+          PR_DATA=$(printf '{"title":"%s","head":"%s","base":"main","body":"%s"}' "$PR_TITLE" "$BRANCH" "$PR_BODY")
+          echo "Creating PR..."
+          RESPONSE=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" -d "$PR_DATA" "https://api.github.com/repos/${REPO}/pulls")
+          PR_URL=$(echo "$RESPONSE" | python -c "import sys, json as j; print(j.load(sys.stdin).get('html_url',''))")
+          if [ -n "$PR_URL" ]; then
+            echo "Pull request created: $PR_URL"
+          else
+            echo "Failed to create PR. Response:"
+            echo "$RESPONSE"
+            exit 1
+          fi
