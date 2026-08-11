@@ -29,23 +29,40 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mt-6 space-y-4">
-        <h2 className="text-xl font-semibold">3. What we do not collect</h2>
+        <h2 className="text-xl font-semibold">3. Invoice Processing</h2>
+        <p>
+          The Invoice Maker processes all invoice data entirely in your browser:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Invoice information, line items, and customer details are never uploaded.</li>
+          <li>Business logos are processed locally and not sent to any server.</li>
+          <li>Generated PDFs are created in your browser and not stored on our servers.</li>
+          <li>Invoice drafts saved using "Save Draft" are stored only in your browser's IndexedDB.</li>
+          <li>
+            Clearing your browser data will remove all saved invoice drafts. We do not maintain backups.
+          </li>
+        </ul>
+      </section>
+
+      <section className="mt-6 space-y-4">
+        <h2 className="text-xl font-semibold">4. What we do not collect</h2>
         <p>
           We do not collect names, email addresses, phone numbers, invitation content, resume
-          content, or uploaded photos. We do not use analytics trackers or third-party cookies.
+          content, invoice data, uploaded photos, or business information. We do not use analytics
+          trackers or third-party cookies.
         </p>
       </section>
 
       <section className="mt-6 space-y-4">
-        <h2 className="text-xl font-semibold">4. Advertising</h2>
+        <h2 className="text-xl font-semibold">5. Advertising</h2>
         <p>
           If display advertising is introduced, non-intrusive ads may be shown outside the editing
-          canvas. No ad network will receive your design or personal content.
+          canvas. No ad network will receive your design, invoice data, or personal content.
         </p>
       </section>
 
       <section className="mt-6 space-y-4">
-        <h2 className="text-xl font-semibold">5. Contact</h2>
+        <h2 className="text-xl font-semibold">6. Contact</h2>
         <p>
           Questions about this policy can be sent through the{' '}
           <a href="/contact" className="text-blue-700 underline">

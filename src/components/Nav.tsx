@@ -11,10 +11,13 @@ export default function Nav() {
           <NavLink to="/" className="mr-4 font-bold text-lg">
             CraftMyPage
           </NavLink>
-          <NavLink to="/invitation-maker" className={linkClass}>
+          <NavLink to="/tools/invitation-maker" className={linkClass}>
             Invitation Maker
           </NavLink>
-          <NavLink to="/resume-builder" className={linkClass}>
+          <NavLink to="/tools/invoice-maker" className={linkClass}>
+            Invoice Maker
+          </NavLink>
+          <NavLink to="/tools/resume-builder" className={linkClass}>
             Resume Builder
           </NavLink>
           <span className="flex-1" />

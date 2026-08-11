@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 
 const toolLinks = [
-  { to: '/invitation-maker', label: 'Invitation Maker' },
-  { to: '/resume-builder', label: 'Resume Builder' },
+  { to: '/tools/invitation-maker', label: 'Invitation Maker' },
+  { to: '/tools/invoice-maker', label: 'Invoice Maker' },
+  { to: '/tools/resume-builder', label: 'Resume Builder' },
   { to: '/templates', label: 'Templates' },
   { to: '/guides', label: 'Guides' },
 ]
