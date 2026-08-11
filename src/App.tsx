@@ -9,6 +9,9 @@ import TermsPage from './pages/TermsPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import InvoiceGuidePage from './pages/InvoiceGuidePage'
+import GuidesPage from './pages/GuidesPage'
+import GuidePage from './pages/GuidePage'
+import InvitationCategoryPage from './pages/InvitationCategoryPage'
 
 export default function App() {
   return (
@@ -18,6 +21,9 @@ export default function App() {
         <Route path="/tools/invitation-maker" element={<InvitationMakerPage />} />
         <Route path="/tools/invoice-maker" element={<InvoiceMakerPage />} />
         <Route path="/tools/resume-builder" element={<ResumeBuilderPage />} />
+        <Route path="/invitations/:category" element={<InvitationCategoryPage />} />
+        <Route path="/guides" element={<GuidesPage />} />
+        <Route path="/guides/:slug" element={<GuidePage />} />
         <Route path="/guides/how-to-create-an-invoice" element={<InvoiceGuidePage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />

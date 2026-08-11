@@ -20,6 +20,9 @@ export default function Nav() {
           <NavLink to="/tools/resume-builder" className={linkClass}>
             Resume Builder
           </NavLink>
+          <NavLink to="/guides" className={linkClass}>
+            Guides
+          </NavLink>
           <span className="flex-1" />
           <NavLink to="/about" className={linkClass}>
             About
