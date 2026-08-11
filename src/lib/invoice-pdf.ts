@@ -20,7 +20,7 @@ export async function generateInvoicePDF(invoice: Invoice): Promise<Blob> {
   }
 
   const pdfBytes = await pdfDoc.save()
-  return new Blob([pdfBytes], { type: 'application/pdf' })
+  return new Blob([pdfBytes.buffer], { type: 'application/pdf' })
 }
 
 async function renderProfessionalPDF(

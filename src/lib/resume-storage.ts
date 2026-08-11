@@ -2,6 +2,11 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { ResumeProject } from './resume'
 
 interface ResumeDB extends DBSchema {
+  projects: {
+    key: string
+    value: ResumeProject
+    indexes: { 'by-updated': number }
+  }
   resumes: {
     key: string
     value: ResumeProject
@@ -19,7 +24,7 @@ function getDB(): Promise<IDBPDatabase<ResumeDB>> {
   const existing = dbPromise
   if (existing) return existing
   const created = openDB<ResumeDB>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
+    upgrade(db: IDBPDatabase<ResumeDB>) {
       if (!db.objectStoreNames.contains('projects')) {
         const store = db.createObjectStore('projects', { keyPath: 'id' })
         store.createIndex('by-updated', 'updatedAt')

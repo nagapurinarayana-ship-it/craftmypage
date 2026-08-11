@@ -14,21 +14,25 @@
     "verify": "tsx ./scripts/verify-templates.js"
   },
   "dependencies": {
+    "dompurify": "^3.0.6",
     "idb": "^8.0.0",
     "konva": "^9.2.0",
     "pdf-lib": "^1.17.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
+    "react-konva": "^18.2.10",
     "react-router-dom": "^6.22.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@playwright/test": "^1.40.0",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/react": "^18.2.58",
     "@types/react-dom": "^18.2.19",
+    "@types/react-helmet": "^6.1.11",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.2.1",
