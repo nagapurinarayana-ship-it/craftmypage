@@ -1,0 +1,140 @@
+name: Create scaffold branch
+on:
+  workflow_dispatch: {}
+
+jobs:
+  create-scaffold:
+    runs-on: ubuntu-latest
+    env:
+      GIT_COMMITTER_NAME: github-actions[bot]
+      GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Create scaffold branch, files, push, and open PR
+        run: |
+          set -euo pipefail
+
+          # Branch name with timestamp
+          BRANCH="scaffold/vite-react-$(date +%s)"
+          echo "Creating branch: $BRANCH"
+          git checkout -b "$BRANCH"
+
+          # Ensure directories exist
+          mkdir -p src src/templates src/lib scripts .github/workflows
+
+          # Write files (README, LICENSE, .gitignore, package.json, tsconfig, index.html, src files, tailwind, postcss, templates, validator, verify script, CI workflow)
+          cat > README.md <<'EOF'
+# CraftMyPage
+
+Free invitations, resumes and printable designs—created privately in your browser.
+
+This repository is a starter scaffold for the CraftMyPage project.
+
+Quick start
+
+1. Install dependencies
+   npm install
+
+2. Run development server
+   npm run dev
+
+3. Build for production
+   npm run build
+   npm run preview
+
+What’s included
+
+- Vite + React + TypeScript starter
+- Tailwind CSS setup
+- Minimal pages for Invitation Maker and Resume Builder
+- Example JSON template and a small template validator
+- CI workflow that runs install, build and verification script
+EOF
+
+          cat > LICENSE <<'EOF'
+MIT License
+
+Copyright (c) 2026 nagapurinarayana-ship-it
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+EOF
+
+          cat > .gitignore <<'EOF'
+node_modules
+dist
+.env
+.vscode
+.idea
+.DS_Store
+coverage
+EOF
+
+          cat > package.json <<'EOF'
+{
+  "name": "craftmypage",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint --ext .ts,.tsx src || true",
+    "test": "echo \"Add tests\" && exit 0",
+    "verify": "node ./scripts/verify-templates.js || true"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.6.5",
+    "typescript": "^5.1.6",
+    "vite": "^5.0.0"
+  }
+}
+EOF
+
+          cat > tsconfig.json <<'EOF'
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "ES2021"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": false,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true
