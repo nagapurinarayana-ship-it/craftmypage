@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type Konva from 'konva'
-import type { Template, TextElement } from '../lib/template-validator'
+import type { Template, TextElement, ImageElement } from '../lib/template-validator'
 import { validateTemplate } from '../lib/template-validator'
 import type { TemplateProject } from '../lib/template-engine'
 import { createProject, updateProjectValue, setProjectImage } from '../lib/template-engine'
@@ -125,13 +125,13 @@ export default function InvitationMakerPage() {
     stageRef.current = stage
   }
 
-  const textElements = useMemo(
-    () => (selectedTemplate ? selectedTemplate.elements.filter((el) => el.type === 'text') : []),
+  const textElements = useMemo<TextElement[]>(
+    () => (selectedTemplate ? selectedTemplate.elements.filter((el): el is TextElement => el.type === 'text') : []),
     [selectedTemplate]
   )
 
-  const imageElements = useMemo(
-    () => (selectedTemplate ? selectedTemplate.elements.filter((el) => el.type === 'image') : []),
+  const imageElements = useMemo<ImageElement[]>(
+    () => (selectedTemplate ? selectedTemplate.elements.filter((el): el is ImageElement => el.type === 'image') : []),
     [selectedTemplate]
   )
 
