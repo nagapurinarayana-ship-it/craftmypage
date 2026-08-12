@@ -58,7 +58,7 @@ export default function InvoiceLandingPage() {
         </script>
       </Helmet>
 
-      <main className="cmp-page">
+      <div className="cmp-page">
         <section className="border-b border-slate-200 bg-white">
           <div className="cmp-container py-14 sm:py-18 lg:py-20">
             <span className="cmp-eyebrow">{page.eyebrow}</span>
@@ -91,7 +91,7 @@ export default function InvoiceLandingPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </>
   )
 }
