@@ -34,20 +34,12 @@ export default function ResumeBuilderPage() {
   const handleNew = (templateId: ResumeTemplateId) => {
     const template = TEMPLATES.find((t) => t.id === templateId)!
     const now = Date.now()
-    setProject({
-      id: createId('resume'),
-      name: template.name,
-      templateId,
-      data: createEmptyResumeData(),
-      createdAt: now,
-      updatedAt: now,
-    })
+    setProject({ id: createId('resume'), name: template.name, templateId, data: createEmptyResumeData(), createdAt: now, updatedAt: now })
     setShowPreview(false)
   }
 
   const updateData = (data: ResumeData) => {
-    if (!project) return
-    setProject({ ...project, data, updatedAt: Date.now() })
+    if (project) setProject({ ...project, data, updatedAt: Date.now() })
   }
 
   const handleSave = async () => {
@@ -81,8 +73,7 @@ export default function ResumeBuilderPage() {
 
   const handleDownloadTxt = () => {
     if (!project) return
-    const text = resumeToPlainText(project.data)
-    downloadTextFile(text, `${project.data.contact.fullName || 'resume'}.txt`)
+    downloadTextFile(resumeToPlainText(project.data), `${project.data.contact.fullName || 'resume'}.txt`)
   }
 
   const handleOpen = (saved: ResumeProject) => {
@@ -92,56 +83,59 @@ export default function ResumeBuilderPage() {
 
   if (!project) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Resume Builder</h1>
-        <p className="text-gray-600 mb-6">
-          Choose a template to get started. Your data stays in your browser.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {TEMPLATES.map((template) => (
-            <button
-              key={template.id}
-              type="button"
-              className="text-left border rounded-lg p-4 hover:shadow-md transition-shadow"
-              onClick={() => handleNew(template.id)}
-            >
-              <h2 className="font-semibold">{template.name}</h2>
-              <p className="text-sm text-gray-600 mt-1">{template.description}</p>
-            </button>
-          ))}
+      <div className="cmp-tool-shell">
+        <div className="mb-8 max-w-3xl">
+          <span className="cmp-eyebrow">Resume Builder</span>
+          <h1 className="cmp-tool-title mt-3">Build a resume that looks polished and stays practical.</h1>
+          <p className="cmp-tool-subtitle">
+            Choose a focused template, add your experience and projects, then export a ready-to-share PDF. Your resume data stays in your browser.
+          </p>
         </div>
 
+        <section>
+          <div className="mb-5 flex items-end justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Choose your template</h2>
+              <p className="mt-1 text-sm text-slate-500">Start with the structure that fits your career stage.</p>
+            </div>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {TEMPLATES.map((template) => (
+              <button
+                key={template.id}
+                type="button"
+                className="group cmp-card text-left"
+                onClick={() => handleNew(template.id)}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-700 group-hover:bg-indigo-50 group-hover:text-indigo-700">
+                  CV
+                </div>
+                <h2 className="mt-4 text-lg font-bold text-slate-900 group-hover:text-indigo-700">{template.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{template.description}</p>
+                <span className="mt-5 text-sm font-semibold text-indigo-600">Use template →</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         {savedResumes.length > 0 && (
-          <section className="mt-10" aria-label="Saved resumes">
-            <h2 className="text-xl font-semibold mb-4">Your saved resumes</h2>
-            <ul className="space-y-2">
+          <section className="mt-12" aria-label="Saved resumes">
+            <span className="cmp-eyebrow">Local drafts</span>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">Continue a saved resume</h2>
+            <div className="mt-5 space-y-3">
               {savedResumes.map((saved) => (
-                <li key={saved.id} className="flex items-center justify-between border rounded p-3">
+                <div key={saved.id} className="cmp-surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="font-medium">{saved.data.contact.fullName || 'Untitled resume'}</p>
-                    <p className="text-sm text-gray-600">
-                      {saved.name} — Updated {new Date(saved.updatedAt).toLocaleDateString()}
-                    </p>
+                    <p className="font-semibold text-slate-900">{saved.data.contact.fullName || 'Untitled resume'}</p>
+                    <p className="mt-1 text-xs text-slate-500">{saved.name} · Updated {new Date(saved.updatedAt).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      className="border rounded px-3 py-1 text-sm hover:bg-gray-50"
-                      onClick={() => handleOpen(saved)}
-                    >
-                      Open
-                    </button>
-                    <button
-                      type="button"
-                      className="border rounded px-3 py-1 text-sm text-red-600 hover:bg-red-50"
-                      onClick={() => handleDelete(saved.id)}
-                    >
-                      Delete
-                    </button>
+                    <button type="button" className="cmp-secondary-btn px-4 py-2" onClick={() => handleOpen(saved)}>Open</button>
+                    <button type="button" className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100" onClick={() => handleDelete(saved.id)}>Delete</button>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         )}
       </div>
@@ -149,59 +143,31 @@ export default function ResumeBuilderPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="cmp-tool-shell">
+      <div className="cmp-tool-header sticky top-20 z-30">
         <div>
-          <button
-            type="button"
-            className="text-sm text-blue-700 hover:underline"
-            onClick={() => setProject(null)}
-          >
+          <button type="button" className="text-sm font-semibold text-indigo-700 hover:text-indigo-900" onClick={() => setProject(null)}>
             ← Back to templates
           </button>
-          <h1 className="text-2xl font-bold mt-1">{project.name}</h1>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{project.name}</h1>
+          <p className="mt-1 text-xs text-slate-500">Your resume content stays local until you export it.</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="border rounded px-3 py-1.5 text-sm hover:bg-gray-50"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            {showPreview ? 'Edit' : 'Preview'}
-          </button>
-          <button
-            type="button"
-            className="border rounded px-3 py-1.5 text-sm hover:bg-gray-50"
-            onClick={handleSave}
-          >
-            Save locally
-          </button>
-          <button
-            type="button"
-            className="border rounded px-3 py-1.5 text-sm hover:bg-gray-50"
-            onClick={handleDownloadTxt}
-          >
-            Download TXT
-          </button>
-          <button
-            type="button"
-            className="bg-blue-600 text-white rounded px-3 py-1.5 text-sm hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleDownloadPdf}
-            disabled={exporting}
-          >
-            {exporting ? 'Exporting...' : 'Download PDF'}
-          </button>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="cmp-secondary-btn px-4 py-2" onClick={() => setShowPreview(!showPreview)}>{showPreview ? 'Edit' : 'Preview'}</button>
+          <button type="button" className="cmp-secondary-btn px-4 py-2" onClick={handleSave}>Save locally</button>
+          <button type="button" className="cmp-secondary-btn px-4 py-2" onClick={handleDownloadTxt}>Download TXT</button>
+          <button type="button" className="cmp-primary-btn px-4 py-2" onClick={handleDownloadPdf} disabled={exporting}>{exporting ? 'Exporting...' : 'Download PDF'}</button>
         </div>
       </div>
 
       {showPreview ? (
-        <ResumePreview data={project.data} />
+        <div className="mx-auto max-w-4xl"><ResumePreview data={project.data} /></div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="max-h-[80vh] overflow-y-auto pr-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="cmp-surface max-h-[80vh] overflow-y-auto p-5 sm:p-6">
             <ResumeForm data={project.data} onChange={updateData} />
           </div>
-          <div className="hidden lg:block max-h-[80vh] overflow-y-auto border rounded-lg p-4 bg-gray-50">
+          <div className="hidden max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm lg:block">
             <ResumePreview data={project.data} />
           </div>
         </div>
