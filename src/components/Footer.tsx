@@ -4,7 +4,6 @@ const toolLinks = [
   { to: '/tools/invitation-maker', label: 'Invitation Maker' },
   { to: '/tools/invoice-maker', label: 'Invoice Maker' },
   { to: '/tools/resume-builder', label: 'Resume Builder' },
-  { to: '/templates', label: 'Templates' },
   { to: '/guides', label: 'Guides' },
 ]
 
@@ -22,7 +21,7 @@ export default function Footer() {
         <div>
           <p className="font-bold">CraftMyPage</p>
           <p className="mt-1 text-sm text-gray-600">
-            Free invitations, resumes and printable designs—created privately in your browser.
+            Free invitations, resumes, invoices and printable designs—created privately in your browser.
           </p>
         </div>
         <nav aria-label="Tools">
@@ -52,8 +51,7 @@ export default function Footer() {
       </div>
       <div className="border-t">
         <div className="max-w-6xl mx-auto p-4 text-sm text-gray-600">
-          All designs are created and stored locally in your browser. No account, no watermark, no
-          server uploads.
+          Core design and export workflows run in your browser. No account or server upload is required for the core tools.
         </div>
       </div>
     </footer>
