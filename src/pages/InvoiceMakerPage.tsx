@@ -135,7 +135,7 @@ export default function InvoiceMakerPage() {
 
   return (
     <>
-      <div className="cmp-tool-shell">
+      <div className="cmp-tool-shell invoice-maker-page">
         <div className="cmp-tool-header print:hidden sticky top-20 z-30">
           <div className="min-w-0">
             <span className="cmp-eyebrow">Invoice Maker</span>
@@ -143,7 +143,8 @@ export default function InvoiceMakerPage() {
             <p className="cmp-tool-subtitle">Add customers, items, taxes and payment details, then export the finished invoice as a PDF.</p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
               <span className="cmp-badge">Local drafts</span>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">PDF export</span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">A4 PDF</span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">Print ready</span>
               <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">No server upload</span>
             </div>
           </div>
@@ -151,84 +152,47 @@ export default function InvoiceMakerPage() {
             <input type="text" value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder="Invoice name..." className="min-w-48 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
             <button type="button" onClick={handleSaveDraft} className="cmp-secondary-btn px-4 py-2">Save Draft</button>
             <button type="button" onClick={() => setShowDraftsList(!showDraftsList)} className="cmp-secondary-btn px-4 py-2">Load Draft</button>
+            <button type="button" onClick={handlePrint} className="cmp-secondary-btn px-4 py-2">Print</button>
             <button type="button" onClick={handleDownloadPDF} className="cmp-primary-btn px-4 py-2">Download PDF</button>
           </div>
         </div>
 
-        {showDraftsList && (
-          <div className="cmp-surface print:hidden mb-6 p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-slate-900">Recent drafts</p>
-                <p className="mt-1 text-xs text-slate-500">Saved locally in this browser.</p>
-              </div>
-              <span className="text-xs font-semibold text-slate-400">{drafts.length}</span>
-            </div>
-            {drafts.length === 0 ? (
-              <p className="mt-4 text-sm text-slate-500">No saved drafts yet.</p>
-            ) : (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {drafts.map((draft) => (
-                  <div key={draft.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="font-semibold text-slate-900">{draft.draftName}</p>
-                    <p className="mt-1 text-xs text-slate-500">{draft.invoiceDetails.invoiceNumber} · {new Date(draft.updatedAt).toLocaleDateString()}</p>
-                    <div className="mt-3 flex gap-2">
-                      <button type="button" onClick={() => handleLoadDraft(draft.id)} className="flex-1 rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">Load</button>
-                      <button type="button" onClick={() => handleDeleteDraft(draft.id)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {showDraftsList && <div className="cmp-surface print:hidden mb-6 p-5"><div className="flex items-center justify-between"><div><p className="font-semibold text-slate-900">Recent drafts</p><p className="mt-1 text-xs text-slate-500">Saved locally in this browser.</p></div><span className="text-xs font-semibold text-slate-400">{drafts.length}</span></div>{drafts.length === 0 ? <p className="mt-4 text-sm text-slate-500">No saved drafts yet.</p> : <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{drafts.map((draft) => <div key={draft.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><p className="font-semibold text-slate-900">{draft.draftName}</p><p className="mt-1 text-xs text-slate-500">{draft.invoiceDetails.invoiceNumber} · {new Date(draft.updatedAt).toLocaleDateString()}</p><div className="mt-3 flex gap-2"><button type="button" onClick={() => handleLoadDraft(draft.id)} className="flex-1 rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">Load</button><button type="button" onClick={() => handleDeleteDraft(draft.id)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button></div></div>)}</div>}</div>}
 
         <div className="print:hidden mb-5 flex flex-wrap gap-2">
-          <button type="button" onClick={handlePrint} className="cmp-secondary-btn px-4 py-2">Print</button>
           <button type="button" onClick={handleDuplicate} className="cmp-secondary-btn px-4 py-2">Duplicate</button>
           <button type="button" onClick={() => setShowImportExport(!showImportExport)} className="cmp-secondary-btn px-4 py-2">Import / Export</button>
           <button type="button" onClick={handleReset} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Reset</button>
         </div>
 
-        {showImportExport && (
-          <div className="cmp-surface print:hidden mb-6 grid gap-5 p-5 lg:grid-cols-2">
-            <div>
-              <p className="font-semibold text-slate-900">Export invoice data</p>
-              <p className="mt-1 text-xs text-slate-500">Keep a portable copy of the current invoice JSON.</p>
-              <button type="button" onClick={handleExportJSON} className="cmp-secondary-btn mt-4 px-4 py-2">Export JSON</button>
-            </div>
-            <div>
-              <p className="font-semibold text-slate-900">Import invoice data</p>
-              <textarea value={importJson} onChange={(e) => setImportJson(e.target.value)} placeholder="Paste exported invoice JSON here..." className="mt-3 w-full rounded-xl border border-slate-200 p-3 font-mono text-xs focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" rows={6} />
-              <button type="button" onClick={handleImportJSON} className="cmp-primary-btn mt-2 px-4 py-2">Import Invoice</button>
-            </div>
-          </div>
-        )}
+        {showImportExport && <div className="cmp-surface print:hidden mb-6 grid gap-5 p-5 lg:grid-cols-2"><div><p className="font-semibold text-slate-900">Export invoice data</p><p className="mt-1 text-xs text-slate-500">Keep a portable copy of the current invoice JSON.</p><button type="button" onClick={handleExportJSON} className="cmp-secondary-btn mt-4 px-4 py-2">Export JSON</button></div><div><p className="font-semibold text-slate-900">Import invoice data</p><textarea value={importJson} onChange={(e) => setImportJson(e.target.value)} placeholder="Paste exported invoice JSON here..." className="mt-3 w-full rounded-xl border border-slate-200 p-3 font-mono text-xs focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" rows={6} /><button type="button" onClick={handleImportJSON} className="cmp-primary-btn mt-2 px-4 py-2">Import Invoice</button></div></div>}
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(25rem,.85fr)]">
-          <div className="cmp-surface overflow-auto p-5 sm:p-6" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-            <div className="mb-5 flex items-center justify-between border-b border-slate-100 pb-4">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Invoice details</h2>
-                <p className="mt-1 text-xs text-slate-500">Complete the form and the preview updates as you type.</p>
-              </div>
-            </div>
+          <div className="cmp-surface overflow-auto p-5 sm:p-6 print:hidden" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+            <div className="mb-5 flex items-center justify-between border-b border-slate-100 pb-4"><div><h2 className="text-lg font-bold text-slate-900">Invoice details</h2><p className="mt-1 text-xs text-slate-500">Complete the form and the preview updates as you type.</p></div></div>
             <InvoiceForm invoice={invoiceWithCalcs} onInvoiceChange={handleInvoiceChange} onAddLineItem={handleAddLineItem} onRemoveLineItem={handleRemoveLineItem} onDuplicateLineItem={handleDuplicateLineItem} />
           </div>
 
-          <div className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-            <div className="mb-3 flex items-center justify-between px-1">
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Live preview</p>
-                <p className="text-xs text-slate-500">This is how the exported invoice will look.</p>
-              </div>
-            </div>
+          <div className="invoice-preview-host overflow-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+            <div className="mb-3 flex items-center justify-between px-1 print:hidden"><div><p className="text-sm font-semibold text-slate-800">Live preview</p><p className="text-xs text-slate-500">This is the document that will print and export.</p></div></div>
             <InvoicePreview invoice={invoiceWithCalcs} />
           </div>
         </div>
       </div>
 
-      <style>{`@media print { body { margin: 0; padding: 0; background: white; } .print\\:hidden { display: none !important; } }`}</style>
+      <style>{`
+        @page { size: A4; margin: 0; }
+        @media print {
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+          body * { visibility: hidden !important; }
+          .invoice-preview-host, .invoice-preview-host * { visibility: visible !important; }
+          .invoice-preview-host { position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important; max-height: none !important; overflow: visible !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; background: #fff !important; box-shadow: none !important; }
+          .invoice-print-root { padding: 0 !important; background: #fff !important; }
+          .invoice-print-container { width: 210mm !important; max-width: none !important; margin: 0 !important; }
+          .invoice-print-page { width: 210mm !important; min-height: 297mm !important; box-sizing: border-box !important; overflow: visible !important; page-break-after: auto; }
+          .invoice-maker-page { margin: 0 !important; padding: 0 !important; }
+        }
+      `}</style>
     </>
   )
 }
