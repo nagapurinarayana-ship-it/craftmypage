@@ -84,8 +84,8 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
       description: 'Practical guides for creating invitations, resumes and invoices with CraftMyPage.',
     },
     '/guides/how-to-create-an-invoice': {
-      title: 'How to Create an Invoice | CraftMyPage',
-      description: 'Learn how to create a clear professional invoice and download it from your browser.',
+      title: 'How to Create a Professional Invoice for Free | CraftMyPage',
+      description: 'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.',
     },
     '/about': {
       title: 'About CraftMyPage',
@@ -97,7 +97,7 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
     },
     '/privacy': {
       title: 'Privacy Policy | CraftMyPage',
-      description: 'Learn how CraftMyPage handles local browser storage, documents, and personal content.',
+      description: 'Learn how CraftMyPage handles local browser storage, documents, personal content, and advertising.',
     },
     '/terms': {
       title: 'Terms of Use | CraftMyPage',
@@ -143,26 +143,15 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   }
 }
 
-function upsertMeta(nameOrProperty: string, value: string, isProperty = false) {
-  const selector = isProperty ? `meta[property="${nameOrProperty}"]` : `meta[name="${nameOrProperty}"]`
-  let tag = document.head.querySelector<HTMLMetaElement>(selector)
-  if (!tag) {
-    tag = document.createElement('meta')
-    if (isProperty) tag.setAttribute('property', nameOrProperty)
-    else tag.setAttribute('name', nameOrProperty)
-    document.head.appendChild(tag)
-  }
-  tag.setAttribute('content', value)
+function clearManagedHeadTags() {
+  document.head.querySelectorAll('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[property="og:url"], link[rel="canonical"]').forEach((node) => node.remove())
 }
 
-function upsertCanonical(href: string) {
-  let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
-  if (!link) {
-    link = document.createElement('link')
-    link.setAttribute('rel', 'canonical')
-    document.head.appendChild(link)
-  }
-  link.href = href
+function addMeta(nameOrProperty: string, value: string, isProperty = false) {
+  const tag = document.createElement('meta')
+  tag.setAttribute(isProperty ? 'property' : 'name', nameOrProperty)
+  tag.setAttribute('content', value)
+  document.head.appendChild(tag)
 }
 
 export default function RouteSeo() {
@@ -170,12 +159,22 @@ export default function RouteSeo() {
 
   useEffect(() => {
     const meta = getRouteMetadata(pathname)
+    clearManagedHeadTags()
     document.title = meta.title
-    upsertMeta('description', meta.description)
-    upsertMeta('og:title', meta.title, true)
-    upsertMeta('og:description', meta.description, true)
-    upsertMeta('og:url', meta.canonical, true)
-    upsertCanonical(meta.canonical)
+
+    if (pathname === '/guides/how-to-create-an-invoice') {
+      return
+    }
+
+    addMeta('description', meta.description)
+    addMeta('og:title', meta.title, true)
+    addMeta('og:description', meta.description, true)
+    addMeta('og:url', meta.canonical, true)
+
+    const canonical = document.createElement('link')
+    canonical.rel = 'canonical'
+    canonical.href = meta.canonical
+    document.head.appendChild(canonical)
   }, [pathname])
 
   return null
