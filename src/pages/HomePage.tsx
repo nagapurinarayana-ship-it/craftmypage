@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import EffectiveCpmHomeAds from '../components/monetization/EffectiveCpmHomeAds'
 
 const tools = [
   {
@@ -101,16 +102,7 @@ export default function HomePage() {
         </section>
 
         <section className="mt-12">
-          <div className="cmp-surface grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <span className="cmp-eyebrow">Advertisement</span>
-              <h2 className="mt-3 text-xl font-bold text-slate-900">Free tools, supported by relevant sponsorships.</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                Ads are kept outside the editing workflow so your documents stay the focus.
-              </p>
-            </div>
-            <div id="craftmypage-home-native-ad" className="cmp-ad-native min-w-0" aria-label="Sponsored advertisement" />
-          </div>
+          <EffectiveCpmHomeAds />
         </section>
 
         <section className="mt-16 grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
