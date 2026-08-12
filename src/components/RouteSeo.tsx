@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async'
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
@@ -61,7 +61,7 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   if (pathname === '/') {
     return {
       title: 'CraftMyPage — Free Invitation, Invoice & Resume Maker',
-      description: 'Create free invitations, invoices, resumes and printable designs in your browser. No account, no watermark, and no document uploads required.',
+      description: 'Create free invitations, invoices, resumes and printable designs in your browser. No account, no watermark, and no document uploads required for the core tools.',
       canonical: SITE_URL + '/',
     }
   }
@@ -106,9 +106,7 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   }
 
   const staticMeta = staticRoutes[pathname]
-  if (staticMeta) {
-    return { ...staticMeta, canonical: SITE_URL + pathname }
-  }
+  if (staticMeta) return { ...staticMeta, canonical: SITE_URL + pathname }
 
   const guideMatch = pathname.match(/^\/guides\/([^/]+)$/)
   if (guideMatch) {
@@ -145,18 +143,40 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   }
 }
 
+function upsertMeta(nameOrProperty: string, value: string, isProperty = false) {
+  const selector = isProperty ? `meta[property="${nameOrProperty}"]` : `meta[name="${nameOrProperty}"]`
+  let tag = document.head.querySelector<HTMLMetaElement>(selector)
+  if (!tag) {
+    tag = document.createElement('meta')
+    if (isProperty) tag.setAttribute('property', nameOrProperty)
+    else tag.setAttribute('name', nameOrProperty)
+    document.head.appendChild(tag)
+  }
+  tag.setAttribute('content', value)
+}
+
+function upsertCanonical(href: string) {
+  let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+  if (!link) {
+    link = document.createElement('link')
+    link.setAttribute('rel', 'canonical')
+    document.head.appendChild(link)
+  }
+  link.href = href
+}
+
 export default function RouteSeo() {
   const { pathname } = useLocation()
-  const meta = getRouteMetadata(pathname)
 
-  return (
-    <Helmet>
-      <title>{meta.title}</title>
-      <meta name="description" content={meta.description} />
-      <link rel="canonical" href={meta.canonical} />
-      <meta property="og:title" content={meta.title} />
-      <meta property="og:description" content={meta.description} />
-      <meta property="og:url" content={meta.canonical} />
-    </Helmet>
-  )
+  useEffect(() => {
+    const meta = getRouteMetadata(pathname)
+    document.title = meta.title
+    upsertMeta('description', meta.description)
+    upsertMeta('og:title', meta.title, true)
+    upsertMeta('og:description', meta.description, true)
+    upsertMeta('og:url', meta.canonical, true)
+    upsertCanonical(meta.canonical)
+  }, [pathname])
+
+  return null
 }
