@@ -40,21 +40,26 @@ function isValidInvoiceData(data: unknown): data is Invoice {
   if (!isRecord(data)) return false
   if (!isString(data.id) || !isRecord(data.business) || !isRecord(data.customer) || !isRecord(data.invoiceDetails)) return false
   if (!Array.isArray(data.lineItems) || !isRecord(data.settings) || !isRecord(data.paymentInfo)) return false
-  if (!['professional', 'minimal', 'modern'].includes(data.template as string)) return false
+  if (!['professional', 'minimal', 'modern'].includes(String(data.template))) return false
   if (!isString(data.accentColor) || !/^#[0-9a-fA-F]{6}$/.test(data.accentColor)) return false
+
+  const business = data.business
+  const customer = data.customer
+  const invoiceDetails = data.invoiceDetails
+  const paymentInfo = data.paymentInfo
 
   const businessKeys = ['name', 'contactPerson', 'email', 'phone', 'address', 'city', 'state', 'postalCode', 'country', 'website', 'taxId']
   const customerKeys = ['name', 'contactPerson', 'email', 'phone', 'billingAddress', 'billingCity', 'billingState', 'billingPostalCode', 'billingCountry', 'taxId', 'shippingAddress', 'shippingCity', 'shippingState', 'shippingPostalCode', 'shippingCountry']
   const invoiceKeys = ['invoiceNumber', 'issueDate', 'dueDate', 'referenceNumber', 'paymentTerms', 'title', 'projectPeriod']
   const paymentKeys = ['instructions', 'bankName', 'accountNumber', 'ifscCode', 'upiId', 'notes', 'termsAndConditions', 'thankYouMessage', 'signatureField']
 
-  if (!businessKeys.every((key) => isString(data.business[key]))) return false
-  if (!customerKeys.every((key) => isString(data.customer[key]))) return false
-  if (!invoiceKeys.every((key) => isString(data.invoiceDetails[key]))) return false
-  if (!paymentKeys.every((key) => isString(data.paymentInfo[key]))) return false
-  if (!isString(data.business.logo) && data.business.logo !== null) return false
-  if (!isString(data.invoiceDetails.currency) || !['INR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'AED', 'SGD', 'JPY'].includes(data.invoiceDetails.currency)) return false
-  if (typeof data.customer.shippingAddressSame !== 'boolean') return false
+  if (!businessKeys.every((key) => isString(business[key]))) return false
+  if (!customerKeys.every((key) => isString(customer[key]))) return false
+  if (!invoiceKeys.every((key) => isString(invoiceDetails[key]))) return false
+  if (!paymentKeys.every((key) => isString(paymentInfo[key]))) return false
+  if (!isString(business.logo) && business.logo !== null) return false
+  if (!isString(invoiceDetails.currency) || !['INR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'AED', 'SGD', 'JPY'].includes(invoiceDetails.currency)) return false
+  if (typeof customer.shippingAddressSame !== 'boolean') return false
   if (!isString(data.draftName) || !isFiniteNumber(data.createdAt) || !isFiniteNumber(data.updatedAt)) return false
 
   for (const item of data.lineItems) {
@@ -63,7 +68,7 @@ function isValidInvoiceData(data: unknown): data is Invoice {
     if (!isFiniteNumber(item.quantity) || item.quantity <= 0) return false
     if (!isFiniteNumber(item.unitPrice) || item.unitPrice < 0) return false
     if (!isFiniteNumber(item.discount) || item.discount < 0) return false
-    if (!['fixed', 'percentage'].includes(item.discountType)) return false
+    if (!['fixed', 'percentage'].includes(String(item.discountType))) return false
     if (!isFiniteNumber(item.taxRate) || item.taxRate < 0) return false
   }
 
