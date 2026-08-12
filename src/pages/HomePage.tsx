@@ -101,9 +101,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-12">
-          <EffectiveCpmHomeAds />
-        </section>
+        <EffectiveCpmHomeAds />
 
         <section className="mt-16 grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
           <div className="rounded-3xl bg-slate-900 p-8 text-white shadow-xl sm:p-10">
