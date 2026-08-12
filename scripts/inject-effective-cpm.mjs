@@ -8,7 +8,6 @@ const POPUNDER = '<script src="https://pl30815332.effectivecpmnetwork.com/98/cd/
 const NATIVE_SCRIPT = '<script async="async" data-cfasync="false" src="https://pl30815334.effectivecpmnetwork.com/29feded00f4ae2c8a3b2719189977fff/invoke.js"></script>'
 const SOCIAL_BAR = '<script src="https://pl30815335.effectivecpmnetwork.com/e7/87/aa/e787aa4e8d5075169853c0d1fe5fcabc.js"></script>'
 const BANNER = `<script>atOptions = {'key' : '75b0fc4d7ef9bda7dbda8e3863498abc', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {}};</script><script src="https://www.highperformanceformat.com/75b0fc4d7ef9bda7dbda8e3863498abc/invoke.js"></script>`
-
 const SMARTLINK = 'https://www.effectivecpmnetwork.com/hcit0ft2?key=3383ae2b2a94f70103f6b28c372f4f72'
 
 const MARKER_START = '<!-- craftmypage-effectivecpm:start -->'
@@ -52,12 +51,11 @@ ${MARKER_START}
     </a>
   </div>
 </section>
-${MARKER_END}
 ${SOCIAL_BAR}
+${MARKER_END}
 </body>`
 
-  result = result.replace('</body>', bodyBlock)
-  return result
+  return result.replace('</body>', bodyBlock)
 }
 
 if (!existsSync(INDEX)) {
