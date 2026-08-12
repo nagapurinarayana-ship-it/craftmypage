@@ -1,7 +1,11 @@
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
+import { SITE_NAME, SITE_URL } from '../config/site'
 
 export default function InvoiceGuidePage() {
+  const publishedDate = '2026-08-11'
+  const modifiedDate = '2026-08-12'
+
   return (
     <>
       <Helmet>
@@ -10,28 +14,28 @@ export default function InvoiceGuidePage() {
           name="description"
           content="Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices."
         />
-        <link rel="canonical" href="https://freepdfconverter-all-in-one.pages.dev/guides/how-to-create-an-invoice" />
+        <link rel="canonical" href={`${SITE_URL}/guides/how-to-create-an-invoice`} />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Article',
             headline: 'How to Create a Professional Invoice for Free',
             description:
-              'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, and best practices.',
+              'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.',
             author: {
               '@type': 'Organization',
-              name: 'CraftMyPage',
+              name: SITE_NAME,
             },
             publisher: {
               '@type': 'Organization',
-              name: 'CraftMyPage',
+              name: SITE_NAME,
               logo: {
                 '@type': 'ImageObject',
-                url: 'https://freepdfconverter-all-in-one.pages.dev/logo.png',
+                url: `${SITE_URL}/logo.png`,
               },
             },
-            datePublished: new Date().toISOString(),
-            dateModified: new Date().toISOString(),
+            datePublished: publishedDate,
+            dateModified: modifiedDate,
           })}
         </script>
       </Helmet>
@@ -506,7 +510,6 @@ export default function InvoiceGuidePage() {
           </section>
         </div>
 
-        {/* Related Links */}
         <div className="mt-12 pt-8 border-t border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Tools</h3>
           <ul className="space-y-2 text-blue-600">
