@@ -15,6 +15,7 @@ const InvoiceGuidePage = lazy(() => import('./pages/InvoiceGuidePage'))
 const GuidesPage = lazy(() => import('./pages/GuidesPage'))
 const GuidePage = lazy(() => import('./pages/GuidePage'))
 const InvitationCategoryPage = lazy(() => import('./pages/InvitationCategoryPage'))
+const InvitationLandingPage = lazy(() => import('./pages/InvitationLandingPage'))
 const InvoiceLandingPage = lazy(() => import('./pages/InvoiceLandingPage'))
 const ResumeLandingPage = lazy(() => import('./pages/ResumeLandingPage'))
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/tools/invoice-maker" element={<InvoiceMakerPage />} />
           <Route path="/tools/resume-builder" element={<ResumeBuilderPage />} />
           <Route path="/invitations/:category" element={<InvitationCategoryPage />} />
+          <Route path="/invitations/:intent/maker" element={<InvitationLandingPage />} />
           <Route path="/invoices/:intent" element={<InvoiceLandingPage />} />
           <Route path="/resumes/:intent" element={<ResumeLandingPage />} />
           <Route path="/guides" element={<GuidesPage />} />
