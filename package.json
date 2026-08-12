@@ -15,7 +15,7 @@
     "verify": "tsx ./scripts/verify-templates.js"
   },
   "dependencies": {
-    "dompurify": "^3.0.6",
+    "dompurify": "^3.4.12",
     "idb": "^8.0.0",
     "konva": "^9.2.0",
     "pdf-lib": "^1.17.1",
@@ -23,10 +23,10 @@
     "react-dom": "18.2.0",
     "react-helmet-async": "^3.0.0",
     "react-konva": "^18.2.10",
-    "react-router-dom": "^6.22.0"
+    "react-router-dom": "^6.30.4"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^10.4.1",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
@@ -36,18 +36,22 @@
     "@types/react-dom": "18.2.19",
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.65.0",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.14",
-    "eslint": "^10.0.3",
+    "eslint": "^10.4.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
-    "jsdom": "^27.0.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.7.0",
     "typescript": "5.1.6",
-    "vite": "^5.4.21",
+    "vite": "^6.4.3",
     "vitest": "1.6.1"
+  },
+  "overrides": {
+    "esbuild": "^0.25.10",
+    "minimatch": "^10.2.3"
   }
 }
