@@ -14,6 +14,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Typecheck
@@ -24,5 +25,9 @@ jobs:
         run: npm run test
       - name: Template validation
         run: npm run verify
-      - name: Build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Chromium E2E tests
+        run: npm run test:e2e -- --project=chromium
+      - name: Production build
         run: npm run build
