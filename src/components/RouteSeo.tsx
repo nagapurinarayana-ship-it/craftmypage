@@ -1,49 +1,19 @@
-import { useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useLocation } from 'react-router-dom'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
 
 const GUIDE_METADATA: Record<string, { title: string; description: string }> = {
-  'birthday-invitation-whatsapp': {
-    title: 'How to Create a Birthday Invitation for WhatsApp | CraftMyPage',
-    description: 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.',
-  },
-  'wedding-invitation-wording': {
-    title: 'Wedding Invitation Wording Examples | CraftMyPage',
-    description: 'Classic, modern, and Indian wedding invitation wording examples you can customize.',
-  },
-  'invitation-details': {
-    title: 'What Details Should an Invitation Contain? | CraftMyPage',
-    description: 'A practical checklist of the essential details every invitation should include.',
-  },
-  'invitation-sizes': {
-    title: 'Invitation Sizes for WhatsApp, Instagram and Print | CraftMyPage',
-    description: 'Choose practical invitation dimensions for messaging, social media, and printing.',
-  },
-  'housewarming-invitation-wording': {
-    title: 'Housewarming Invitation Wording | CraftMyPage',
-    description: 'Warm and formal housewarming and Gruhapravesam invitation wording examples.',
-  },
-  'naming-ceremony-invitation': {
-    title: 'Naming Ceremony Invitation Examples | CraftMyPage',
-    description: 'Naming ceremony invitation wording and design ideas for a memorable celebration.',
-  },
-  'ats-friendly-resume': {
-    title: 'How to Create an ATS-Friendly Resume | CraftMyPage',
-    description: 'Practical ATS-friendly resume tips covering headings, formatting, keywords, and layout.',
-  },
-  'fresher-resume-format': {
-    title: 'Fresher Resume Format with Examples | CraftMyPage',
-    description: 'A clear resume structure for students and fresh graduates with limited experience.',
-  },
-  'software-engineer-resume': {
-    title: 'Software Engineer Resume Guide | CraftMyPage',
-    description: 'Practical tips for writing a software engineering resume that highlights measurable impact.',
-  },
-  'one-page-vs-two-page-resume': {
-    title: 'One-Page vs Two-Page Resume | CraftMyPage',
-    description: 'Understand when a one-page or two-page resume is the better choice.',
-  },
+  'birthday-invitation-whatsapp': { title: 'How to Create a Birthday Invitation for WhatsApp | CraftMyPage', description: 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.' },
+  'wedding-invitation-wording': { title: 'Wedding Invitation Wording Examples | CraftMyPage', description: 'Classic, modern, and Indian wedding invitation wording examples you can customize.' },
+  'invitation-details': { title: 'What Details Should an Invitation Contain? | CraftMyPage', description: 'A practical checklist of the essential details every invitation should include.' },
+  'invitation-sizes': { title: 'Invitation Sizes for WhatsApp, Instagram and Print | CraftMyPage', description: 'Choose practical invitation dimensions for messaging, social media, and printing.' },
+  'housewarming-invitation-wording': { title: 'Housewarming Invitation Wording | CraftMyPage', description: 'Warm and formal housewarming and Gruhapravesam invitation wording examples.' },
+  'naming-ceremony-invitation': { title: 'Naming Ceremony Invitation Examples | CraftMyPage', description: 'Naming ceremony invitation wording and design ideas for a memorable celebration.' },
+  'ats-friendly-resume': { title: 'How to Create an ATS-Friendly Resume | CraftMyPage', description: 'Practical ATS-friendly resume tips covering headings, formatting, keywords, and layout.' },
+  'fresher-resume-format': { title: 'Fresher Resume Format with Examples | CraftMyPage', description: 'A clear resume structure for students and fresh graduates with limited experience.' },
+  'software-engineer-resume': { title: 'Software Engineer Resume Guide | CraftMyPage', description: 'Practical tips for writing a software engineering resume that highlights measurable impact.' },
+  'one-page-vs-two-page-resume': { title: 'One-Page vs Two-Page Resume | CraftMyPage', description: 'Understand when a one-page or two-page resume is the better choice.' },
 }
 
 const CATEGORY_METADATA: Record<string, { name: string; description: string }> = {
@@ -58,51 +28,22 @@ const CATEGORY_METADATA: Record<string, { name: string; description: string }> =
 }
 
 function getRouteMetadata(pathname: string): { title: string; description: string; canonical: string } {
-  if (pathname === '/') {
-    return {
-      title: 'CraftMyPage — Free Invitation, Invoice & Resume Maker',
-      description: 'Create free invitations, invoices, resumes and printable designs in your browser. No account, no watermark, and no document uploads required for the core tools.',
-      canonical: SITE_URL + '/',
-    }
+  if (pathname === '/') return {
+    title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder',
+    description: 'Create professional invoices, invitations and resumes in your browser. No account, no watermark and no core document uploads.',
+    canonical: `${SITE_URL}/`,
   }
 
   const staticRoutes: Record<string, { title: string; description: string }> = {
-    '/tools/invitation-maker': {
-      title: 'Free Invitation Maker | CraftMyPage',
-      description: 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.',
-    },
-    '/tools/invoice-maker': {
-      title: 'Free Invoice Maker | CraftMyPage',
-      description: 'Create professional invoices in your browser, save drafts locally, and download invoice PDFs.',
-    },
-    '/tools/resume-builder': {
-      title: 'Free Resume Builder | CraftMyPage',
-      description: 'Build a clean resume from a template, edit it in your browser, and prepare it for download.',
-    },
-    '/guides': {
-      title: 'Invitation, Resume & Invoice Guides | CraftMyPage',
-      description: 'Practical guides for creating invitations, resumes and invoices with CraftMyPage.',
-    },
-    '/guides/how-to-create-an-invoice': {
-      title: 'How to Create a Professional Invoice for Free | CraftMyPage',
-      description: 'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.',
-    },
-    '/about': {
-      title: 'About CraftMyPage',
-      description: 'Learn about CraftMyPage, its privacy-first design approach, and browser-based editors.',
-    },
-    '/contact': {
-      title: 'Contact CraftMyPage',
-      description: 'Contact CraftMyPage with questions, suggestions, or feedback.',
-    },
-    '/privacy': {
-      title: 'Privacy Policy | CraftMyPage',
-      description: 'Learn how CraftMyPage handles local browser storage, documents, personal content, and advertising.',
-    },
-    '/terms': {
-      title: 'Terms of Use | CraftMyPage',
-      description: 'Read the terms that apply to use of the CraftMyPage website and tools.',
-    },
+    '/tools/invoice-maker': { title: 'Free Invoice Maker | CraftMyPage', description: 'Create professional invoices in your browser, save drafts locally, calculate taxes and download A4 invoice PDFs.' },
+    '/tools/invitation-maker': { title: 'Free Invitation Maker | CraftMyPage', description: 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.' },
+    '/tools/resume-builder': { title: 'Free Resume Builder | CraftMyPage', description: 'Build a clean ATS-friendly resume from a template, edit it in your browser, and download an A4 PDF.' },
+    '/guides': { title: 'Invitation, Resume & Invoice Guides | CraftMyPage', description: 'Practical guides for creating invitations, resumes and invoices with CraftMyPage.' },
+    '/guides/how-to-create-an-invoice': { title: 'How to Create a Professional Invoice for Free | CraftMyPage', description: 'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.' },
+    '/about': { title: 'About CraftMyPage', description: 'Learn about CraftMyPage, its privacy-first design approach, and browser-based editors.' },
+    '/contact': { title: 'Contact CraftMyPage', description: 'Contact CraftMyPage with questions, suggestions, or feedback.' },
+    '/privacy': { title: 'Privacy Policy | CraftMyPage', description: 'Learn how CraftMyPage handles local browser storage, documents, personal content, and third-party advertising.' },
+    '/terms': { title: 'Terms of Use | CraftMyPage', description: 'Read the terms that apply to use of the CraftMyPage website and tools.' },
   }
 
   const staticMeta = staticRoutes[pathname]
@@ -111,71 +52,35 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   const guideMatch = pathname.match(/^\/guides\/([^/]+)$/)
   if (guideMatch) {
     const meta = GUIDE_METADATA[guideMatch[1]]
-    if (meta) return { ...meta, canonical: SITE_URL + pathname }
-    return {
-      title: 'Guide Not Found | CraftMyPage',
-      description: 'The requested CraftMyPage guide could not be found.',
-      canonical: SITE_URL + pathname,
-    }
+    return meta ? { ...meta, canonical: SITE_URL + pathname } : { title: 'Guide Not Found | CraftMyPage', description: 'The requested CraftMyPage guide could not be found.', canonical: SITE_URL + pathname }
   }
 
   const categoryMatch = pathname.match(/^\/invitations\/([^/]+)$/)
   if (categoryMatch) {
     const category = CATEGORY_METADATA[categoryMatch[1]]
-    if (category) {
-      return {
-        title: `${category.name} Invitation Templates | CraftMyPage`,
-        description: category.description,
-        canonical: SITE_URL + pathname,
-      }
-    }
-    return {
-      title: 'Invitation Templates | CraftMyPage',
-      description: 'Browse free invitation templates you can customize in your browser.',
-      canonical: SITE_URL + pathname,
-    }
+    return category ? { title: `${category.name} Invitation Templates | CraftMyPage`, description: category.description, canonical: SITE_URL + pathname } : { title: 'Invitation Templates | CraftMyPage', description: 'Browse free invitation templates you can customize in your browser.', canonical: SITE_URL + pathname }
   }
 
-  return {
-    title: 'CraftMyPage — Free Invitation, Invoice & Resume Maker',
-    description: 'Create free invitations, invoices, resumes and printable designs in your browser.',
-    canonical: SITE_URL + pathname,
-  }
-}
-
-function clearManagedHeadTags() {
-  document.head.querySelectorAll('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[property="og:url"], link[rel="canonical"]').forEach((node) => node.remove())
-}
-
-function addMeta(nameOrProperty: string, value: string, isProperty = false) {
-  const tag = document.createElement('meta')
-  tag.setAttribute(isProperty ? 'property' : 'name', nameOrProperty)
-  tag.setAttribute('content', value)
-  document.head.appendChild(tag)
+  return { title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', description: 'Create professional invoices, invitations and resumes in your browser.', canonical: SITE_URL + pathname }
 }
 
 export default function RouteSeo() {
   const { pathname } = useLocation()
+  const meta = getRouteMetadata(pathname)
 
-  useEffect(() => {
-    const meta = getRouteMetadata(pathname)
-    clearManagedHeadTags()
-    document.title = meta.title
-
-    if (pathname === '/guides/how-to-create-an-invoice') {
-      return
-    }
-
-    addMeta('description', meta.description)
-    addMeta('og:title', meta.title, true)
-    addMeta('og:description', meta.description, true)
-    addMeta('og:url', meta.canonical, true)
-
-    const canonical = document.createElement('link')
-    canonical.rel = 'canonical'
-    canonical.href = meta.canonical
-    document.head.appendChild(canonical)
-  }, [pathname])
-
-  return null
+  return (
+    <Helmet>
+      <title>{meta.title}</title>
+      <meta name="description" content={meta.description} />
+      <link rel="canonical" href={meta.canonical} />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="CraftMyPage" />
+      <meta property="og:title" content={meta.title} />
+      <meta property="og:description" content={meta.description} />
+      <meta property="og:url" content={meta.canonical} />
+      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:title" content={meta.title} />
+      <meta name="twitter:description" content={meta.description} />
+    </Helmet>
+  )
 }
