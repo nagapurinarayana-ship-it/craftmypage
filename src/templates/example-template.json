@@ -1,9 +1,0 @@
-{
-  "id": "birthday-modern-blue",
-  "category": "birthday",
-  "canvas": { "width": 1500, "height": 2100 },
-  "elements": [
-    { "type": "text", "key": "guestName", "editable": true, "default": "Guest Name" },
-    { "type": "text", "key": "date", "editable": true, "default": "01 Jan 2027" }
-  ]
-}
