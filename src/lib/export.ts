@@ -41,6 +41,7 @@ export async function exportToPdf(
   stage: Konva.Stage,
   options: { filename?: string; title?: string } = {},
 ): Promise<Blob> {
+  void options
   const width = stage.width()
   const height = stage.height()
   const pageWidth = 595
@@ -57,20 +58,12 @@ export async function exportToPdf(
   const pngBytes = await pngBlob.arrayBuffer()
   const pngImage = await pdfDoc.embedPng(pngBytes)
 
-  page.drawImage(pngImage, {
-    x: offsetX,
-    y: offsetY,
-    width: renderedWidth,
-    height: renderedHeight,
-  })
+  page.drawImage(pngImage, { x: offsetX, y: offsetY, width: renderedWidth, height: renderedHeight })
 
   const pdfBytes = await pdfDoc.save()
   return new Blob([pdfBytes.buffer], { type: 'application/pdf' })
 }
 
-export function downloadPdf(
-  stage: Konva.Stage,
-  options: { filename?: string; title?: string } = {},
-): void {
+export function downloadPdf(stage: Konva.Stage, options: { filename?: string; title?: string } = {}): void {
   exportToPdf(stage, options).then((blob) => downloadBlob(blob, `${sanitizeFilename(options.filename ?? 'invitation')}.pdf`))
 }
