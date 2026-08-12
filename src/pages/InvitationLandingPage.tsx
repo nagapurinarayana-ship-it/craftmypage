@@ -41,7 +41,7 @@ type PageKey = keyof typeof PAGES
 export default function InvitationLandingPage() {
   const { intent = 'birthday' } = useParams()
   const page = PAGES[intent as PageKey] ?? PAGES.birthday
-  const canonical = `https://craftmypage.pages.dev/invitations/${intent}`
+  const canonical = `https://craftmypage.pages.dev/invitations/${intent}/maker`
 
   return (
     <>
