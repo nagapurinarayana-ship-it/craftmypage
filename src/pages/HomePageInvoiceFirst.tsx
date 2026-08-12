@@ -18,6 +18,12 @@ const invoiceIntents = [
   ['Invoice templates', '/invoices/invoice-templates'],
 ]
 
+const resumeIntents = [
+  ['ATS resume', '/resumes/ats-resume'],
+  ['Fresher resume', '/resumes/fresher-resume'],
+  ['Software engineer resume', '/resumes/software-engineer-resume'],
+]
+
 export default function HomePageInvoiceFirst() {
   return (
     <div className="cmp-page">
@@ -49,6 +55,11 @@ export default function HomePageInvoiceFirst() {
         <section className="mt-10" aria-labelledby="invoice-intents-heading">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><span className="cmp-eyebrow">Popular invoice starting points</span><h2 id="invoice-intents-heading" className="mt-2 text-2xl font-bold tracking-tight text-slate-900">Start with the invoice you need.</h2></div><Link className="text-sm font-semibold text-indigo-700" to="/guides/how-to-create-an-invoice">Learn invoice basics →</Link></div>
           <div className="mt-5 grid gap-3 md:grid-cols-3">{invoiceIntents.map(([label, to]) => <Link key={to} to={to} className="cmp-card group"><p className="font-semibold text-slate-900 group-hover:text-indigo-700">{label}</p><p className="mt-2 text-sm leading-6 text-slate-600">Open a focused page with practical tips and a direct path to the Invoice Maker.</p><span className="mt-4 inline-flex text-sm font-semibold text-indigo-700">Explore →</span></Link>)}</div>
+        </section>
+
+        <section className="mt-10" aria-labelledby="resume-intents-heading">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><span className="cmp-eyebrow">Popular resume starting points</span><h2 id="resume-intents-heading" className="mt-2 text-2xl font-bold tracking-tight text-slate-900">Choose the resume format that fits your goal.</h2></div><Link className="text-sm font-semibold text-indigo-700" to="/guides/ats-friendly-resume">Read resume tips →</Link></div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">{resumeIntents.map(([label, to]) => <Link key={to} to={to} className="cmp-card group"><p className="font-semibold text-slate-900 group-hover:text-indigo-700">{label}</p><p className="mt-2 text-sm leading-6 text-slate-600">Start from a focused resume page and continue directly into the Resume Builder.</p><span className="mt-4 inline-flex text-sm font-semibold text-indigo-700">Explore →</span></Link>)}</div>
         </section>
 
         <EffectiveCpmHomeAds />
