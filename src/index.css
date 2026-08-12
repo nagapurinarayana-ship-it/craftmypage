@@ -50,7 +50,16 @@ body {
   .cmp-ad-label { @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400; }
   .cmp-ad-native { @apply min-h-24 w-full overflow-hidden rounded-xl bg-slate-50; }
   .cmp-ad-banner { @apply min-h-[60px] w-full max-w-full overflow-hidden rounded-xl bg-slate-50; }
+  .cmp-ad-banner-wide { @apply min-h-[90px]; }
   .cmp-ad-banner iframe { @apply mx-auto block max-w-full border-0; }
+
+  @media (max-width: 760px) {
+    .cmp-ad-banner-wide iframe {
+      width: 100% !important;
+      max-width: 728px;
+      height: 90px !important;
+    }
+  }
 
   @media (max-width: 520px) {
     .cmp-ad-banner iframe {
