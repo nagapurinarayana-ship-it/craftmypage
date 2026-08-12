@@ -1,41 +1,18 @@
 import { useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { validateTemplate } from '../lib/template-validator'
 import type { Template } from '../lib/template-validator'
 import TemplateGallery from '../components/TemplateGallery'
 
-const templateModules = import.meta.glob('../templates/*.json', { eager: true }) as Record<
-  string,
-  { default: unknown }
->
-
-const CATEGORY_TITLES: Record<string, string> = {
-  birthday: 'Birthday Invitations',
-  wedding: 'Wedding Invitations',
-  engagement: 'Engagement Invitations',
-  baby: 'Baby Shower Invitations',
-  housewarming: 'Housewarming Invitations',
-  naming: 'Naming Ceremony Invitations',
-  party: 'Party Invitations',
-  anniversary: 'Anniversary Invitations',
-  general: 'Invitation Templates',
-}
-
-const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  birthday: 'Celebrate in style with our birthday invitation templates.',
-  wedding: 'Elegant wedding invitation templates for your special day.',
-  engagement: 'Regal engagement invitations to announce your joy.',
-  baby: 'Gentle and lovely baby shower invitation templates.',
-  housewarming: 'Warm housewarming and Gruhapravesam invitation templates.',
-  naming: 'Traditional and modern naming ceremony invitations.',
-  party: 'Fun and vibrant party invitation templates.',
-  anniversary: 'Romantic anniversary invitation templates.',
-  general: 'Browse all invitation templates.',
-}
+const templateModules = import.meta.glob('../templates/*.json', { eager: true }) as Record<string, { default: unknown }>
+const CATEGORY_TITLES: Record<string, string> = { birthday: 'Birthday Invitations', wedding: 'Wedding Invitations', engagement: 'Engagement Invitations', baby: 'Baby Shower Invitations', housewarming: 'Housewarming Invitations', naming: 'Naming Ceremony Invitations', party: 'Party Invitations', anniversary: 'Anniversary Invitations' }
+const CATEGORY_DESCRIPTIONS: Record<string, string> = { birthday: 'Celebrate in style with our birthday invitation templates.', wedding: 'Elegant wedding invitation templates for your special day.', engagement: 'Regal engagement invitations to announce your joy.', baby: 'Gentle and lovely baby shower invitation templates.', housewarming: 'Warm housewarming and Gruhapravesam invitation templates.', naming: 'Traditional and modern naming ceremony invitations.', party: 'Fun and vibrant party invitation templates.', anniversary: 'Romantic anniversary invitation templates.' }
+const TEMPLATE_CATEGORY_BY_ROUTE: Record<string, string> = { baby: 'baby-shower', naming: 'naming-ceremony' }
 
 function loadTemplates(): Template[] {
   const templates: Template[] = []
   for (const path of Object.keys(templateModules)) {
+    if (path.endsWith('/example-template.json')) continue
     const result = validateTemplate(templateModules[path].default)
     if (result.valid) templates.push(templateModules[path].default as Template)
   }
@@ -45,34 +22,28 @@ function loadTemplates(): Template[] {
 export default function InvitationCategoryPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const category = location.pathname.split('/').pop() ?? 'general'
+  const category = location.pathname.split('/').pop() ?? 'birthday'
   const templates = useMemo(loadTemplates, [])
-
-  const filtered = useMemo(
-    () => templates.filter((t) => (t.category ?? 'general') === category),
-    [templates, category]
-  )
-
-  const title = CATEGORY_TITLES[category] ?? CATEGORY_TITLES.general
-  const description = CATEGORY_DESCRIPTIONS[category] ?? CATEGORY_DESCRIPTIONS.general
-
-  const handleSelect = (template: Template) => {
-    navigate('/invitation-maker')
-    setTimeout(() => {
-      const event = new CustomEvent('select-template', { detail: { templateId: template.id } })
-      window.dispatchEvent(event)
-    }, 0)
-  }
+  const templateCategory = TEMPLATE_CATEGORY_BY_ROUTE[category] ?? category
+  const filtered = useMemo(() => templates.filter((template) => (template.category ?? 'general') === templateCategory), [templates, templateCategory])
+  const title = CATEGORY_TITLES[category] ?? 'Invitation Templates'
+  const description = CATEGORY_DESCRIPTIONS[category] ?? 'Browse free invitation templates you can customize in your browser.'
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">{title}</h1>
-      <p className="text-gray-600 mb-6">{description}</p>
-
+    <div className="cmp-tool-shell">
+      <div className="mb-8 max-w-3xl">
+        <span className="cmp-eyebrow">Invitation Templates</span>
+        <h1 className="cmp-tool-title mt-3">{title}</h1>
+        <p className="cmp-tool-subtitle">{description}</p>
+      </div>
       {filtered.length === 0 ? (
-        <p className="text-gray-500">No templates in this category yet. Coming soon!</p>
+        <div className="cmp-surface p-8 text-center">
+          <h2 className="text-xl font-semibold text-slate-900">Templates are coming soon</h2>
+          <p className="mt-2 text-sm text-slate-500">There are no published templates in this category yet.</p>
+          <button type="button" className="cmp-primary-btn mt-5" onClick={() => navigate('/tools/invitation-maker')}>Browse all templates</button>
+        </div>
       ) : (
-        <TemplateGallery templates={filtered} onSelect={handleSelect} />
+        <TemplateGallery templates={filtered} onSelect={(template) => navigate(`/tools/invitation-maker?template=${encodeURIComponent(template.id)}`)} />
       )}
     </div>
   )
