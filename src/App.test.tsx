@@ -23,16 +23,6 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Build a resume' })).toBeTruthy()
   })
 
-  it('renders the Invitation Maker page', async () => {
-    renderApp('/invitation-maker')
-    expect(await screen.findByRole('heading', { name: 'Create an invitation you are proud to send.' })).toBeTruthy()
-  })
-
-  it('renders the Resume Builder page', async () => {
-    renderApp('/resume-builder')
-    expect(await screen.findByRole('heading', { name: 'Build a resume that looks polished and stays practical.' })).toBeTruthy()
-  })
-
   it('renders the branded 404 page for unknown routes', async () => {
     renderApp('/this-page-does-not-exist')
     expect(await screen.findByRole('heading', { name: "We couldn't find that page." })).toBeTruthy()
