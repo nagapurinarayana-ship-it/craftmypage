@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 
 const NATIVE_SRC = 'https://pl30815334.effectivecpmnetwork.com/29feded00f4ae2c8a3b2719189977fff/invoke.js'
 const BANNER_SRC = 'https://www.highperformanceformat.com/75b0fc4d7ef9bda7dbda8e3863498abc/invoke.js'
+const NATIVE_CONTAINER_ID = 'container-29feded00f4ae2c8a3b2719189977fff'
 const SMARTLINK = 'https://www.effectivecpmnetwork.com/hcit0ft2?key=3383ae2b2a94f70103f6b28c372f4f72'
 
 export default function EffectiveCpmHomeAds() {
@@ -60,13 +61,22 @@ export default function EffectiveCpmHomeAds() {
               Advertising is kept outside the editing workflow so your documents stay the focus.
             </p>
           </div>
-          <div ref={nativeRef} className="cmp-ad-native w-full max-w-xl min-w-0" aria-label="Sponsored advertisement" />
+          <div
+            ref={nativeRef}
+            id={NATIVE_CONTAINER_ID}
+            className="cmp-ad-native w-full max-w-xl min-w-0"
+            aria-label="Sponsored advertisement"
+          />
         </div>
       </div>
 
       <div className="cmp-ad-block cmp-surface p-5 text-center sm:p-6">
         <span className="cmp-ad-label">Advertisement</span>
-        <div ref={bannerRef} className="cmp-ad-banner mx-auto mt-3 max-w-full overflow-hidden" aria-label="Sponsored advertisement" />
+        <div
+          ref={bannerRef}
+          className="cmp-ad-banner mx-auto mt-3 max-w-full overflow-hidden"
+          aria-label="Sponsored advertisement"
+        />
       </div>
 
       <div className="cmp-ad-block cmp-surface p-5 sm:p-6">
