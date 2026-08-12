@@ -27,7 +27,13 @@ const CATEGORY_METADATA: Record<string, { name: string; description: string }> =
   anniversary: { name: 'Anniversary', description: 'Free anniversary invitation templates for romantic and family celebrations.' },
 }
 
-function getRouteMetadata(pathname: string): { title: string; description: string; canonical: string } {
+const TOOL_METADATA: Record<string, { name: string; description: string }> = {
+  '/tools/invoice-maker': { name: 'Free Invoice Maker', description: 'Create professional invoices in your browser, save drafts locally, calculate taxes and download A4 invoice PDFs.' },
+  '/tools/invitation-maker': { name: 'Free Invitation Maker', description: 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.' },
+  '/tools/resume-builder': { name: 'Free Resume Builder', description: 'Build a clean ATS-friendly resume from a template, edit it in your browser, and download an A4 PDF.' },
+}
+
+function getRouteMetadata(pathname: string): { title: string; description: string; canonical: string; software?: { name: string; description: string } } {
   if (pathname === '/') return {
     title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder',
     description: 'Create professional invoices, invitations and resumes in your browser. No account, no watermark and no core document uploads.',
@@ -35,9 +41,6 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   }
 
   const staticRoutes: Record<string, { title: string; description: string }> = {
-    '/tools/invoice-maker': { title: 'Free Invoice Maker | CraftMyPage', description: 'Create professional invoices in your browser, save drafts locally, calculate taxes and download A4 invoice PDFs.' },
-    '/tools/invitation-maker': { title: 'Free Invitation Maker | CraftMyPage', description: 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.' },
-    '/tools/resume-builder': { title: 'Free Resume Builder | CraftMyPage', description: 'Build a clean ATS-friendly resume from a template, edit it in your browser, and download an A4 PDF.' },
     '/guides': { title: 'Invitation, Resume & Invoice Guides | CraftMyPage', description: 'Practical guides for creating invitations, resumes and invoices with CraftMyPage.' },
     '/guides/how-to-create-an-invoice': { title: 'How to Create a Professional Invoice for Free | CraftMyPage', description: 'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.' },
     '/about': { title: 'About CraftMyPage', description: 'Learn about CraftMyPage, its privacy-first design approach, and browser-based editors.' },
@@ -45,6 +48,9 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
     '/privacy': { title: 'Privacy Policy | CraftMyPage', description: 'Learn how CraftMyPage handles local browser storage, documents, personal content, and third-party advertising.' },
     '/terms': { title: 'Terms of Use | CraftMyPage', description: 'Read the terms that apply to use of the CraftMyPage website and tools.' },
   }
+
+  const toolMeta = TOOL_METADATA[pathname]
+  if (toolMeta) return { title: `${toolMeta.name} | CraftMyPage`, description: toolMeta.description, canonical: SITE_URL + pathname, software: toolMeta }
 
   const staticMeta = staticRoutes[pathname]
   if (staticMeta) return { ...staticMeta, canonical: SITE_URL + pathname }
@@ -67,6 +73,19 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
 export default function RouteSeo() {
   const { pathname } = useLocation()
   const meta = getRouteMetadata(pathname)
+  const softwareSchema = meta.software
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: meta.software.name,
+        url: meta.canonical,
+        applicationCategory: 'UtilitiesApplication',
+        operatingSystem: 'Web browser',
+        description: meta.software.description,
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      }
+    : null
 
   return (
     <Helmet>
@@ -78,9 +97,10 @@ export default function RouteSeo() {
       <meta property="og:title" content={meta.title} />
       <meta property="og:description" content={meta.description} />
       <meta property="og:url" content={meta.canonical} />
-      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={meta.title} />
       <meta name="twitter:description" content={meta.description} />
+      {softwareSchema ? <script type="application/ld+json">{JSON.stringify(softwareSchema)}</script> : null}
     </Helmet>
   )
 }
