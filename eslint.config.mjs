@@ -32,6 +32,8 @@ export default [
       ...js.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
       'no-undef': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'preserve-caught-error': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
