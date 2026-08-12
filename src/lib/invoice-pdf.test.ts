@@ -5,6 +5,11 @@ import { generateInvoicePDF } from './invoice-pdf'
 
 const currencies: Currency[] = ['INR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'AED', 'SGD', 'JPY']
 
+async function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
+  if (typeof blob.arrayBuffer === 'function') return blob.arrayBuffer()
+  return new Response(blob).arrayBuffer()
+}
+
 describe('Invoice PDF export', () => {
   it.each(currencies)('exports a valid A4 PDF for %s', async (currency) => {
     const invoice = createEmptyInvoice(generateId())
@@ -15,7 +20,7 @@ describe('Invoice PDF export', () => {
     invoice.lineItems[0].unitPrice = 1180
 
     const blob = await generateInvoicePDF(invoice)
-    const pdf = await PDFDocument.load(await blob.arrayBuffer())
+    const pdf = await PDFDocument.load(await blobToArrayBuffer(blob))
 
     expect(pdf.getPageCount()).toBeGreaterThanOrEqual(1)
     expect(pdf.getPage(0).getWidth()).toBeCloseTo(595, 0)
@@ -39,7 +44,7 @@ describe('Invoice PDF export', () => {
     }))
 
     const blob = await generateInvoicePDF(invoice)
-    const pdf = await PDFDocument.load(await blob.arrayBuffer())
+    const pdf = await PDFDocument.load(await blobToArrayBuffer(blob))
 
     expect(pdf.getPageCount()).toBeGreaterThan(1)
     for (const page of pdf.getPages()) {
