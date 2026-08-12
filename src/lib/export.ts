@@ -61,7 +61,9 @@ export async function exportToPdf(
   page.drawImage(pngImage, { x: offsetX, y: offsetY, width: renderedWidth, height: renderedHeight })
 
   const pdfBytes = await pdfDoc.save()
-  return new Blob([pdfBytes.buffer], { type: 'application/pdf' })
+  const pdfArrayBuffer = new ArrayBuffer(pdfBytes.byteLength)
+  new Uint8Array(pdfArrayBuffer).set(pdfBytes)
+  return new Blob([pdfArrayBuffer], { type: 'application/pdf' })
 }
 
 export function downloadPdf(stage: Konva.Stage, options: { filename?: string; title?: string } = {}): void {
