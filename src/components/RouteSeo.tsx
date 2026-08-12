@@ -74,7 +74,7 @@ export default function RouteSeo() {
   const { pathname } = useLocation()
 
   // Dedicated landing pages own their metadata to preserve exact search intent.
-  if (pathname.startsWith('/invoices/') || pathname.startsWith('/resumes/')) return null
+  if (pathname.startsWith('/invoices/') || pathname.startsWith('/resumes/') || /^\/invitations\/(birthday|wedding|baby|housewarming)\/maker$/.test(pathname)) return null
 
   const meta = getRouteMetadata(pathname)
   const softwareSchema = meta.software
