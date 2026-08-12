@@ -1,5 +1,5 @@
 declare module 'react-helmet' {
-  import { ReactNode, ComponentType } from 'react'
+  import type { ComponentType, ReactNode } from 'react'
 
   interface HelmetProps {
     base?: Record<string, unknown>
@@ -16,7 +16,7 @@ declare module 'react-helmet' {
     children?: ReactNode
   }
 
-  export class Helmet extends ComponentType<HelmetProps> {}
-  export function HelmetProvider({ children }: { children: ReactNode }): JSX.Element
+  export const Helmet: ComponentType<HelmetProps>
+  export const HelmetProvider: ComponentType<{ children?: ReactNode }>
   export default Helmet
 }
