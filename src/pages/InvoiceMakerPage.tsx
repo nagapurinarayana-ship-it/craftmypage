@@ -19,113 +19,42 @@ type InvoiceAction =
 
 function invoiceReducer(state: Invoice, action: InvoiceAction): Invoice {
   switch (action.type) {
-    case 'SET_INVOICE':
-      return action.invoice
-
-    case 'UPDATE_INVOICE':
-      return {
-        ...state,
-        ...action.updates,
-      }
-
+    case 'SET_INVOICE': return action.invoice
+    case 'UPDATE_INVOICE': return { ...state, ...action.updates }
     case 'ADD_LINE_ITEM': {
-      const newItem: LineItem = {
-        id: generateId(),
-        description: '',
-        itemCode: '',
-        quantity: 1,
-        unit: 'pcs',
-        unitPrice: 0,
-        discount: 0,
-        discountType: 'fixed',
-        taxRate: 0,
-      }
-      return {
-        ...state,
-        lineItems: [...state.lineItems, newItem],
-      }
+      const newItem: LineItem = { id: generateId(), description: '', itemCode: '', quantity: 1, unit: 'pcs', unitPrice: 0, discount: 0, discountType: 'fixed', taxRate: 0 }
+      return { ...state, lineItems: [...state.lineItems, newItem] }
     }
-
-    case 'REMOVE_LINE_ITEM':
-      return {
-        ...state,
-        lineItems: state.lineItems.filter((item) => item.id !== action.itemId),
-      }
-
+    case 'REMOVE_LINE_ITEM': return { ...state, lineItems: state.lineItems.filter((item) => item.id !== action.itemId) }
     case 'DUPLICATE_LINE_ITEM': {
-      const itemToDuplicate = state.lineItems.find((item) => item.id === action.itemId)
-      if (!itemToDuplicate) return state
-
-      const newItem: LineItem = {
-        ...itemToDuplicate,
-        id: generateId(),
-      }
-      return {
-        ...state,
-        lineItems: [...state.lineItems, newItem],
-      }
+      const item = state.lineItems.find((line) => line.id === action.itemId)
+      return item ? { ...state, lineItems: [...state.lineItems, { ...item, id: generateId() }] } : state
     }
-
-    default:
-      return state
+    default: return state
   }
 }
 
 export default function InvoiceMakerPage() {
   const [invoice, dispatch] = useReducer(invoiceReducer, null, () => createEmptyInvoice(generateId()))
-
-  const invoiceWithCalcs = React.useMemo(() => {
-    return {
-      ...invoice,
-      calculations: calculateInvoice(invoice),
-    }
-  }, [invoice])
-
+  const invoiceWithCalcs = React.useMemo(() => ({ ...invoice, calculations: calculateInvoice(invoice) }), [invoice])
   const [drafts, setDrafts] = useState<Invoice[]>([])
   const [showDraftsList, setShowDraftsList] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
   const [importJson, setImportJson] = useState('')
   const [draftName, setDraftName] = useState(invoiceWithCalcs.draftName)
 
-  useEffect(() => {
-    getAllInvoices().then(setDrafts).catch(() => setDrafts([]))
-  }, [])
+  useEffect(() => { getAllInvoices().then(setDrafts).catch(() => setDrafts([])) }, [])
+  useEffect(() => { dispatch({ type: 'UPDATE_INVOICE', updates: { draftName } }) }, [draftName])
 
-  useEffect(() => {
-    dispatch({
-      type: 'UPDATE_INVOICE',
-      updates: { draftName },
-    })
-  }, [draftName])
-
-  const handleInvoiceChange = useCallback((updatedInvoice: Invoice) => {
-    dispatch({ type: 'SET_INVOICE', invoice: updatedInvoice })
-  }, [])
-
-  const handleAddLineItem = useCallback(() => {
-    dispatch({ type: 'ADD_LINE_ITEM' })
-  }, [])
-
-  const handleRemoveLineItem = useCallback((itemId: string) => {
-    dispatch({ type: 'REMOVE_LINE_ITEM', itemId })
-  }, [])
-
-  const handleDuplicateLineItem = useCallback((itemId: string) => {
-    dispatch({ type: 'DUPLICATE_LINE_ITEM', itemId })
-  }, [])
+  const handleInvoiceChange = useCallback((updatedInvoice: Invoice) => dispatch({ type: 'SET_INVOICE', invoice: updatedInvoice }), [])
+  const handleAddLineItem = useCallback(() => dispatch({ type: 'ADD_LINE_ITEM' }), [])
+  const handleRemoveLineItem = useCallback((itemId: string) => dispatch({ type: 'REMOVE_LINE_ITEM', itemId }), [])
+  const handleDuplicateLineItem = useCallback((itemId: string) => dispatch({ type: 'DUPLICATE_LINE_ITEM', itemId }), [])
 
   const handleSaveDraft = useCallback(async () => {
-    if (!draftName.trim()) {
-      alert('Please enter a draft name')
-      return
-    }
-
+    if (!draftName.trim()) return alert('Please enter a draft name')
     try {
-      const draftToSave = {
-        ...invoiceWithCalcs,
-        draftName: draftName.trim(),
-      }
-      await saveInvoice(draftToSave)
+      await saveInvoice({ ...invoiceWithCalcs, draftName: draftName.trim() })
       setDrafts(await getAllInvoices())
       alert(`Draft "${draftName}" saved successfully!`)
     } catch (error) {
@@ -140,7 +69,6 @@ export default function InvoiceMakerPage() {
         dispatch({ type: 'SET_INVOICE', invoice: loaded })
         setDraftName(loaded.draftName)
         setShowDraftsList(false)
-        alert(`Draft "${loaded.draftName}" loaded`)
       }
     } catch (error) {
       alert(`Failed to load draft: ${error instanceof Error ? error.message : String(error)}`)
@@ -149,11 +77,9 @@ export default function InvoiceMakerPage() {
 
   const handleDeleteDraft = useCallback(async (draftId: string) => {
     if (!confirm('Are you sure you want to delete this draft?')) return
-
     try {
       await deleteInvoice(draftId)
       setDrafts(await getAllInvoices())
-      alert('Draft deleted')
     } catch (error) {
       alert(`Failed to delete draft: ${error instanceof Error ? error.message : String(error)}`)
     }
@@ -162,27 +88,20 @@ export default function InvoiceMakerPage() {
   const handleExportJSON = useCallback(async () => {
     try {
       const json = await exportInvoiceJSON(invoiceWithCalcs)
-      const blob = new Blob([json], { type: 'application/json' })
-      downloadBlob(blob, `invoice-${invoiceWithCalcs.invoiceDetails.invoiceNumber}.json`)
-      alert('Invoice data exported as JSON')
+      downloadBlob(new Blob([json], { type: 'application/json' }), `invoice-${invoiceWithCalcs.invoiceDetails.invoiceNumber}.json`)
     } catch (error) {
       alert(`Failed to export: ${error instanceof Error ? error.message : String(error)}`)
     }
   }, [invoiceWithCalcs])
 
   const handleImportJSON = useCallback(async () => {
-    if (!importJson.trim()) {
-      alert('Please paste JSON data')
-      return
-    }
-
+    if (!importJson.trim()) return alert('Please paste JSON data')
     try {
       const imported = await importInvoiceJSON(importJson)
       dispatch({ type: 'SET_INVOICE', invoice: imported })
       setDraftName(imported.draftName)
       setImportJson('')
       setShowImportExport(false)
-      alert('Invoice imported successfully!')
     } catch (error) {
       alert(`Failed to import: ${error instanceof Error ? error.message : String(error)}`)
     }
@@ -191,16 +110,13 @@ export default function InvoiceMakerPage() {
   const handleDownloadPDF = useCallback(async () => {
     try {
       const pdfBlob = await generateInvoicePDF(invoiceWithCalcs)
-      const filename = `invoice-${sanitizeFileName(invoiceWithCalcs.invoiceDetails.invoiceNumber)}.pdf`
-      downloadBlob(pdfBlob, filename)
+      downloadBlob(pdfBlob, `invoice-${sanitizeFileName(invoiceWithCalcs.invoiceDetails.invoiceNumber)}.pdf`)
     } catch (error) {
       alert(`Failed to generate PDF: ${error instanceof Error ? error.message : String(error)}`)
     }
   }, [invoiceWithCalcs])
 
-  const handlePrint = useCallback(() => {
-    window.print()
-  }, [])
+  const handlePrint = useCallback(() => window.print(), [])
 
   const handleReset = useCallback(() => {
     if (!confirm('Are you sure you want to reset the invoice? This will clear all data.')) return
@@ -212,10 +128,7 @@ export default function InvoiceMakerPage() {
     const newInvoice = {
       ...invoiceWithCalcs,
       id: generateId(),
-      invoiceDetails: {
-        ...invoiceWithCalcs.invoiceDetails,
-        invoiceNumber: generateId().substring(0, 8).toUpperCase(),
-      },
+      invoiceDetails: { ...invoiceWithCalcs.invoiceDetails, invoiceNumber: generateId().substring(0, 8).toUpperCase() },
       draftName: `${invoiceWithCalcs.draftName} (Copy)`,
     }
     dispatch({ type: 'SET_INVOICE', invoice: newInvoice })
@@ -226,183 +139,104 @@ export default function InvoiceMakerPage() {
     <>
       <Helmet>
         <title>Free Invoice Maker — Create & Download PDF Invoices</title>
-        <meta
-          name="description"
-          content="Create professional PDF invoices for free. Add items, taxes, discounts and your logo, then download privately with no account, watermark or uploads."
-        />
+        <meta name="description" content="Create professional PDF invoices for free. Add items, taxes, discounts and your logo, then download privately with no account, watermark or uploads." />
         <link rel="canonical" href={`${SITE_URL}/tools/invoice-maker`} />
       </Helmet>
 
-      <div className="print:hidden bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Free Invoice Maker</h1>
-            <p className="text-gray-600 mt-1">
-              Create professional invoices and download them as PDF. No account, no watermark and no uploads.
-            </p>
+      <div className="cmp-tool-shell">
+        <div className="cmp-tool-header print:hidden sticky top-20 z-30">
+          <div className="min-w-0">
+            <span className="cmp-eyebrow">Invoice Maker</span>
+            <h1 className="cmp-tool-title mt-3">Create a professional invoice in minutes.</h1>
+            <p className="cmp-tool-subtitle">Add customers, items, taxes and payment details, then export the finished invoice as a PDF.</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <span className="cmp-badge">Local drafts</span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">PDF export</span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">No server upload</span>
+            </div>
           </div>
-
           <div className="flex flex-wrap gap-2">
-            <input
-              type="text"
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              placeholder="Invoice name..."
-              className="flex-1 min-w-48 px-3 py-2 border rounded-md text-sm"
-            />
-            <button
-              type="button"
-              onClick={handleSaveDraft}
-              className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"
-            >
-              💾 Save Draft
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowDraftsList(!showDraftsList)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
-            >
-              📂 Load Draft
-            </button>
+            <input type="text" value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder="Invoice name..." className="min-w-48 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+            <button type="button" onClick={handleSaveDraft} className="cmp-secondary-btn px-4 py-2">Save Draft</button>
+            <button type="button" onClick={() => setShowDraftsList(!showDraftsList)} className="cmp-secondary-btn px-4 py-2">Load Draft</button>
+            <button type="button" onClick={handleDownloadPDF} className="cmp-primary-btn px-4 py-2">Download PDF</button>
           </div>
+        </div>
 
-          {showDraftsList && drafts.length > 0 && (
-            <div className="border rounded-md p-4 bg-gray-50">
-              <p className="font-semibold text-sm mb-3">Recent Drafts:</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+        {showDraftsList && (
+          <div className="cmp-surface print:hidden mb-6 p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-slate-900">Recent drafts</p>
+                <p className="mt-1 text-xs text-slate-500">Saved locally in this browser.</p>
+              </div>
+              <span className="text-xs font-semibold text-slate-400">{drafts.length}</span>
+            </div>
+            {drafts.length === 0 ? (
+              <p className="mt-4 text-sm text-slate-500">No saved drafts yet.</p>
+            ) : (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {drafts.map((draft) => (
-                  <div key={draft.id} className="bg-white border rounded-md p-3 text-sm">
-                    <p className="font-medium text-gray-900">{draft.draftName}</p>
-                    <p className="text-xs text-gray-500 mb-2">
-                      {draft.invoiceDetails.invoiceNumber} • {new Date(draft.updatedAt).toLocaleDateString()}
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleLoadDraft(draft.id)}
-                        className="flex-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs border border-blue-200 hover:bg-blue-100"
-                      >
-                        Load
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteDraft(draft.id)}
-                        className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs border border-red-200 hover:bg-red-100"
-                      >
-                        Delete
-                      </button>
+                  <div key={draft.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="font-semibold text-slate-900">{draft.draftName}</p>
+                    <p className="mt-1 text-xs text-slate-500">{draft.invoiceDetails.invoiceNumber} · {new Date(draft.updatedAt).toLocaleDateString()}</p>
+                    <div className="mt-3 flex gap-2">
+                      <button type="button" onClick={() => handleLoadDraft(draft.id)} className="flex-1 rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">Load</button>
+                      <button type="button" onClick={() => handleDeleteDraft(draft.id)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleDownloadPDF}
-              className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700"
-            >
-              📥 Download PDF
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="px-4 py-2 bg-gray-600 text-white rounded-md text-sm font-medium hover:bg-gray-700"
-            >
-              🖨️ Print
-            </button>
-            <button
-              type="button"
-              onClick={handleDuplicate}
-              className="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700"
-            >
-              📋 Duplicate
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowImportExport(!showImportExport)}
-              className="px-4 py-2 bg-cyan-600 text-white rounded-md text-sm font-medium hover:bg-cyan-700"
-            >
-              ⤴️ Import/Export
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="px-4 py-2 bg-gray-400 text-white rounded-md text-sm font-medium hover:bg-gray-500"
-            >
-              🔄 Reset
-            </button>
+        <div className="print:hidden mb-5 flex flex-wrap gap-2">
+          <button type="button" onClick={handlePrint} className="cmp-secondary-btn px-4 py-2">Print</button>
+          <button type="button" onClick={handleDuplicate} className="cmp-secondary-btn px-4 py-2">Duplicate</button>
+          <button type="button" onClick={() => setShowImportExport(!showImportExport)} className="cmp-secondary-btn px-4 py-2">Import / Export</button>
+          <button type="button" onClick={handleReset} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">Reset</button>
+        </div>
+
+        {showImportExport && (
+          <div className="cmp-surface print:hidden mb-6 grid gap-5 p-5 lg:grid-cols-2">
+            <div>
+              <p className="font-semibold text-slate-900">Export invoice data</p>
+              <p className="mt-1 text-xs text-slate-500">Keep a portable copy of the current invoice JSON.</p>
+              <button type="button" onClick={handleExportJSON} className="cmp-secondary-btn mt-4 px-4 py-2">Export JSON</button>
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900">Import invoice data</p>
+              <textarea value={importJson} onChange={(e) => setImportJson(e.target.value)} placeholder="Paste exported invoice JSON here..." className="mt-3 w-full rounded-xl border border-slate-200 p-3 font-mono text-xs focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" rows={6} />
+              <button type="button" onClick={handleImportJSON} className="cmp-primary-btn mt-2 px-4 py-2">Import Invoice</button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(25rem,.85fr)]">
+          <div className="cmp-surface overflow-auto p-5 sm:p-6" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+            <div className="mb-5 flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Invoice details</h2>
+                <p className="mt-1 text-xs text-slate-500">Complete the form and the preview updates as you type.</p>
+              </div>
+            </div>
+            <InvoiceForm invoice={invoiceWithCalcs} onInvoiceChange={handleInvoiceChange} onAddLineItem={handleAddLineItem} onRemoveLineItem={handleRemoveLineItem} onDuplicateLineItem={handleDuplicateLineItem} />
           </div>
 
-          {showImportExport && (
-            <div className="border rounded-md p-4 bg-gray-50 space-y-3">
+          <div className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+            <div className="mb-3 flex items-center justify-between px-1">
               <div>
-                <button
-                  type="button"
-                  onClick={handleExportJSON}
-                  className="w-full px-3 py-2 bg-cyan-100 text-cyan-700 border border-cyan-300 rounded-md text-sm font-medium hover:bg-cyan-200"
-                >
-                  📤 Export as JSON
-                </button>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Import JSON:</p>
-                <textarea
-                  value={importJson}
-                  onChange={(e) => setImportJson(e.target.value)}
-                  placeholder="Paste exported invoice JSON here..."
-                  className="w-full px-3 py-2 border rounded-md text-sm font-mono text-xs"
-                  rows={6}
-                />
-                <button
-                  type="button"
-                  onClick={handleImportJSON}
-                  className="mt-2 w-full px-3 py-2 bg-cyan-600 text-white rounded-md text-sm font-medium hover:bg-cyan-700"
-                >
-                  Import Invoice
-                </button>
+                <p className="text-sm font-semibold text-slate-800">Live preview</p>
+                <p className="text-xs text-slate-500">This is how the exported invoice will look.</p>
               </div>
             </div>
-          )}
+            <InvoicePreview invoice={invoiceWithCalcs} />
+          </div>
         </div>
       </div>
 
-      <div className="print:hidden grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto p-4">
-        <div className="bg-white rounded-lg shadow-sm overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-          <div className="p-6">
-            <InvoiceForm
-              invoice={invoiceWithCalcs}
-              onInvoiceChange={handleInvoiceChange}
-              onAddLineItem={handleAddLineItem}
-              onRemoveLineItem={handleRemoveLineItem}
-              onDuplicateLineItem={handleDuplicateLineItem}
-            />
-          </div>
-        </div>
-
-        <div
-          className="bg-gray-100 rounded-lg overflow-auto"
-          style={{ maxHeight: 'calc(100vh - 200px)' }}
-        >
-          <InvoicePreview invoice={invoiceWithCalcs} />
-        </div>
-      </div>
-
-      <style>{`
-        @media print {
-          body {
-            margin: 0;
-            padding: 0;
-            background: white;
-          }
-          .print\\:hidden {
-            display: none !important;
-          }
-        }
-      `}</style>
+      <style>{`@media print { body { margin: 0; padding: 0; background: white; } .print\\:hidden { display: none !important; } }`}</style>
     </>
   )
 }
