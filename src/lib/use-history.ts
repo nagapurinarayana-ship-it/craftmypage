@@ -1,16 +1,16 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export function useHistory<T>(initial: T, limit = 50) {
   const [state, setState] = useState<T>(initial)
-  const pastRef = useRef<T[]>([])
-  const futureRef = useRef<T[]>([])
+  const [past, setPast] = useState<T[]>([])
+  const [future, setFuture] = useState<T[]>([])
 
   const set = useCallback(
     (next: T | ((prev: T) => T)) => {
       setState((prev) => {
         const resolved = typeof next === 'function' ? (next as (p: T) => T)(prev) : next
-        pastRef.current = [...pastRef.current.slice(-(limit - 1)), prev]
-        futureRef.current = []
+        setPast((current) => [...current.slice(-(limit - 1)), prev])
+        setFuture([])
         return resolved
       })
     },
@@ -18,25 +18,31 @@ export function useHistory<T>(initial: T, limit = 50) {
   )
 
   const undo = useCallback(() => {
-    setState((prev) => {
-      const previous = pastRef.current.pop()
-      if (previous === undefined) return prev
-      futureRef.current = [...futureRef.current, prev]
+    setState((current) => {
+      if (past.length === 0) return current
+      const previous = past[past.length - 1]
+      setPast((items) => items.slice(0, -1))
+      setFuture((items) => [...items, current])
       return previous
     })
-  }, [])
+  }, [past])
 
   const redo = useCallback(() => {
-    setState((prev) => {
-      const next = futureRef.current.pop()
-      if (next === undefined) return prev
-      pastRef.current = [...pastRef.current, prev]
+    setState((current) => {
+      if (future.length === 0) return current
+      const next = future[future.length - 1]
+      setFuture((items) => items.slice(0, -1))
+      setPast((items) => [...items, current])
       return next
     })
-  }, [])
+  }, [future])
 
-  const canUndo = pastRef.current.length > 0
-  const canRedo = futureRef.current.length > 0
-
-  return { state, set, undo, redo, canUndo, canRedo }
+  return {
+    state,
+    set,
+    undo,
+    redo,
+    canUndo: past.length > 0,
+    canRedo: future.length > 0,
+  }
 }
