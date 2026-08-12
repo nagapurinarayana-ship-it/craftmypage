@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useCallback, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import InvoiceForm from '../components/invoice/InvoiceForm'
 import InvoicePreview from '../components/invoice/InvoicePreview'
 import type { Invoice, LineItem } from '../lib/invoice'
@@ -8,7 +7,6 @@ import { calculateInvoice } from '../lib/invoice-calculator'
 import { saveInvoice, getInvoice, getAllInvoices, deleteInvoice, exportInvoiceJSON, importInvoiceJSON } from '../lib/invoice-storage'
 import { generateInvoicePDF, sanitizeFileName } from '../lib/invoice-pdf'
 import { downloadBlob } from '../lib/export'
-import { SITE_URL } from '../config/site'
 
 type InvoiceAction =
   | { type: 'SET_INVOICE'; invoice: Invoice }
@@ -137,12 +135,6 @@ export default function InvoiceMakerPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Free Invoice Maker — Create & Download PDF Invoices</title>
-        <meta name="description" content="Create professional PDF invoices for free. Add items, taxes, discounts and your logo, then download privately with no account, watermark or uploads." />
-        <link rel="canonical" href={`${SITE_URL}/tools/invoice-maker`} />
-      </Helmet>
-
       <div className="cmp-tool-shell">
         <div className="cmp-tool-header print:hidden sticky top-20 z-30">
           <div className="min-w-0">
