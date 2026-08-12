@@ -72,6 +72,11 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
 
 export default function RouteSeo() {
   const { pathname } = useLocation()
+
+  // Dedicated invoice-intent pages own their metadata so they can describe each
+  // search intent precisely without creating duplicate head tags.
+  if (pathname.startsWith('/invoices/')) return null
+
   const meta = getRouteMetadata(pathname)
   const softwareSchema = meta.software
     ? {
