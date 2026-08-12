@@ -6,6 +6,7 @@ import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 const InvitationMakerPage = lazy(() => import('./pages/InvitationMakerPage'))
 const InvoiceMakerPage = lazy(() => import('./pages/InvoiceMakerPage'))
@@ -16,7 +17,7 @@ const GuidePage = lazy(() => import('./pages/GuidePage'))
 const InvitationCategoryPage = lazy(() => import('./pages/InvitationCategoryPage'))
 
 function RouteFallback() {
-  return <div className="p-8 text-center text-gray-500">Loading…</div>
+  return <div className="cmp-tool-shell p-8 text-center text-slate-500" role="status" aria-live="polite">Loading…</div>
 }
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/invitation-maker" element={<Navigate to="/tools/invitation-maker" replace />} />
           <Route path="/resume-builder" element={<Navigate to="/tools/resume-builder" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </Suspense>
