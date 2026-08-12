@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
-import HomePage from './pages/HomePage'
+import HomePage from './pages/HomePageInvoiceFirst'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import AboutPage from './pages/AboutPage'
