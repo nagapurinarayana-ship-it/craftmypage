@@ -95,6 +95,8 @@ export default function RouteSeo() {
     <Helmet>
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
+      <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+      <meta name="googlebot" content="index,follow" />
       <link rel="canonical" href={meta.canonical} />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="CraftMyPage" />
