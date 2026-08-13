@@ -47,6 +47,7 @@ test.describe('Invoice Maker production export validation', () => {
 
   test('paginates long invoices instead of overflowing a page', async ({ page }) => {
     test.setTimeout(120_000)
+    await createInvoice(page)
 
     for (let i = 0; i < 30; i += 1) {
       const descriptions = page.getByPlaceholder('Item or service description')
