@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+import AppErrorBoundary from './components/AppErrorBoundary'
 import HomePage from './pages/HomePageInvoiceFirst'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
@@ -25,29 +26,31 @@ function RouteFallback() {
 
 export default function App() {
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/tools/invitation-maker" element={<InvitationMakerPage />} />
-          <Route path="/tools/invoice-maker" element={<InvoiceMakerPage />} />
-          <Route path="/tools/resume-builder" element={<ResumeBuilderPage />} />
-          <Route path="/invitations/:category" element={<InvitationCategoryPage />} />
-          <Route path="/invitations/:intent/maker" element={<InvitationLandingPage />} />
-          <Route path="/invoices/:intent" element={<InvoiceLandingPage />} />
-          <Route path="/resumes/:intent" element={<ResumeLandingPage />} />
-          <Route path="/guides" element={<GuidesPage />} />
-          <Route path="/guides/:slug" element={<GuidePage />} />
-          <Route path="/guides/how-to-create-an-invoice" element={<InvoiceGuidePage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/invitation-maker" element={<Navigate to="/tools/invitation-maker" replace />} />
-          <Route path="/resume-builder" element={<Navigate to="/tools/resume-builder" replace />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </Suspense>
+    <AppErrorBoundary>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/tools/invitation-maker" element={<InvitationMakerPage />} />
+            <Route path="/tools/invoice-maker" element={<InvoiceMakerPage />} />
+            <Route path="/tools/resume-builder" element={<ResumeBuilderPage />} />
+            <Route path="/invitations/:category" element={<InvitationCategoryPage />} />
+            <Route path="/invitations/:intent/maker" element={<InvitationLandingPage />} />
+            <Route path="/invoices/:intent" element={<InvoiceLandingPage />} />
+            <Route path="/resumes/:intent" element={<ResumeLandingPage />} />
+            <Route path="/guides" element={<GuidesPage />} />
+            <Route path="/guides/:slug" element={<GuidePage />} />
+            <Route path="/guides/how-to-create-an-invoice" element={<InvoiceGuidePage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/invitation-maker" element={<Navigate to="/tools/invitation-maker" replace />} />
+            <Route path="/resume-builder" element={<Navigate to="/tools/resume-builder" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </AppErrorBoundary>
   )
 }
