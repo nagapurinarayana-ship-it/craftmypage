@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useLocation } from 'react-router-dom'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
+const SOCIAL_IMAGE = `${SITE_URL}/og-image.svg`
 
 const GUIDE_METADATA: Record<string, { title: string; description: string; keywords: string }> = {
   'birthday-invitation-whatsapp': { title: 'How to Create a Birthday Invitation for WhatsApp | CraftMyPage', description: 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.', keywords: 'birthday invitation whatsapp, birthday invitation for whatsapp, whatsapp birthday invitation, birthday invite template' },
@@ -84,7 +85,6 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
 export default function RouteSeo() {
   const { pathname } = useLocation()
 
-  // Dedicated landing pages own their metadata to preserve exact search intent.
   if (pathname.startsWith('/invoices/') || pathname.startsWith('/resumes/') || /^\/invitations\/(birthday|wedding|baby|housewarming)\/maker$/.test(pathname)) return null
 
   const meta = getRouteMetadata(pathname)
@@ -115,9 +115,15 @@ export default function RouteSeo() {
       <meta property="og:title" content={meta.title} />
       <meta property="og:description" content={meta.description} />
       <meta property="og:url" content={meta.canonical} />
+      <meta property="og:image" content={SOCIAL_IMAGE} />
+      <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />
+      <meta property="og:image:type" content="image/svg+xml" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={meta.title} />
       <meta name="twitter:description" content={meta.description} />
+      <meta name="twitter:image" content={SOCIAL_IMAGE} />
       {softwareSchema ? <script type="application/ld+json">{JSON.stringify(softwareSchema)}</script> : null}
     </Helmet>
   )
