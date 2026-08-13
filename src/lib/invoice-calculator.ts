@@ -55,17 +55,17 @@ export function calculateInvoice(invoice: Invoice): InvoiceCalculations {
       let inclusiveTax = 0
       for (const item of invoice.lineItems) {
         const itemAmount = calculateLineItemAmount(item)
-        const rate = Number.isFinite(item.taxRate) ? Math.max(0, item.taxRate) : 0
+        const rate = clampPercentage(item.taxRate)
         if (itemAmount > 0 && rate > 0) inclusiveTax += itemAmount - itemAmount / (1 + rate / 100)
       }
       taxAmount = roundToDecimalPlaces(inclusiveTax, 2)
-      subtotalBeforeTax = roundToDecimalPlaces(subtotalBeforeTax - taxAmount, 2)
+      subtotalBeforeTax = roundToDecimalPlaces(Math.max(0, subtotalBeforeTax - taxAmount), 2)
     } else {
       let totalTaxableAmount = 0
       let weightedTaxRate = 0
       for (const item of invoice.lineItems) {
         const itemAmount = calculateLineItemAmount(item)
-        const rate = Number.isFinite(item.taxRate) ? Math.max(0, item.taxRate) : 0
+        const rate = clampPercentage(item.taxRate)
         totalTaxableAmount += itemAmount
         weightedTaxRate += itemAmount * rate
       }
@@ -82,14 +82,19 @@ export function calculateInvoice(invoice: Invoice): InvoiceCalculations {
     let sgstTotal = 0
     let igstTotal = 0
 
+    const cgstRate = clampPercentage(gst.cgstRate)
+    const sgstRate = clampPercentage(gst.sgstRate)
+    const igstRate = clampPercentage(gst.igstRate)
+
     for (const item of invoice.lineItems) {
       const itemAmount = calculateLineItemAmount(item)
-      if (itemAmount <= 0 || item.taxRate <= 0) continue
+      if (itemAmount <= 0) continue
+
       if (gst.purpose === 'intra-state') {
-        cgstTotal += (itemAmount * Math.max(0, gst.cgstRate)) / 100
-        sgstTotal += (itemAmount * Math.max(0, gst.sgstRate)) / 100
+        cgstTotal += (itemAmount * cgstRate) / 100
+        sgstTotal += (itemAmount * sgstRate) / 100
       } else {
-        igstTotal += (itemAmount * Math.max(0, gst.igstRate)) / 100
+        igstTotal += (itemAmount * igstRate) / 100
       }
     }
 
@@ -97,9 +102,9 @@ export function calculateInvoice(invoice: Invoice): InvoiceCalculations {
     sgstTotal = roundToDecimalPlaces(sgstTotal, 2)
     igstTotal = roundToDecimalPlaces(igstTotal, 2)
     taxAmount = roundToDecimalPlaces(cgstTotal + sgstTotal + igstTotal, 2)
-    if (cgstTotal > 0) taxBreakdown[`CGST (${gst.cgstRate}%)`] = cgstTotal
-    if (sgstTotal > 0) taxBreakdown[`SGST (${gst.sgstRate}%)`] = sgstTotal
-    if (igstTotal > 0) taxBreakdown[`IGST (${gst.igstRate}%)`] = igstTotal
+    if (cgstTotal > 0) taxBreakdown[`CGST (${cgstRate}%)`] = cgstTotal
+    if (sgstTotal > 0) taxBreakdown[`SGST (${sgstRate}%)`] = sgstTotal
+    if (igstTotal > 0) taxBreakdown[`IGST (${igstRate}%)`] = igstTotal
   }
 
   const grandTotal = roundToDecimalPlaces(subtotalBeforeTax + taxAmount, 2)
@@ -107,6 +112,11 @@ export function calculateInvoice(invoice: Invoice): InvoiceCalculations {
   const balanceDue = roundToDecimalPlaces(grandTotal - amountPaid, 2)
 
   return { subtotal, discountAmount, discountedSubtotal, shippingCharge, adjustment, subtotalBeforeTax, taxAmount, taxBreakdown, amountPaid, balanceDue, grandTotal }
+}
+
+function clampPercentage(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  return Math.min(100, Math.max(0, value))
 }
 
 export function roundToDecimalPlaces(amount: number, places: number): number {

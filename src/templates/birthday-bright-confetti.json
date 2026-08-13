@@ -1,0 +1,22 @@
+{
+  "id": "birthday-bright-confetti",
+  "category": "birthday",
+  "name": "Bright Birthday Confetti",
+  "description": "A cheerful birthday invitation with bold typography and playful confetti accents.",
+  "canvas": { "width": 1500, "height": 2100, "size": "portrait" },
+  "background": { "fill": "#fff7ed" },
+  "elements": [
+    { "type": "shape", "key": "frame", "shapeType": "rect", "x": 70, "y": 70, "width": 1360, "height": 1960, "stroke": "#fb7185", "strokeWidth": 5, "fill": "transparent" },
+    { "type": "text", "key": "eyebrow", "editable": true, "default": "YOU'RE INVITED TO A", "placeholder": "Enter invitation heading", "x": 180, "y": 300, "width": 1140, "height": 90, "fontSize": 42, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#c2410c", "align": "center" },
+    { "type": "text", "key": "name", "editable": true, "default": "Birthday Celebration", "placeholder": "Enter birthday name", "x": 140, "y": 470, "width": 1220, "height": 220, "fontSize": 86, "fontFamily": "Georgia", "fontWeight": "bold", "fill": "#be123c", "align": "center" },
+    { "type": "text", "key": "message", "editable": true, "default": "Come celebrate, laugh and make wonderful memories with us!", "placeholder": "Enter message", "x": 220, "y": 800, "width": 1060, "height": 180, "fontSize": 42, "fontFamily": "Arial", "fill": "#7c2d12", "align": "center", "lineHeight": 1.4 },
+    { "type": "text", "key": "date", "editable": true, "default": "Saturday, 14 November 2026", "placeholder": "Enter date", "x": 150, "y": 1110, "width": 1200, "height": 100, "fontSize": 52, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#c2410c", "align": "center" },
+    { "type": "text", "key": "time", "editable": true, "default": "6:00 PM onwards", "placeholder": "Enter time", "x": 150, "y": 1260, "width": 1200, "height": 90, "fontSize": 40, "fontFamily": "Arial", "fill": "#7c2d12", "align": "center" },
+    { "type": "text", "key": "venue", "editable": true, "default": "The Celebration Hall, Hyderabad", "placeholder": "Enter venue", "x": 150, "y": 1430, "width": 1200, "height": 100, "fontSize": 42, "fontFamily": "Arial", "fill": "#7c2d12", "align": "center" },
+    { "type": "text", "key": "rsvp", "editable": true, "default": "RSVP · 98765 43210", "placeholder": "Enter RSVP details", "x": 180, "y": 1740, "width": 1140, "height": 80, "fontSize": 32, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#be123c", "align": "center" },
+    { "type": "decoration", "key": "confetti1", "kind": "circle", "x": 220, "y": 220, "size": 28, "color": "#f97316" },
+    { "type": "decoration", "key": "confetti2", "kind": "diamond", "x": 1280, "y": 260, "size": 34, "color": "#e11d48" },
+    { "type": "decoration", "key": "confetti3", "kind": "circle", "x": 260, "y": 1610, "size": 24, "color": "#f59e0b" },
+    { "type": "decoration", "key": "confetti4", "kind": "diamond", "x": 1240, "y": 1580, "size": 30, "color": "#fb7185" }
+  ]
+}

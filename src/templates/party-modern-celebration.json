@@ -1,0 +1,20 @@
+{
+  "id": "party-modern-celebration",
+  "category": "party",
+  "name": "Modern Celebration",
+  "description": "A clean modern invitation for parties and casual celebrations.",
+  "canvas": { "width": 1500, "height": 2100, "size": "portrait" },
+  "background": { "fill": "#f8fafc" },
+  "elements": [
+    { "type": "shape", "key": "frame", "shapeType": "rect", "x": 70, "y": 70, "width": 1360, "height": 1960, "stroke": "#6366f1", "strokeWidth": 5, "fill": "transparent" },
+    { "type": "text", "key": "heading", "editable": true, "default": "LET'S CELEBRATE", "placeholder": "Enter heading", "x": 180, "y": 320, "width": 1140, "height": 100, "fontSize": 48, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#4f46e5", "align": "center" },
+    { "type": "text", "key": "title", "editable": true, "default": "Party Time", "placeholder": "Enter title", "x": 140, "y": 500, "width": 1220, "height": 200, "fontSize": 92, "fontFamily": "Georgia", "fontWeight": "bold", "fill": "#111827", "align": "center" },
+    { "type": "text", "key": "message", "editable": true, "default": "Join us for an evening of music, food and good company.", "placeholder": "Enter message", "x": 210, "y": 820, "width": 1080, "height": 180, "fontSize": 42, "fontFamily": "Arial", "fill": "#475569", "align": "center", "lineHeight": 1.4 },
+    { "type": "text", "key": "date", "editable": true, "default": "Friday, 20 November 2026", "placeholder": "Enter date", "x": 150, "y": 1110, "width": 1200, "height": 100, "fontSize": 52, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#4f46e5", "align": "center" },
+    { "type": "text", "key": "time", "editable": true, "default": "8:00 PM onwards", "placeholder": "Enter time", "x": 150, "y": 1260, "width": 1200, "height": 90, "fontSize": 40, "fontFamily": "Arial", "fill": "#475569", "align": "center" },
+    { "type": "text", "key": "venue", "editable": true, "default": "The Garden Hall, Bengaluru", "placeholder": "Enter venue", "x": 150, "y": 1430, "width": 1200, "height": 100, "fontSize": 44, "fontFamily": "Arial", "fill": "#334155", "align": "center" },
+    { "type": "text", "key": "footer", "editable": true, "default": "RSVP · 98765 43210", "placeholder": "Enter RSVP details", "x": 180, "y": 1740, "width": 1140, "height": 80, "fontSize": 34, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#4f46e5", "align": "center" },
+    { "type": "decoration", "key": "accent1", "kind": "circle", "x": 230, "y": 230, "size": 32, "color": "#22d3ee" },
+    { "type": "decoration", "key": "accent2", "kind": "diamond", "x": 1270, "y": 260, "size": 34, "color": "#f59e0b" }
+  ]
+}
