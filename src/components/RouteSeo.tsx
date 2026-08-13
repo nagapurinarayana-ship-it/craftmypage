@@ -3,41 +3,52 @@ import { useLocation } from 'react-router-dom'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
 
-const GUIDE_METADATA: Record<string, { title: string; description: string }> = {
-  'birthday-invitation-whatsapp': { title: 'How to Create a Birthday Invitation for WhatsApp | CraftMyPage', description: 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.' },
-  'wedding-invitation-wording': { title: 'Wedding Invitation Wording Examples | CraftMyPage', description: 'Classic, modern, and Indian wedding invitation wording examples you can customize.' },
-  'invitation-details': { title: 'What Details Should an Invitation Contain? | CraftMyPage', description: 'A practical checklist of the essential details every invitation should include.' },
-  'invitation-sizes': { title: 'Invitation Sizes for WhatsApp, Instagram and Print | CraftMyPage', description: 'Choose practical invitation dimensions for messaging, social media, and printing.' },
-  'housewarming-invitation-wording': { title: 'Housewarming Invitation Wording | CraftMyPage', description: 'Warm and formal housewarming and Gruhapravesam invitation wording examples.' },
-  'naming-ceremony-invitation': { title: 'Naming Ceremony Invitation Examples | CraftMyPage', description: 'Naming ceremony invitation wording and design ideas for a memorable celebration.' },
-  'ats-friendly-resume': { title: 'How to Create an ATS-Friendly Resume | CraftMyPage', description: 'Practical ATS-friendly resume tips covering headings, formatting, keywords, and layout.' },
-  'fresher-resume-format': { title: 'Fresher Resume Format with Examples | CraftMyPage', description: 'A clear resume structure for students and fresh graduates with limited experience.' },
-  'software-engineer-resume': { title: 'Software Engineer Resume Guide | CraftMyPage', description: 'Practical tips for writing a software engineering resume that highlights measurable impact.' },
-  'one-page-vs-two-page-resume': { title: 'One-Page vs Two-Page Resume | CraftMyPage', description: 'Understand when a one-page or two-page resume is the better choice.' },
+const GUIDE_METADATA: Record<string, { title: string; description: string; keywords: string }> = {
+  'birthday-invitation-whatsapp': { title: 'How to Create a Birthday Invitation for WhatsApp | CraftMyPage', description: 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.', keywords: 'birthday invitation whatsapp, birthday invitation for whatsapp, whatsapp birthday invitation, birthday invite template' },
+  'wedding-invitation-wording': { title: 'Wedding Invitation Wording Examples | CraftMyPage', description: 'Classic, modern, and Indian wedding invitation wording examples you can customize.', keywords: 'wedding invitation wording, wedding invite wording, wedding invitation examples, indian wedding invitation wording' },
+  'invitation-details': { title: 'What Details Should an Invitation Contain? | CraftMyPage', description: 'A practical checklist of the essential details every invitation should include.', keywords: 'invitation details, invitation checklist, invitation card details, what to include on an invitation' },
+  'invitation-sizes': { title: 'Invitation Sizes for WhatsApp, Instagram and Print | CraftMyPage', description: 'Choose practical invitation dimensions for messaging, social media, and printing.', keywords: 'invitation size, invitation card size, whatsapp invitation size, instagram invitation size, printable invitation size' },
+  'housewarming-invitation-wording': { title: 'Housewarming Invitation Wording | CraftMyPage', description: 'Warm and formal housewarming and Gruhapravesam invitation wording examples.', keywords: 'housewarming invitation wording, housewarming invite, gruhapravesam invitation wording, new home invitation' },
+  'naming-ceremony-invitation': { title: 'Naming Ceremony Invitation Examples | CraftMyPage', description: 'Naming ceremony invitation wording and design ideas for a memorable celebration.', keywords: 'naming ceremony invitation, baby naming invitation, naming ceremony invite, naming ceremony wording' },
+  'ats-friendly-resume': { title: 'How to Create an ATS-Friendly Resume | CraftMyPage', description: 'Practical ATS-friendly resume tips covering headings, formatting, keywords, and layout.', keywords: 'ats friendly resume, ats resume, ats resume format, ats resume tips, applicant tracking system resume' },
+  'fresher-resume-format': { title: 'Fresher Resume Format with Examples | CraftMyPage', description: 'A clear resume structure for students and fresh graduates with limited experience.', keywords: 'fresher resume format, resume for freshers, student resume, graduate resume, fresher resume examples' },
+  'software-engineer-resume': { title: 'Software Engineer Resume Guide | CraftMyPage', description: 'Practical tips for writing a software engineering resume that highlights measurable impact.', keywords: 'software engineer resume, software developer resume, engineering resume, software engineer cv' },
+  'one-page-vs-two-page-resume': { title: 'One-Page vs Two-Page Resume | CraftMyPage', description: 'Understand when a one-page or two-page resume is the better choice.', keywords: 'one page resume, two page resume, resume length, one page vs two page resume' },
 }
 
-const CATEGORY_METADATA: Record<string, { name: string; description: string }> = {
-  birthday: { name: 'Birthday', description: 'Free birthday invitation templates you can customize in your browser.' },
-  wedding: { name: 'Wedding', description: 'Free wedding invitation templates for elegant and modern celebrations.' },
-  engagement: { name: 'Engagement', description: 'Free engagement invitation templates you can customize and download.' },
-  baby: { name: 'Baby Shower', description: 'Free baby shower invitation templates for sharing and printing.' },
-  housewarming: { name: 'Housewarming', description: 'Free housewarming and Gruhapravesam invitation templates.' },
-  naming: { name: 'Naming Ceremony', description: 'Free naming ceremony invitation templates for family celebrations.' },
-  party: { name: 'Party', description: 'Free party invitation templates for birthdays, gatherings, and celebrations.' },
-  anniversary: { name: 'Anniversary', description: 'Free anniversary invitation templates for romantic and family celebrations.' },
+const CATEGORY_METADATA: Record<string, { name: string; description: string; keywords: string }> = {
+  birthday: { name: 'Birthday', description: 'Free birthday invitation templates you can customize in your browser.', keywords: 'birthday invitation templates, birthday invite template, free birthday invitation, birthday card maker' },
+  wedding: { name: 'Wedding', description: 'Free wedding invitation templates for elegant and modern celebrations.', keywords: 'wedding invitation templates, wedding invite template, free wedding invitation, wedding card maker' },
+  engagement: { name: 'Engagement', description: 'Free engagement invitation templates you can customize and download.', keywords: 'engagement invitation templates, engagement invite, free engagement invitation, engagement card maker' },
+  baby: { name: 'Baby Shower', description: 'Free baby shower invitation templates for sharing and printing.', keywords: 'baby shower invitation templates, baby shower invite, free baby shower invitation, baby shower card maker' },
+  housewarming: { name: 'Housewarming', description: 'Free housewarming and Gruhapravesam invitation templates.', keywords: 'housewarming invitation templates, gruhapravesam invitation, housewarming invite, new home invitation' },
+  naming: { name: 'Naming Ceremony', description: 'Free naming ceremony invitation templates for family celebrations.', keywords: 'naming ceremony invitation templates, baby naming invitation, naming ceremony invite, free naming ceremony invitation' },
+  party: { name: 'Party', description: 'Free party invitation templates for birthdays, gatherings, and celebrations.', keywords: 'party invitation templates, party invite maker, free party invitation, celebration invitation' },
+  anniversary: { name: 'Anniversary', description: 'Free anniversary invitation templates for romantic and family celebrations.', keywords: 'anniversary invitation templates, anniversary invite, free anniversary invitation, anniversary card maker' },
 }
 
-const TOOL_METADATA: Record<string, { name: string; description: string }> = {
-  '/tools/invoice-maker': { name: 'Free Invoice Maker', description: 'Create professional invoices in your browser, save drafts locally, calculate taxes and download A4 invoice PDFs.' },
-  '/tools/invitation-maker': { name: 'Free Invitation Maker', description: 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.' },
-  '/tools/resume-builder': { name: 'Free Resume Builder', description: 'Build a clean ATS-friendly resume from a template, edit it in your browser, and download an A4 PDF.' },
+const TOOL_METADATA: Record<string, { name: string; description: string; keywords: string }> = {
+  '/tools/invoice-maker': { name: 'Free Invoice Maker', description: 'Create professional invoices in your browser, save drafts locally, calculate taxes and download A4 invoice PDFs.', keywords: 'free invoice maker, online invoice maker, invoice generator, invoice template, invoice PDF maker' },
+  '/tools/invitation-maker': { name: 'Free Invitation Maker', description: 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.', keywords: 'free invitation maker, online invitation maker, invitation card maker, invitation template maker, digital invitation maker' },
+  '/tools/resume-builder': { name: 'Free Resume Builder', description: 'Build a clean ATS-friendly resume from a template, edit it in your browser, and download an A4 PDF.', keywords: 'free resume builder, online resume builder, ats resume builder, resume maker, CV builder' },
 }
 
-function getRouteMetadata(pathname: string): { title: string; description: string; canonical: string; software?: { name: string; description: string } } {
+const ROUTE_KEYWORDS: Record<string, string> = {
+  '/': 'free invoice maker, free invitation maker, free resume builder, invoice generator, invitation maker, resume builder, online document maker',
+  '/guides': 'invoice guides, invitation guides, resume guides, invoice tips, invitation tips, resume tips',
+  '/guides/how-to-create-an-invoice': 'how to create an invoice, invoice guide, professional invoice, invoice format, invoice best practices',
+  '/about': 'CraftMyPage, browser document editor, privacy first document tools',
+  '/contact': 'CraftMyPage contact, support, feedback',
+  '/privacy': 'CraftMyPage privacy policy, local browser storage, document privacy',
+  '/terms': 'CraftMyPage terms of use, document tools terms',
+}
+
+function getRouteMetadata(pathname: string): { title: string; description: string; canonical: string; keywords: string; software?: { name: string; description: string } } {
   if (pathname === '/') return {
     title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder',
     description: 'Create professional invoices, invitations and resumes in your browser. No account, no watermark and no core document uploads.',
     canonical: `${SITE_URL}/`,
+    keywords: ROUTE_KEYWORDS['/'],
   }
 
   const staticRoutes: Record<string, { title: string; description: string }> = {
@@ -50,24 +61,24 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   }
 
   const toolMeta = TOOL_METADATA[pathname]
-  if (toolMeta) return { title: `${toolMeta.name} | CraftMyPage`, description: toolMeta.description, canonical: SITE_URL + pathname, software: toolMeta }
+  if (toolMeta) return { title: `${toolMeta.name} | CraftMyPage`, description: toolMeta.description, canonical: SITE_URL + pathname, keywords: toolMeta.keywords, software: toolMeta }
 
   const staticMeta = staticRoutes[pathname]
-  if (staticMeta) return { ...staticMeta, canonical: SITE_URL + pathname }
+  if (staticMeta) return { ...staticMeta, canonical: SITE_URL + pathname, keywords: ROUTE_KEYWORDS[pathname] || 'CraftMyPage, online document tools' }
 
   const guideMatch = pathname.match(/^\/guides\/([^/]+)$/)
   if (guideMatch) {
     const meta = GUIDE_METADATA[guideMatch[1]]
-    return meta ? { ...meta, canonical: SITE_URL + pathname } : { title: 'Guide Not Found | CraftMyPage', description: 'The requested CraftMyPage guide could not be found.', canonical: SITE_URL + pathname }
+    return meta ? { ...meta, canonical: SITE_URL + pathname } : { title: 'Guide Not Found | CraftMyPage', description: 'The requested CraftMyPage guide could not be found.', canonical: SITE_URL + pathname, keywords: 'CraftMyPage guides, document guides' }
   }
 
   const categoryMatch = pathname.match(/^\/invitations\/([^/]+)$/)
   if (categoryMatch) {
     const category = CATEGORY_METADATA[categoryMatch[1]]
-    return category ? { title: `${category.name} Invitation Templates | CraftMyPage`, description: category.description, canonical: SITE_URL + pathname } : { title: 'Invitation Templates | CraftMyPage', description: 'Browse free invitation templates you can customize in your browser.', canonical: SITE_URL + pathname }
+    return category ? { title: `${category.name} Invitation Templates | CraftMyPage`, description: category.description, canonical: SITE_URL + pathname, keywords: category.keywords } : { title: 'Invitation Templates | CraftMyPage', description: 'Browse free invitation templates you can customize in your browser.', canonical: SITE_URL + pathname, keywords: 'free invitation templates, invitation maker, invitation card maker' }
   }
 
-  return { title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', description: 'Create professional invoices, invitations and resumes in your browser.', canonical: SITE_URL + pathname }
+  return { title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', description: 'Create professional invoices, invitations and resumes in your browser.', canonical: SITE_URL + pathname, keywords: 'CraftMyPage, invoice maker, invitation maker, resume builder' }
 }
 
 export default function RouteSeo() {
@@ -95,6 +106,7 @@ export default function RouteSeo() {
     <Helmet>
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
+      <meta name="keywords" content={meta.keywords} />
       <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
       <meta name="googlebot" content="index,follow" />
       <link rel="canonical" href={meta.canonical} />
