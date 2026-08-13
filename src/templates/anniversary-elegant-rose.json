@@ -1,0 +1,20 @@
+{
+  "id": "anniversary-elegant-rose",
+  "category": "anniversary",
+  "name": "Elegant Anniversary Rose",
+  "description": "A warm anniversary invitation with elegant rose accents.",
+  "canvas": { "width": 1500, "height": 2100, "size": "portrait" },
+  "background": { "fill": "#fff1f2" },
+  "elements": [
+    { "type": "shape", "key": "frame", "shapeType": "rect", "x": 70, "y": 70, "width": 1360, "height": 1960, "stroke": "#be123c", "strokeWidth": 4, "fill": "transparent" },
+    { "type": "text", "key": "heading", "editable": true, "default": "CELEBRATING LOVE", "placeholder": "Enter heading", "x": 180, "y": 330, "width": 1140, "height": 100, "fontSize": 44, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#be123c", "align": "center" },
+    { "type": "text", "key": "names", "editable": true, "default": "Aarav & Ananya", "placeholder": "Enter names", "x": 140, "y": 500, "width": 1220, "height": 200, "fontSize": 88, "fontFamily": "Georgia", "fontWeight": "bold", "fill": "#881337", "align": "center" },
+    { "type": "text", "key": "message", "editable": true, "default": "Please join us as we celebrate another beautiful year together.", "placeholder": "Enter message", "x": 210, "y": 820, "width": 1080, "height": 190, "fontSize": 40, "fontFamily": "Georgia", "fill": "#4c0519", "align": "center", "lineHeight": 1.4 },
+    { "type": "text", "key": "date", "editable": true, "default": "Saturday, 28 November 2026", "placeholder": "Enter date", "x": 150, "y": 1120, "width": 1200, "height": 100, "fontSize": 50, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#be123c", "align": "center" },
+    { "type": "text", "key": "time", "editable": true, "default": "7:00 PM onwards", "placeholder": "Enter time", "x": 150, "y": 1270, "width": 1200, "height": 90, "fontSize": 38, "fontFamily": "Arial", "fill": "#4c0519", "align": "center" },
+    { "type": "text", "key": "venue", "editable": true, "default": "The Rose Garden, Hyderabad", "placeholder": "Enter venue", "x": 150, "y": 1430, "width": 1200, "height": 100, "fontSize": 42, "fontFamily": "Arial", "fill": "#4c0519", "align": "center" },
+    { "type": "text", "key": "footer", "editable": true, "default": "RSVP · 98765 43210", "placeholder": "Enter RSVP details", "x": 180, "y": 1740, "width": 1140, "height": 80, "fontSize": 32, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#be123c", "align": "center" },
+    { "type": "decoration", "key": "rose1", "kind": "circle", "x": 230, "y": 230, "size": 32, "color": "#fb7185" },
+    { "type": "decoration", "key": "rose2", "kind": "circle", "x": 1270, "y": 260, "size": 34, "color": "#e11d48" }
+  ]
+}
