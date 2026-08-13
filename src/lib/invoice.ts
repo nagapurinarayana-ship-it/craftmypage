@@ -19,8 +19,8 @@ export interface BusinessDetails {
   postalCode: string
   country: string
   website: string
-  taxId: string // GSTIN for India, Tax ID for others
-  logo: string | null // Base64 encoded image or null
+  taxId: string
+  logo: string | null
 }
 
 export interface CustomerDetails {
@@ -45,19 +45,19 @@ export interface CustomerDetails {
 export interface LineItem {
   id: string
   description: string
-  itemCode: string // HSN/SAC or item code
+  itemCode: string
   quantity: number
-  unit: string // e.g., "pcs", "hrs", "kg"
+  unit: string
   unitPrice: number
-  discount: number // Fixed amount or percentage (handled in calculations)
+  discount: number
   discountType: 'fixed' | 'percentage'
-  taxRate: number // Percentage
+  taxRate: number
 }
 
 export interface InvoiceDetails {
   invoiceNumber: string
-  issueDate: string // YYYY-MM-DD
-  dueDate: string // YYYY-MM-DD
+  issueDate: string
+  dueDate: string
   referenceNumber: string
   currency: Currency
   paymentTerms: string
@@ -107,7 +107,7 @@ export interface InvoiceCalculations {
   adjustment: number
   subtotalBeforeTax: number
   taxAmount: number
-  taxBreakdown: Record<string, number> // e.g., { '18%': 1800, '5%': 500 }
+  taxBreakdown: Record<string, number>
   amountPaid: number
   balanceDue: number
   grandTotal: number
@@ -122,105 +122,34 @@ export interface Invoice {
   settings: InvoiceSettings
   paymentInfo: PaymentInfo
   template: 'professional' | 'minimal' | 'modern'
-  accentColor: string // Hex color
+  accentColor: string
   calculations: InvoiceCalculations
   createdAt: number
   updatedAt: number
   draftName: string
 }
 
-// Default values
-
 export function createEmptyInvoice(id: string): Invoice {
   return {
     id,
     business: {
-      name: '',
-      contactPerson: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-      website: '',
-      taxId: '',
-      logo: null,
+      name: '', contactPerson: '', email: '', phone: '', address: '', city: '', state: '', postalCode: '', country: '', website: '', taxId: '', logo: null,
     },
     customer: {
-      name: '',
-      contactPerson: '',
-      email: '',
-      phone: '',
-      billingAddress: '',
-      billingCity: '',
-      billingState: '',
-      billingPostalCode: '',
-      billingCountry: '',
-      taxId: '',
-      shippingAddressSame: true,
-      shippingAddress: '',
-      shippingCity: '',
-      shippingState: '',
-      shippingPostalCode: '',
-      shippingCountry: '',
+      name: '', contactPerson: '', email: '', phone: '', billingAddress: '', billingCity: '', billingState: '', billingPostalCode: '', billingCountry: '', taxId: '', shippingAddressSame: true, shippingAddress: '', shippingCity: '', shippingState: '', shippingPostalCode: '', shippingCountry: '',
     },
     invoiceDetails: {
       invoiceNumber: generateDefaultInvoiceNumber(),
       issueDate: new Date().toISOString().split('T')[0],
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      referenceNumber: '',
-      currency: 'INR',
-      paymentTerms: 'Net 30',
-      title: 'Invoice',
-      projectPeriod: '',
+      referenceNumber: '', currency: 'INR', paymentTerms: 'Net 30', title: 'Invoice', projectPeriod: '',
     },
-    lineItems: [
-      {
-        id: generateId(),
-        description: '',
-        itemCode: '',
-        quantity: 1,
-        unit: 'pcs',
-        unitPrice: 0,
-        discount: 0,
-        discountType: 'fixed',
-        taxRate: 0,
-      },
-    ],
-    settings: {
-      taxMode: 'none',
-    },
-    paymentInfo: {
-      instructions: '',
-      bankName: '',
-      accountNumber: '',
-      ifscCode: '',
-      upiId: '',
-      notes: '',
-      termsAndConditions: '',
-      thankYouMessage: '',
-      signatureField: '',
-    },
-    template: 'professional',
-    accentColor: '#2563eb',
-    calculations: {
-      subtotal: 0,
-      discountAmount: 0,
-      discountedSubtotal: 0,
-      shippingCharge: 0,
-      adjustment: 0,
-      subtotalBeforeTax: 0,
-      taxAmount: 0,
-      taxBreakdown: {},
-      amountPaid: 0,
-      balanceDue: 0,
-      grandTotal: 0,
-    },
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    draftName: 'Untitled Invoice',
+    lineItems: [{ id: generateId(), description: '', itemCode: '', unit: 'pcs', quantity: 1, unitPrice: 0, discount: 0, discountType: 'fixed', taxRate: 0 }],
+    settings: { taxMode: 'none' },
+    paymentInfo: { instructions: '', bankName: '', accountNumber: '', ifscCode: '', upiId: '', notes: '', termsAndConditions: '', thankYouMessage: '', signatureField: '' },
+    template: 'professional', accentColor: '#2563eb',
+    calculations: { subtotal: 0, discountAmount: 0, discountedSubtotal: 0, shippingCharge: 0, adjustment: 0, subtotalBeforeTax: 0, taxAmount: 0, taxBreakdown: {}, amountPaid: 0, balanceDue: 0, grandTotal: 0 },
+    createdAt: Date.now(), updatedAt: Date.now(), draftName: 'Untitled Invoice',
   }
 }
 
@@ -235,56 +164,27 @@ export function generateDefaultInvoiceNumber(): string {
   return `INV-${year}-${month}-${random}`
 }
 
-// Validation helpers
-
 export function isValidInvoice(invoice: Invoice): { valid: boolean; errors: string[] } {
   const errors: string[] = []
-
-  if (!invoice.business.name.trim()) {
-    errors.push('Business name is required')
-  }
-
-  if (!invoice.invoiceDetails.invoiceNumber.trim()) {
-    errors.push('Invoice number is required')
-  }
-
-  if (!isValidISODate(invoice.invoiceDetails.issueDate)) {
-    errors.push('Issue date must be valid YYYY-MM-DD format')
-  }
-
-  if (!isValidISODate(invoice.invoiceDetails.dueDate)) {
-    errors.push('Due date must be valid YYYY-MM-DD format')
-  }
-
-  if (invoice.lineItems.length === 0) {
-    errors.push('At least one line item is required')
-  }
-
+  if (!invoice.business.name.trim()) errors.push('Business name is required')
+  if (!invoice.invoiceDetails.invoiceNumber.trim()) errors.push('Invoice number is required')
+  if (!isValidISODate(invoice.invoiceDetails.issueDate)) errors.push('Issue date must be valid YYYY-MM-DD format')
+  if (!isValidISODate(invoice.invoiceDetails.dueDate)) errors.push('Due date must be valid YYYY-MM-DD format')
+  if (invoice.lineItems.length === 0) errors.push('At least one line item is required')
   for (const item of invoice.lineItems) {
-    if (!item.description.trim()) {
-      errors.push(`Line item must have a description`)
-    }
-    if (!isFinite(item.quantity) || item.quantity <= 0) {
-      errors.push(`Line item quantity must be a positive number`)
-    }
-    if (!isFinite(item.unitPrice) || item.unitPrice < 0) {
-      errors.push(`Line item unit price must be non-negative`)
-    }
+    if (!item.description.trim()) errors.push('Line item must have a description')
+    if (!isFinite(item.quantity) || item.quantity <= 0) errors.push('Line item quantity must be a positive number')
+    if (!isFinite(item.unitPrice) || item.unitPrice < 0) errors.push('Line item unit price must be non-negative')
   }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  }
+  return { valid: errors.length === 0, errors }
 }
 
 export function isValidISODate(dateString: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return false
-  const date = new Date(dateString)
-  return date instanceof Date && !isNaN(date.getTime())
+  const [year, month, day] = dateString.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
-
-// Currency configuration
 
 const CURRENCY_CONFIG: Record<Currency, { symbol: string; name: string; decimalPlaces: number }> = {
   INR: { symbol: '₹', name: 'Indian Rupee', decimalPlaces: 2 },
@@ -305,9 +205,6 @@ export function getCurrencyConfig(currency: Currency) {
 export function formatCurrency(amount: number, currency: Currency): string {
   const config = getCurrencyConfig(currency)
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: config.decimalPlaces,
-    maximumFractionDigits: config.decimalPlaces,
+    style: 'currency', currency, minimumFractionDigits: config.decimalPlaces, maximumFractionDigits: config.decimalPlaces,
   }).format(amount)
 }
