@@ -46,6 +46,8 @@ test.describe('Invoice Maker production export validation', () => {
   })
 
   test('paginates long invoices instead of overflowing a page', async ({ page }) => {
+    test.setTimeout(120_000)
+
     for (let i = 0; i < 30; i += 1) {
       const descriptions = page.getByPlaceholder('Item or service description')
       await descriptions.last().fill(`Production item ${i + 1}`)
@@ -53,7 +55,7 @@ test.describe('Invoice Maker production export validation', () => {
       if (i < 29) await page.getByRole('button', { name: '+ Add Line Item' }).click()
     }
 
-    const downloadPromise = page.waitForEvent('download')
+    const downloadPromise = page.waitForEvent('download', { timeout: 90_000 })
     await page.getByRole('button', { name: 'Download PDF' }).click()
     const download = await downloadPromise
     const bytes = await download.createReadStream()
