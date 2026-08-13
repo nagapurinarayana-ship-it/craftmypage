@@ -5,6 +5,7 @@ const PAGES = {
   'gst-invoice': {
     title: 'Free GST Invoice Maker | Create GST Invoices Online | CraftMyPage',
     description: 'Create a professional GST-ready invoice layout in your browser with line items, tax fields, totals and A4 PDF export. Review your tax details before issuing an invoice.',
+    keywords: 'free gst invoice maker, gst invoice generator, gst invoice template, create gst invoice online, gst invoice PDF',
     eyebrow: 'GST invoicing',
     heading: 'Create a clean GST invoice in your browser.',
     intro: 'Build an invoice with business and customer details, line items, taxes, totals and payment information, then export an A4 PDF without uploading the document to a server.',
@@ -13,6 +14,7 @@ const PAGES = {
   'freelancer-invoice': {
     title: 'Free Freelancer Invoice Maker | CraftMyPage',
     description: 'Create a professional freelancer invoice with services, rates, taxes, discounts, due dates and payment terms. Customize it in your browser and download an A4 PDF.',
+    keywords: 'freelancer invoice maker, freelance invoice generator, freelancer invoice template, freelance invoice PDF, free freelancer invoice',
     eyebrow: 'Freelancer invoices',
     heading: 'Create a professional freelancer invoice.',
     intro: 'Turn your services, rates and payment terms into a polished invoice without a complicated accounting suite. Customize the document in your browser and download a clean A4 PDF.',
@@ -21,6 +23,7 @@ const PAGES = {
   'invoice-templates': {
     title: 'Free Invoice Templates | Professional Invoice Maker | CraftMyPage',
     description: 'Choose a professional invoice style and customize business details, line items, taxes, discounts and payment terms. Download a clean A4 invoice PDF.',
+    keywords: 'free invoice templates, professional invoice template, invoice maker, invoice PDF template, printable invoice template',
     eyebrow: 'Invoice templates',
     heading: 'Start from a professional invoice template.',
     intro: 'Pick a focused invoice layout, customize the content you need, and export the finished document as an A4 PDF. The core editor runs in your browser.',
@@ -40,6 +43,7 @@ export default function InvoiceLandingPage() {
       <Helmet>
         <title>{page.title}</title>
         <meta name="description" content={page.description} />
+        <meta name="keywords" content={page.keywords} />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="CraftMyPage" />
