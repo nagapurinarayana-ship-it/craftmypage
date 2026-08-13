@@ -166,17 +166,45 @@ export function generateDefaultInvoiceNumber(): string {
 
 export function isValidInvoice(invoice: Invoice): { valid: boolean; errors: string[] } {
   const errors: string[] = []
+  const { invoiceDetails } = invoice
+
   if (!invoice.business.name.trim()) errors.push('Business name is required')
-  if (!invoice.invoiceDetails.invoiceNumber.trim()) errors.push('Invoice number is required')
-  if (!isValidISODate(invoice.invoiceDetails.issueDate)) errors.push('Issue date must be valid YYYY-MM-DD format')
-  if (!isValidISODate(invoice.invoiceDetails.dueDate)) errors.push('Due date must be valid YYYY-MM-DD format')
+  if (!invoice.customer.name.trim()) errors.push('Customer name is required')
+  if (!invoiceDetails.invoiceNumber.trim()) errors.push('Invoice number is required')
+  if (!isValidISODate(invoiceDetails.issueDate)) errors.push('Issue date must be valid YYYY-MM-DD format')
+  if (!isValidISODate(invoiceDetails.dueDate)) errors.push('Due date must be valid YYYY-MM-DD format')
+  if (isValidISODate(invoiceDetails.issueDate) && isValidISODate(invoiceDetails.dueDate) && invoiceDetails.dueDate < invoiceDetails.issueDate) {
+    errors.push('Due date cannot be earlier than the issue date')
+  }
   if (invoice.lineItems.length === 0) errors.push('At least one line item is required')
+
   for (const item of invoice.lineItems) {
     if (!item.description.trim()) errors.push('Line item must have a description')
     if (!isFinite(item.quantity) || item.quantity <= 0) errors.push('Line item quantity must be a positive number')
     if (!isFinite(item.unitPrice) || item.unitPrice < 0) errors.push('Line item unit price must be non-negative')
+    if (!isFinite(item.discount) || item.discount < 0) errors.push('Line item discount must be non-negative')
+    if (item.discountType === 'percentage' && item.discount > 100) errors.push('Percentage discount cannot exceed 100%')
+    if (item.discountType === 'fixed' && isFinite(item.quantity) && isFinite(item.unitPrice) && item.discount > item.quantity * item.unitPrice) errors.push('Fixed discount cannot exceed the line-item subtotal')
+    if (!isFinite(item.taxRate) || item.taxRate < 0 || item.taxRate > 100) errors.push('Line item tax rate must be between 0% and 100%')
   }
-  return { valid: errors.length === 0, errors }
+
+  if (invoice.settings.taxMode === 'simple' && invoice.settings.simpleTax) {
+    if (!isFinite(invoice.settings.simpleTax.inclusive ? 0 : 0)) errors.push('Invalid simple tax configuration')
+  }
+
+  if (invoice.settings.taxMode === 'india-gst') {
+    const gst = invoice.settings.gst
+    if (!gst) {
+      errors.push('GST settings are required when India GST mode is selected')
+    } else {
+      const rates = [gst.cgstRate, gst.sgstRate, gst.igstRate]
+      if (rates.some((rate) => !isFinite(rate) || rate < 0 || rate > 100)) errors.push('GST rates must be between 0% and 100%')
+      if (gst.purpose === 'intra-state' && gst.igstRate !== 0) errors.push('IGST must be 0 for an intra-state invoice')
+      if (gst.purpose === 'inter-state' && (gst.cgstRate !== 0 || gst.sgstRate !== 0)) errors.push('CGST and SGST must be 0 for an inter-state invoice')
+    }
+  }
+
+  return { valid: errors.length === 0, errors: [...new Set(errors)] }
 }
 
 export function isValidISODate(dateString: string): boolean {
