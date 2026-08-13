@@ -5,6 +5,7 @@ const PAGES = {
   birthday: {
     title: 'Free Birthday Invitation Maker | CraftMyPage',
     description: 'Create a birthday invitation in your browser, customize a focused template, and download a polished PDF or image.',
+    keywords: 'free birthday invitation maker, birthday invitation template, birthday invite maker, birthday card maker, digital birthday invitation',
     eyebrow: 'Birthday invitations',
     heading: 'Create a birthday invitation people will want to open.',
     intro: 'Choose a birthday-ready design, personalize the wording and details, then export a shareable invitation without an account or server upload for the core editor.',
@@ -13,6 +14,7 @@ const PAGES = {
   wedding: {
     title: 'Free Wedding Invitation Maker | CraftMyPage',
     description: 'Create elegant wedding invitations in your browser with customizable templates, wording and print-ready PDF export.',
+    keywords: 'free wedding invitation maker, wedding invitation template, wedding invite maker, wedding card maker, digital wedding invitation',
     eyebrow: 'Wedding invitations',
     heading: 'Create a wedding invitation with a polished finish.',
     intro: 'Start with a focused wedding design, personalize names, ceremony details and wording, then download the finished invitation as a PDF or image.',
@@ -21,6 +23,7 @@ const PAGES = {
   baby: {
     title: 'Free Baby Shower Invitation Maker | CraftMyPage',
     description: 'Create a baby shower invitation online with editable templates, event details and downloadable PDF or image export.',
+    keywords: 'free baby shower invitation maker, baby shower invitation template, baby shower invite maker, baby shower card maker, digital baby shower invitation',
     eyebrow: 'Baby shower invitations',
     heading: 'Create a warm, shareable baby shower invitation.',
     intro: 'Choose a baby-shower-ready template and personalize the host, date, location and RSVP details directly in your browser.',
@@ -29,6 +32,7 @@ const PAGES = {
   housewarming: {
     title: 'Free Housewarming Invitation Maker | CraftMyPage',
     description: 'Create a housewarming or Gruhapravesam invitation in your browser with editable templates and downloadable PDF export.',
+    keywords: 'free housewarming invitation maker, housewarming invitation template, gruhapravesam invitation maker, new home invitation, housewarming card maker',
     eyebrow: 'Housewarming invitations',
     heading: 'Create a housewarming invitation for your new home.',
     intro: 'Build a personalized housewarming or Gruhapravesam invitation with your family, ceremony, date, venue and RSVP details.',
@@ -48,6 +52,7 @@ export default function InvitationLandingPage() {
       <Helmet>
         <title>{page.title}</title>
         <meta name="description" content={page.description} />
+        <meta name="keywords" content={page.keywords} />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="CraftMyPage" />
