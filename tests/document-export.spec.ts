@@ -33,7 +33,7 @@ test.describe('Document export smoke tests', () => {
     await page.getByPlaceholder(/2-4 sentence professional summary/i).fill('Senior software engineer delivering scalable web products with measurable customer impact.')
     await page.getByRole('button', { name: '+ Add experience' }).click()
     await page.getByLabel('Role').fill('Senior Software Engineer')
-    await page.getByLabel('Company').fill('Example Technologies')
+    await page.getByRole('textbox', { name: 'Company' }).fill('Example Technologies')
     await page.getByPlaceholder(/Describe your role/i).fill('Led a product platform migration and reduced release time by 40%.')
 
     const downloadPromise = page.waitForEvent('download')
