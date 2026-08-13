@@ -21,6 +21,17 @@ export function sanitizeFileName(value: string): string {
 export async function generateInvoicePDF(invoice: Invoice): Promise<Blob> {
   const pdfDoc = await PDFDocument.create()
   const calc = calculateInvoice(invoice)
+  const businessName = safeText(invoice.business.name) || 'Invoice'
+  const invoiceTitle = safeText(invoice.invoiceDetails.title) || 'Invoice'
+  const invoiceNumber = safeText(invoice.invoiceDetails.invoiceNumber) || 'Draft'
+
+  pdfDoc.setTitle(`${invoiceTitle} ${invoiceNumber}`.trim())
+  pdfDoc.setAuthor(businessName)
+  pdfDoc.setSubject(`Invoice ${invoiceNumber}`)
+  pdfDoc.setCreator('CraftMyPage Invoice Maker')
+  pdfDoc.setProducer('CraftMyPage Invoice Maker')
+  pdfDoc.setKeywords(['invoice', 'CraftMyPage', invoiceNumber, businessName].filter(Boolean))
+
   if (invoice.template === 'professional') await renderProfessionalPDF(pdfDoc, invoice, calc)
   else if (invoice.template === 'minimal') await renderMinimalPDF(pdfDoc, invoice, calc)
   else await renderModernPDF(pdfDoc, invoice, calc)
