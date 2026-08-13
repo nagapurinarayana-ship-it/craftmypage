@@ -1,7 +1,7 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
 import type { Invoice, Currency } from './invoice'
 import { getCurrencyConfig } from './invoice'
-import { calculateInvoice } from './invoice-calculator'
+import { calculateInvoice, calculateLineItemAmount } from './invoice-calculator'
 
 function formatPdfCurrency(amount: number, currency: Currency): string {
   const config = getCurrencyConfig(currency)
@@ -69,7 +69,7 @@ async function renderProfessionalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc
 
   invoice.lineItems.forEach((item) => {
     if (yPos < 90) { page = pdfDoc.addPage(pageSize); yPos = 760; yPos = addContinuationHeader(page, invoice, timesRoman, timesBold, yPos); drawTableHeader() }
-    const itemAmount = Math.max(0, item.quantity * item.unitPrice - Math.min(item.discount || 0, item.quantity * item.unitPrice))
+    const itemAmount = calculateLineItemAmount(item)
     page.drawText((item.description || 'Item').substring(0, 30), { x: tableX + 10, y: yPos, size: 9, font: timesRoman })
     page.drawText(String(item.quantity), { x: tableX + tableWidth * colWidths[0] + 10, y: yPos, size: 9, font: timesRoman })
     page.drawText(formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency), { x: tableX + tableWidth * (colWidths[0] + colWidths[1]) + 10, y: yPos, size: 9, font: timesRoman })
@@ -97,7 +97,7 @@ async function renderMinimalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: Ret
   page.drawText(invoice.business.name, { x: 50, y: yPos, size: 24, font: helveticaBold }); page.drawText(invoice.invoiceDetails.title, { x: 450, y: yPos, size: 20, font: helveticaBold }); page.drawText(invoice.invoiceDetails.invoiceNumber, { x: 450, y: yPos - 25, size: 10, font: helvetica, color: rgb(0.5, 0.5, 0.5) }); yPos -= 60
   page.drawText('From', { x: 50, y: yPos, size: 10, font: helveticaBold }); page.drawText(invoice.business.name, { x: 50, y: yPos - 15, size: 10, font: helvetica }); if (invoice.business.email) page.drawText(invoice.business.email, { x: 50, y: yPos - 28, size: 9, font: helvetica, color: rgb(0.5, 0.5, 0.5) }); page.drawText('To', { x: 350, y: yPos, size: 10, font: helveticaBold }); page.drawText(invoice.customer.name, { x: 350, y: yPos - 15, size: 10, font: helvetica }); yPos -= 100
   page.drawText('Issued', { x: 50, y: yPos, size: 9, font: helvetica, color: rgb(0.5, 0.5, 0.5) }); page.drawText(invoice.invoiceDetails.issueDate, { x: 50, y: yPos - 12, size: 10, font: helveticaBold }); page.drawText('Due', { x: 350, y: yPos, size: 9, font: helvetica, color: rgb(0.5, 0.5, 0.5) }); page.drawText(invoice.invoiceDetails.dueDate, { x: 350, y: yPos - 12, size: 10, font: helveticaBold }); yPos -= 50
-  invoice.lineItems.forEach((item) => { if (yPos < 90) nextPage(); const itemAmount = Math.max(0, item.quantity * item.unitPrice - Math.min(item.discount || 0, item.quantity * item.unitPrice)); page.drawText((item.description || 'Item').substring(0, 60), { x: 50, y: yPos, size: 10, font: helveticaBold }); page.drawText(formatPdfCurrency(itemAmount, invoice.invoiceDetails.currency), { x: 500, y: yPos, size: 10, font: helveticaBold }); page.drawText(`${item.quantity} × ${formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency)}`, { x: 50, y: yPos - 12, size: 9, font: helvetica, color: rgb(0.6, 0.6, 0.6) }); yPos -= 30 })
+  invoice.lineItems.forEach((item) => { if (yPos < 90) nextPage(); const itemAmount = calculateLineItemAmount(item); page.drawText((item.description || 'Item').substring(0, 60), { x: 50, y: yPos, size: 10, font: helveticaBold }); page.drawText(formatPdfCurrency(itemAmount, invoice.invoiceDetails.currency), { x: 500, y: yPos, size: 10, font: helveticaBold }); page.drawText(`${item.quantity} × ${formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency)}`, { x: 50, y: yPos - 12, size: 9, font: helvetica, color: rgb(0.6, 0.6, 0.6) }); yPos -= 30 })
   if (yPos < 120) nextPage()
   page.drawText(`Total: ${formatPdfCurrency(calc.grandTotal, invoice.invoiceDetails.currency)}`, { x: 380, y: yPos, size: 14, font: helveticaBold }); page.drawText('Created with CraftMyPage', { x: 50, y: 20, size: 8, font: helvetica, color: rgb(0.7, 0.7, 0.7) })
 }
@@ -112,7 +112,7 @@ async function renderModernPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: Retu
   let yPos = 680; const col1 = 50; const col2 = 350
   page.drawText('From', { x: col1, y: yPos, size: 10, font: helveticaBold }); page.drawText(invoice.business.name, { x: col1, y: yPos - 15, size: 9, font: helvetica }); if (invoice.business.email) page.drawText(invoice.business.email, { x: col1, y: yPos - 27, size: 9, font: helvetica }); page.drawText('To', { x: col2, y: yPos, size: 10, font: helveticaBold }); page.drawText(invoice.customer.name, { x: col2, y: yPos - 15, size: 9, font: helvetica }); yPos -= 80
   page.drawText('Issue Date', { x: col1, y: yPos, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6) }); page.drawText(invoice.invoiceDetails.issueDate, { x: col1, y: yPos - 10, size: 9, font: helveticaBold }); page.drawText('Due Date', { x: col2, y: yPos, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6) }); page.drawText(invoice.invoiceDetails.dueDate, { x: col2, y: yPos - 10, size: 9, font: helveticaBold }); yPos -= 50
-  invoice.lineItems.forEach((item) => { if (yPos < 90) { page = pdfDoc.addPage(pageSize); yPos = 760; page.drawText(`${invoice.invoiceDetails.title} — continued`, { x: 50, y: yPos, size: 13, font: helveticaBold, color: accentRGB }); yPos -= 28 } const itemAmount = Math.max(0, item.quantity * item.unitPrice - Math.min(item.discount || 0, item.quantity * item.unitPrice)); page.drawText((item.description || 'Item').substring(0, 48), { x: col1, y: yPos, size: 10, font: helvetica }); page.drawText(formatPdfCurrency(itemAmount, invoice.invoiceDetails.currency), { x: 500, y: yPos, size: 10, font: helveticaBold }); yPos -= 22 })
+  invoice.lineItems.forEach((item) => { if (yPos < 90) { page = pdfDoc.addPage(pageSize); yPos = 760; page.drawText(`${invoice.invoiceDetails.title} — continued`, { x: 50, y: yPos, size: 13, font: helveticaBold, color: accentRGB }); yPos -= 28 } const itemAmount = calculateLineItemAmount(item); page.drawText((item.description || 'Item').substring(0, 48), { x: col1, y: yPos, size: 10, font: helvetica }); page.drawText(formatPdfCurrency(itemAmount, invoice.invoiceDetails.currency), { x: 500, y: yPos, size: 10, font: helveticaBold }); yPos -= 22 })
   if (yPos < 140) { page = pdfDoc.addPage(pageSize); yPos = 760; page.drawText(`${invoice.invoiceDetails.title} — continued`, { x: 50, y: yPos, size: 13, font: helveticaBold, color: accentRGB }); yPos -= 28 }
   page.drawText(`Subtotal: ${formatPdfCurrency(calc.subtotal, invoice.invoiceDetails.currency)}`, { x: 360, y: yPos, size: 10, font: helvetica }); yPos -= 15
   if (calc.discountAmount > 0) { page.drawText(`Discount: -${formatPdfCurrency(calc.discountAmount, invoice.invoiceDetails.currency)}`, { x: 360, y: yPos, size: 10, font: helvetica }); yPos -= 15 }
