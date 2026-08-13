@@ -35,6 +35,12 @@ function isString(value: unknown): value is string {
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value)
 }
+function isValidISODate(value: unknown): value is string {
+  if (!isString(value) || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}
 
 function isValidInvoiceData(data: unknown): data is Invoice {
   if (!isRecord(data)) return false
@@ -47,6 +53,7 @@ function isValidInvoiceData(data: unknown): data is Invoice {
   const customer = data.customer
   const invoiceDetails = data.invoiceDetails
   const paymentInfo = data.paymentInfo
+  const settings = data.settings
 
   const businessKeys = ['name', 'contactPerson', 'email', 'phone', 'address', 'city', 'state', 'postalCode', 'country', 'website', 'taxId']
   const customerKeys = ['name', 'contactPerson', 'email', 'phone', 'billingAddress', 'billingCity', 'billingState', 'billingPostalCode', 'billingCountry', 'taxId', 'shippingAddress', 'shippingCity', 'shippingState', 'shippingPostalCode', 'shippingCountry']
@@ -61,6 +68,8 @@ function isValidInvoiceData(data: unknown): data is Invoice {
   if (!isString(invoiceDetails.currency) || !['INR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'AED', 'SGD', 'JPY'].includes(invoiceDetails.currency)) return false
   if (typeof customer.shippingAddressSame !== 'boolean') return false
   if (!isString(data.draftName) || !isFiniteNumber(data.createdAt) || !isFiniteNumber(data.updatedAt)) return false
+  if (!isValidISODate(invoiceDetails.issueDate) || !isValidISODate(invoiceDetails.dueDate) || invoiceDetails.dueDate < invoiceDetails.issueDate) return false
+  if (!['none', 'simple', 'india-gst'].includes(String(settings.taxMode))) return false
 
   for (const item of data.lineItems) {
     if (!isRecord(item)) return false
@@ -69,7 +78,19 @@ function isValidInvoiceData(data: unknown): data is Invoice {
     if (!isFiniteNumber(item.unitPrice) || item.unitPrice < 0) return false
     if (!isFiniteNumber(item.discount) || item.discount < 0) return false
     if (!['fixed', 'percentage'].includes(String(item.discountType))) return false
-    if (!isFiniteNumber(item.taxRate) || item.taxRate < 0) return false
+    if (item.discountType === 'percentage' && item.discount > 100) return false
+    if (item.discountType === 'fixed' && item.discount > item.quantity * item.unitPrice) return false
+    if (!isFiniteNumber(item.taxRate) || item.taxRate < 0 || item.taxRate > 100) return false
+  }
+
+  if (settings.taxMode === 'india-gst') {
+    if (!isRecord(settings.gst)) return false
+    const gst = settings.gst
+    if (!['intra-state', 'inter-state'].includes(String(gst.purpose))) return false
+    if (!isString(gst.supplierGSTIN) || !isString(gst.customerGSTIN) || !isString(gst.placeOfSupply)) return false
+    if (![gst.cgstRate, gst.sgstRate, gst.igstRate].every((rate) => isFiniteNumber(rate) && rate >= 0 && rate <= 100)) return false
+    if (gst.purpose === 'intra-state' && gst.igstRate !== 0) return false
+    if (gst.purpose === 'inter-state' && (gst.cgstRate !== 0 || gst.sgstRate !== 0)) return false
   }
 
   return true
