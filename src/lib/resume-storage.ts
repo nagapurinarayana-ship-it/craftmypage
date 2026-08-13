@@ -78,7 +78,6 @@ export async function getAllResumes(): Promise<ResumeProject[]> {
   const valid: ResumeProject[] = []
   for (const value of values) {
     if (isValidResumeProject(value)) valid.push(value)
-    else if (isRecord(value) && isString(value.id)) await db.delete('resumes', value.id)
   }
   return valid.reverse()
 }
