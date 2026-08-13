@@ -33,14 +33,20 @@ function isStringArray(value: unknown): value is string[] {
 }
 
 function isEntryArray(value: unknown, keys: readonly string[]): boolean {
-  return Array.isArray(value) && value.every((entry) => isRecord(entry) && keys.every((key) => isString(entry[key])))
+  return Array.isArray(value) && value.every((entry) => {
+    if (!isRecord(entry)) return false
+    return keys.every((key) => isString(entry[key]))
+  })
 }
 
 function isValidResumeData(value: unknown): value is ResumeData {
-  if (!isRecord(value) || !isRecord(value.contact)) return false
+  if (!isRecord(value)) return false
 
+  const contact = value.contact
+  if (!isRecord(contact)) return false
   const contactKeys = ['fullName', 'jobTitle', 'email', 'phone', 'location', 'website', 'linkedin']
-  if (!contactKeys.every((key) => isString(value.contact[key]))) return false
+  if (!contactKeys.every((key) => isString(contact[key]))) return false
+
   if (!isString(value.summary) || !isStringArray(value.skills)) return false
   if (!isEntryArray(value.experience, ['id', 'company', 'role', 'location', 'startDate', 'endDate', 'description'])) return false
   if (!isEntryArray(value.education, ['id', 'school', 'degree', 'field', 'startDate', 'endDate', 'description'])) return false
@@ -50,8 +56,10 @@ function isValidResumeData(value: unknown): value is ResumeData {
   if (!isEntryArray(value.languages, ['id', 'name', 'proficiency'])) return false
   if (!isEntryArray(value.customSections, ['id', 'title', 'content'])) return false
 
-  for (const entry of value.experience) {
-    if (typeof entry.current !== 'boolean') return false
+  const experience = value.experience
+  if (!Array.isArray(experience)) return false
+  for (const entry of experience) {
+    if (!isRecord(entry) || typeof entry.current !== 'boolean') return false
   }
 
   return true
@@ -59,10 +67,17 @@ function isValidResumeData(value: unknown): value is ResumeData {
 
 function isValidResumeProject(value: unknown): value is ResumeProject {
   if (!isRecord(value)) return false
-  if (!isString(value.id) || !isString(value.name)) return false
-  if (!isString(value.templateId) || !RESUME_TEMPLATES.has(value.templateId as ResumeTemplateId)) return false
-  if (!isFiniteNumber(value.createdAt) || !isFiniteNumber(value.updatedAt)) return false
-  if (!isValidResumeData(value.data)) return false
+  const id = value.id
+  const name = value.name
+  const templateId = value.templateId
+  const createdAt = value.createdAt
+  const updatedAt = value.updatedAt
+  const data = value.data
+
+  if (!isString(id) || !isString(name)) return false
+  if (!isString(templateId) || !RESUME_TEMPLATES.has(templateId as ResumeTemplateId)) return false
+  if (!isFiniteNumber(createdAt) || !isFiniteNumber(updatedAt)) return false
+  if (!isValidResumeData(data)) return false
   return true
 }
 
@@ -70,7 +85,7 @@ async function readValidResume(db: Awaited<ReturnType<typeof getCraftMyPageDb>>,
   const value = await db.get('resumes', id)
   if (value === undefined) return undefined
   if (isValidResumeProject(value)) return value
-  await db.delete('resumes', id)
+  if (isRecord(value) && isString(value.id)) await db.delete('resumes', value.id)
   return undefined
 }
 
