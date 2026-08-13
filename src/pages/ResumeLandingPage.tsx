@@ -5,6 +5,7 @@ const PAGES = {
   'ats-resume': {
     title: 'Free ATS Resume Builder | ATS-Friendly Resume | CraftMyPage',
     description: 'Build an ATS-friendly resume with a clean structure, focused templates and A4 PDF export. Edit your resume in your browser and keep your draft local.',
+    keywords: 'free ats resume builder, ats friendly resume, ats resume builder, ats resume template, applicant tracking system resume',
     eyebrow: 'ATS resumes',
     heading: 'Build an ATS-friendly resume without the clutter.',
     intro: 'Start from an ATS-focused template, add your experience and skills, review the layout, and export a clean A4 PDF from your browser.',
@@ -13,6 +14,7 @@ const PAGES = {
   'fresher-resume': {
     title: 'Free Fresher Resume Builder | Resume for Students & Graduates | CraftMyPage',
     description: 'Create a clean fresher resume for internships and entry-level roles with focused templates, projects, education and skills sections.',
+    keywords: 'free fresher resume builder, fresher resume format, student resume, graduate resume, resume for freshers, fresher CV',
     eyebrow: 'Fresher resumes',
     heading: 'Create a strong fresher resume from a focused template.',
     intro: 'Build a practical resume around education, projects, skills, internships and achievements without needing a complicated design suite.',
@@ -21,6 +23,7 @@ const PAGES = {
   'software-engineer-resume': {
     title: 'Free Software Engineer Resume Builder | CraftMyPage',
     description: 'Create a software engineer resume focused on technical skills, projects, experience and measurable impact with A4 PDF export.',
+    keywords: 'free software engineer resume builder, software engineer resume, software developer resume, engineering resume, technical resume',
     eyebrow: 'Software engineer resumes',
     heading: 'Build a resume that puts your engineering work first.',
     intro: 'Organize technical skills, projects, experience and measurable outcomes in a focused resume that is easy to review and export.',
@@ -40,6 +43,7 @@ export default function ResumeLandingPage() {
       <Helmet>
         <title>{page.title}</title>
         <meta name="description" content={page.description} />
+        <meta name="keywords" content={page.keywords} />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="CraftMyPage" />
