@@ -106,7 +106,6 @@ export default function RouteSeo() {
     <Helmet>
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
-      <meta name="keywords" content={meta.keywords} />
       <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
       <meta name="googlebot" content="index,follow" />
       <link rel="canonical" href={meta.canonical} />
@@ -124,7 +123,6 @@ export default function RouteSeo() {
       <meta name="twitter:title" content={meta.title} />
       <meta name="twitter:description" content={meta.description} />
       <meta name="twitter:image" content={SOCIAL_IMAGE} />
-      {softwareSchema ? <script type="application/ld+json">{JSON.stringify(softwareSchema)}</script> : null}
     </Helmet>
   )
 }
