@@ -48,6 +48,71 @@ function metaFor(path) {
   return null
 }
 
+function breadcrumbItems(path) {
+  const items = [{ name: 'CraftMyPage', url: `${SITE_URL}/` }]
+  if (path === '/') return items
+  const parts = path.split('/').filter(Boolean)
+  let current = ''
+  for (const part of parts) {
+    current += `/${part}`
+    const label = part === 'tools' ? 'Tools' : part === 'guides' ? 'Guides' : part === 'invitations' ? 'Invitations' : part === 'invoices' ? 'Invoices' : part === 'resumes' ? 'Resumes' : part.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    items.push({ name: label, url: `${SITE_URL}${current}` })
+  }
+  return items
+}
+
+function structuredDataFor(path, meta) {
+  const schemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: meta.title,
+      description: meta.description,
+      url: `${SITE_URL}${path}`,
+      isPartOf: { '@type': 'WebSite', name: 'CraftMyPage', url: `${SITE_URL}/` },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbItems(path).map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    },
+  ]
+
+  if (/^\/guides\//.test(path)) {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: meta.title.replace(/ \| CraftMyPage$/, ''),
+      description: meta.description,
+      url: `${SITE_URL}${path}`,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}${path}` },
+      author: { '@type': 'Organization', name: 'CraftMyPage', url: `${SITE_URL}/about` },
+      publisher: { '@type': 'Organization', name: 'CraftMyPage', url: `${SITE_URL}/about` },
+      inLanguage: 'en',
+    })
+  }
+
+  if (/^\/tools\//.test(path)) {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: meta.title.replace(/ \| CraftMyPage$/, ''),
+      description: meta.description,
+      url: `${SITE_URL}${path}`,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      isAccessibleForFree: true,
+    })
+  }
+
+  return schemas
+}
+
 const base = await readFile(join(DIST, 'index.html'), 'utf8')
 const sitemap = await readFile('public/sitemap.xml', 'utf8')
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => new URL(m[1]).pathname)
@@ -59,14 +124,7 @@ for (const path of allPaths) {
   const canonical = `${SITE_URL}${path}`
   const title = meta.title.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
   const description = meta.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
-  const webPageSchema = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: meta.title,
-    description: meta.description,
-    url: canonical,
-    isPartOf: { '@type': 'WebSite', name: 'CraftMyPage', url: `${SITE_URL}/` },
-  })
+  const structuredData = structuredDataFor(path, meta).map(schema => JSON.stringify(schema)).join('')
 
   let html = base
     .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
@@ -78,7 +136,7 @@ for (const path of allPaths) {
     .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`)
 
-  html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    <script type="application/ld+json">${webPageSchema}</script>\n  </head>`)
+  html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    ${structuredData.split('</script><script type="application/ld+json">').map((json) => `<script type="application/ld+json">${json}</script>`).join('')}\n  </head>`)
 
   const fallback = `<noscript><main><h1>${title}</h1><p>${description}</p><p><a href="${SITE_URL}/tools/invoice-maker">Free Invoice Maker</a> · <a href="${SITE_URL}/tools/invitation-maker">Free Invitation Maker</a> · <a href="${SITE_URL}/tools/resume-builder">Free Resume Builder</a> · <a href="${SITE_URL}/guides">Guides</a></p></main></noscript>`
   html = html.replace('<div id="root"></div>', `<div id="root"></div>${fallback}`)
