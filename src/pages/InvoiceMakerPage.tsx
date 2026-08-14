@@ -40,9 +40,41 @@ export default function InvoiceMakerPage() {
   const [showImportExport, setShowImportExport] = useState(false)
   const [importJson, setImportJson] = useState('')
   const [draftName, setDraftName] = useState(invoiceWithCalcs.draftName)
+  const [savedDraftId, setSavedDraftId] = useState<string | null>(null)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isSavingDraft, setIsSavingDraft] = useState(false)
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null)
 
   useEffect(() => { getAllInvoices().then(setDrafts).catch(() => setDrafts([])) }, [])
   useEffect(() => { dispatch({ type: 'UPDATE_INVOICE', updates: { draftName } }) }, [draftName])
+
+  useEffect(() => {
+    if (!hasUnsavedChanges || !savedDraftId) return
+    const timer = window.setTimeout(async () => {
+      setIsSavingDraft(true)
+      try {
+        await saveInvoice({ ...invoiceWithCalcs, id: savedDraftId, draftName: draftName.trim() || 'Untitled Invoice' })
+        setDrafts(await getAllInvoices())
+        setHasUnsavedChanges(false)
+        setLastSavedAt(Date.now())
+      } catch {
+        // Keep the dirty state so the user can retry with the explicit Save Draft action.
+      } finally {
+        setIsSavingDraft(false)
+      }
+    }, 1200)
+    return () => window.clearTimeout(timer)
+  }, [hasUnsavedChanges, savedDraftId, invoiceWithCalcs, draftName])
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges) return
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
 
   const validateBeforeOutput = useCallback(() => {
     const validation = isValidInvoice(invoiceWithCalcs)
@@ -53,21 +85,30 @@ export default function InvoiceMakerPage() {
     return true
   }, [invoiceWithCalcs])
 
-  const handleInvoiceChange = useCallback((updatedInvoice: Invoice) => dispatch({ type: 'SET_INVOICE', invoice: updatedInvoice }), [])
-  const handleAddLineItem = useCallback(() => dispatch({ type: 'ADD_LINE_ITEM' }), [])
-  const handleRemoveLineItem = useCallback((itemId: string) => dispatch({ type: 'REMOVE_LINE_ITEM', itemId }), [])
-  const handleDuplicateLineItem = useCallback((itemId: string) => dispatch({ type: 'DUPLICATE_LINE_ITEM', itemId }), [])
+  const handleInvoiceChange = useCallback((updatedInvoice: Invoice) => {
+    dispatch({ type: 'SET_INVOICE', invoice: updatedInvoice })
+    setHasUnsavedChanges(true)
+  }, [])
+  const handleAddLineItem = useCallback(() => { dispatch({ type: 'ADD_LINE_ITEM' }); setHasUnsavedChanges(true) }, [])
+  const handleRemoveLineItem = useCallback((itemId: string) => { dispatch({ type: 'REMOVE_LINE_ITEM', itemId }); setHasUnsavedChanges(true) }, [])
+  const handleDuplicateLineItem = useCallback((itemId: string) => { dispatch({ type: 'DUPLICATE_LINE_ITEM', itemId }); setHasUnsavedChanges(true) }, [])
 
   const handleSaveDraft = useCallback(async () => {
     if (!draftName.trim()) return alert('Please enter a draft name')
+    setIsSavingDraft(true)
     try {
-      await saveInvoice({ ...invoiceWithCalcs, draftName: draftName.trim() })
+      const draft = { ...invoiceWithCalcs, id: savedDraftId || invoiceWithCalcs.id, draftName: draftName.trim() }
+      await saveInvoice(draft)
+      setSavedDraftId(draft.id)
       setDrafts(await getAllInvoices())
-      alert(`Draft "${draftName}" saved successfully!`)
+      setHasUnsavedChanges(false)
+      setLastSavedAt(Date.now())
     } catch (error) {
       alert(`Failed to save draft: ${error instanceof Error ? error.message : String(error)}`)
+    } finally {
+      setIsSavingDraft(false)
     }
-  }, [invoiceWithCalcs, draftName])
+  }, [invoiceWithCalcs, draftName, savedDraftId])
 
   const handleLoadDraft = useCallback(async (draftId: string) => {
     try {
@@ -75,6 +116,9 @@ export default function InvoiceMakerPage() {
       if (loaded) {
         dispatch({ type: 'SET_INVOICE', invoice: loaded })
         setDraftName(loaded.draftName)
+        setSavedDraftId(loaded.id)
+        setHasUnsavedChanges(false)
+        setLastSavedAt(loaded.updatedAt)
         setShowDraftsList(false)
       }
     } catch (error) {
@@ -87,15 +131,20 @@ export default function InvoiceMakerPage() {
     try {
       await deleteInvoice(draftId)
       setDrafts(await getAllInvoices())
+      if (savedDraftId === draftId) {
+        setSavedDraftId(null)
+        setHasUnsavedChanges(true)
+        setLastSavedAt(null)
+      }
     } catch (error) {
       alert(`Failed to delete draft: ${error instanceof Error ? error.message : String(error)}`)
     }
-  }, [])
+  }, [savedDraftId])
 
   const handleExportJSON = useCallback(async () => {
     try {
       const json = await exportInvoiceJSON(invoiceWithCalcs)
-      downloadBlob(new Blob([json], { type: 'application/json' }), `invoice-${invoiceWithCalcs.invoiceDetails.invoiceNumber}.json`)
+      downloadBlob(new Blob([json], { type: 'application/json' }), `invoice-${sanitizeFileName(invoiceWithCalcs.invoiceDetails.invoiceNumber)}.json`)
     } catch (error) {
       alert(`Failed to export: ${error instanceof Error ? error.message : String(error)}`)
     }
@@ -107,6 +156,9 @@ export default function InvoiceMakerPage() {
       const imported = await importInvoiceJSON(importJson)
       dispatch({ type: 'SET_INVOICE', invoice: imported })
       setDraftName(imported.draftName)
+      setSavedDraftId(null)
+      setHasUnsavedChanges(true)
+      setLastSavedAt(null)
       setImportJson('')
       setShowImportExport(false)
     } catch (error) {
@@ -133,6 +185,9 @@ export default function InvoiceMakerPage() {
     if (!confirm('Are you sure you want to reset the invoice? This will clear all data.')) return
     dispatch({ type: 'SET_INVOICE', invoice: createEmptyInvoice(generateId()) })
     setDraftName('Untitled Invoice')
+    setSavedDraftId(null)
+    setHasUnsavedChanges(true)
+    setLastSavedAt(null)
   }, [])
 
   const handleDuplicate = useCallback(() => {
@@ -144,7 +199,12 @@ export default function InvoiceMakerPage() {
     }
     dispatch({ type: 'SET_INVOICE', invoice: newInvoice })
     setDraftName(newInvoice.draftName)
+    setSavedDraftId(null)
+    setHasUnsavedChanges(true)
+    setLastSavedAt(null)
   }, [invoiceWithCalcs])
+
+  const saveStatus = isSavingDraft ? 'Saving…' : hasUnsavedChanges ? 'Unsaved changes' : lastSavedAt ? `Saved ${new Date(lastSavedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not saved yet'
 
   return (
     <>
@@ -158,9 +218,10 @@ export default function InvoiceMakerPage() {
               <span className="cmp-badge">Local drafts</span><span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">A4 PDF</span><span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">Print ready</span><span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">No server upload</span>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <input type="text" value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder="Invoice name..." className="min-w-48 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-            <button type="button" onClick={handleSaveDraft} className="cmp-secondary-btn px-4 py-2">Save Draft</button><button type="button" onClick={() => setShowDraftsList(!showDraftsList)} className="cmp-secondary-btn px-4 py-2">Load Draft</button><button type="button" onClick={handlePrint} className="cmp-secondary-btn px-4 py-2">Print</button><button type="button" onClick={handleDownloadPDF} className="cmp-primary-btn px-4 py-2">Download PDF</button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="order-first w-full text-right text-xs font-semibold text-slate-500 sm:order-none sm:w-auto" aria-live="polite">{saveStatus}</div>
+            <input type="text" value={draftName} onChange={(e) => { setDraftName(e.target.value); setHasUnsavedChanges(true) }} placeholder="Invoice name..." className="min-w-48 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+            <button type="button" onClick={handleSaveDraft} disabled={isSavingDraft} className="cmp-secondary-btn px-4 py-2 disabled:cursor-wait disabled:opacity-60">{isSavingDraft ? 'Saving…' : 'Save Draft'}</button><button type="button" onClick={() => setShowDraftsList(!showDraftsList)} className="cmp-secondary-btn px-4 py-2">Load Draft</button><button type="button" onClick={handlePrint} className="cmp-secondary-btn px-4 py-2">Print</button><button type="button" onClick={handleDownloadPDF} className="cmp-primary-btn px-4 py-2">Download PDF</button>
           </div>
         </div>
 

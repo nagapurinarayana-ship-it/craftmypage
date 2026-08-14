@@ -41,8 +41,8 @@ export function calculateInvoice(invoice: Invoice): InvoiceCalculations {
   subtotal = roundToDecimalPlaces(subtotal, 2)
   const discountAmount = roundToDecimalPlaces(totalDiscount, 2)
   const discountedSubtotal = roundToDecimalPlaces(subtotal, 2)
-  const shippingCharge = 0
-  const adjustment = 0
+  const shippingCharge = Number.isFinite(invoice.invoiceDetails.shippingCharge) ? Math.max(0, invoice.invoiceDetails.shippingCharge) : 0
+  const adjustment = Number.isFinite(invoice.invoiceDetails.adjustment) ? invoice.invoiceDetails.adjustment : 0
   let subtotalBeforeTax = roundToDecimalPlaces(discountedSubtotal + shippingCharge + adjustment, 2)
 
   let taxAmount = 0
@@ -108,10 +108,11 @@ export function calculateInvoice(invoice: Invoice): InvoiceCalculations {
   }
 
   const grandTotal = roundToDecimalPlaces(subtotalBeforeTax + taxAmount, 2)
-  const amountPaid = 0
-  const balanceDue = roundToDecimalPlaces(grandTotal - amountPaid, 2)
+  const amountPaid = Number.isFinite(invoice.invoiceDetails.amountPaid) ? Math.min(grandTotal, Math.max(0, invoice.invoiceDetails.amountPaid)) : 0
+  const balanceDue = roundToDecimalPlaces(Math.max(0, grandTotal - amountPaid), 2)
+  const paymentStatus = amountPaid <= 0 ? 'unpaid' : balanceDue <= 0.005 ? 'paid' : 'partially-paid'
 
-  return { subtotal, discountAmount, discountedSubtotal, shippingCharge, adjustment, subtotalBeforeTax, taxAmount, taxBreakdown, amountPaid, balanceDue, grandTotal }
+  return { subtotal, discountAmount, discountedSubtotal, shippingCharge, adjustment, subtotalBeforeTax, taxAmount, taxBreakdown, amountPaid, balanceDue, grandTotal, paymentStatus }
 }
 
 function clampPercentage(value: number): number {
@@ -136,5 +137,6 @@ export function isValidCalculations(calc: InvoiceCalculations): boolean {
     && Number.isFinite(calc.amountPaid)
     && Number.isFinite(calc.balanceDue)
     && Number.isFinite(calc.grandTotal)
+    && ['unpaid', 'partially-paid', 'paid'].includes(calc.paymentStatus)
     && Object.values(calc.taxBreakdown).every((value) => Number.isFinite(value))
 }

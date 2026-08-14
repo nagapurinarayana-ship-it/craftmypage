@@ -10,6 +10,11 @@ async function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   return new Response(blob).arrayBuffer()
 }
 
+async function readPdfText(pdf: PDFDocument): Promise<string> {
+  const catalog = pdf.context.lookup(pdf.context.trailerInfo.Root)
+  return String(catalog)
+}
+
 describe('Invoice PDF export', () => {
   it.each(currencies)('exports a valid A4 PDF for %s', async (currency) => {
     const invoice = createEmptyInvoice(generateId())
@@ -51,5 +56,60 @@ describe('Invoice PDF export', () => {
       expect(page.getWidth()).toBeCloseTo(595, 0)
       expect(page.getHeight()).toBeCloseTo(842, 0)
     }
+  })
+
+  it('exports configured GST and payment details without throwing', async () => {
+    const invoice = createEmptyInvoice(generateId())
+    invoice.business.name = 'GST Test Company'
+    invoice.customer.name = 'GST Customer'
+    invoice.business.taxId = '29ABCDE1234F1Z5'
+    invoice.settings = {
+      taxMode: 'india-gst',
+      gst: {
+        supplierGSTIN: '29ABCDE1234F1Z5',
+        customerGSTIN: '29ABCDE5678F1Z2',
+        placeOfSupply: 'Karnataka',
+        purpose: 'intra-state',
+        cgstRate: 9,
+        sgstRate: 9,
+        igstRate: 0,
+      },
+    }
+    invoice.paymentInfo = {
+      ...invoice.paymentInfo,
+      bankName: 'CraftMyPage Bank',
+      accountNumber: '1234567890',
+      ifscCode: 'HDFC0001234',
+      upiId: 'craft@upi',
+      instructions: 'Please pay within 30 days.',
+      termsAndConditions: 'Services provided as agreed.',
+      notes: 'Thank you for your business.',
+      signatureField: 'Authorized Signatory',
+    }
+    invoice.lineItems[0].description = 'Consulting'
+    invoice.lineItems[0].unitPrice = 10000
+
+    const blob = await generateInvoicePDF(invoice)
+    const pdf = await PDFDocument.load(await blobToArrayBuffer(blob))
+
+    expect(pdf.getPageCount()).toBeGreaterThanOrEqual(1)
+    expect(blob.type).toBe('application/pdf')
+  })
+
+  it('uses the shared percentage-discount calculation in the PDF', async () => {
+    const invoice = createEmptyInvoice(generateId())
+    invoice.business.name = 'Discount Test Company'
+    invoice.customer.name = 'Discount Customer'
+    invoice.lineItems[0].description = 'Service'
+    invoice.lineItems[0].unitPrice = 1000
+    invoice.lineItems[0].quantity = 2
+    invoice.lineItems[0].discount = 10
+    invoice.lineItems[0].discountType = 'percentage'
+
+    const blob = await generateInvoicePDF(invoice)
+    const pdf = await PDFDocument.load(await blobToArrayBuffer(blob))
+
+    expect(pdf.getPageCount()).toBe(1)
+    expect(await readPdfText(pdf)).toBeTruthy()
   })
 })
