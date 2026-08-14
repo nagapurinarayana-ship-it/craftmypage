@@ -72,7 +72,11 @@ export default function HomePage() {
       </section>
 
       <div className="cmp-container py-12 sm:py-16">
-        <section aria-labelledby="tools-heading">
+        {/* Keep monetization close to the hero so the primary revenue-bearing
+            units are visible before the tool grid, without changing ad codes. */}
+        <EffectiveCpmHomeAds />
+
+        <section className="mt-12" aria-labelledby="tools-heading">
           <div>
             <span className="cmp-eyebrow">Choose your tool</span>
             <h2 id="tools-heading" className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
@@ -100,8 +104,6 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-
-        <EffectiveCpmHomeAds />
 
         <section className="mt-16 grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
           <div className="rounded-3xl bg-slate-900 p-8 text-white shadow-xl sm:p-10">
