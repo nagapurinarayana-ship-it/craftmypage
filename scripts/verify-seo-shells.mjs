@@ -13,6 +13,12 @@ function count(html, pattern) {
   return (html.match(pattern) || []).length
 }
 
+function getSchemaObjects(parsed) {
+  if (Array.isArray(parsed)) return parsed
+  if (parsed && Array.isArray(parsed['@graph'])) return parsed['@graph']
+  return [parsed]
+}
+
 for (const path of allPaths) {
   const file = path === '/' ? join(DIST, 'index.html') : join(DIST, path.slice(1), 'index.html')
   if (!existsSync(file)) throw new Error(`Missing SEO shell: ${file}`)
@@ -39,7 +45,9 @@ for (const path of allPaths) {
     } catch (error) {
       throw new Error(`Invalid JSON-LD on ${path}: ${error instanceof Error ? error.message : String(error)}`)
     }
-    if (!parsed || parsed['@context'] !== 'https://schema.org' || !parsed['@type']) {
+
+    const schemaObjects = getSchemaObjects(parsed)
+    if (schemaObjects.length === 0 || schemaObjects.some((schema) => !schema || schema['@context'] !== 'https://schema.org' || !schema['@type'])) {
       throw new Error(`Malformed schema object on ${path}`)
     }
   }
