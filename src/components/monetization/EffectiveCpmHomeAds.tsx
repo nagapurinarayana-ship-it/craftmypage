@@ -12,30 +12,33 @@ type BannerOptions = {
   key: string
   width: number
   height: number
+  src: string
+}
+
+type BannerWindow = typeof globalThis & {
+  atOptions?: BannerOptions & { format: string; params: Record<string, unknown> }
 }
 
 export default function EffectiveCpmHomeAds() {
+  const adRootRef = useRef<HTMLElement | null>(null)
   const nativeRef = useRef<HTMLDivElement | null>(null)
   const banner468Ref = useRef<HTMLDivElement | null>(null)
   const banner728Ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
+    const root = adRootRef.current
     const nativeContainer = nativeRef.current
     const banner468Container = banner468Ref.current
     const banner728Container = banner728Ref.current
-    if (!nativeContainer || !banner468Container || !banner728Container) return
+    if (!root || !nativeContainer || !banner468Container || !banner728Container) return
 
-    const nativeScript = document.createElement('script')
-    nativeScript.async = true
-    nativeScript.dataset.cfasync = 'false'
-    nativeScript.src = NATIVE_SRC
-    nativeContainer.appendChild(nativeScript)
-
-    const bannerWindow = globalThis as typeof globalThis & {
-      atOptions?: BannerOptions & { format: string; params: Record<string, unknown> }
-    }
+    let cancelled = false
+    let loaded = false
+    const bannerWindow = globalThis as BannerWindow
+    const scripts: HTMLScriptElement[] = []
 
     const injectBanner = (container: HTMLDivElement, options: BannerOptions) => {
+      if (cancelled) return null
       bannerWindow.atOptions = {
         key: options.key,
         format: 'iframe',
@@ -44,35 +47,90 @@ export default function EffectiveCpmHomeAds() {
         params: {},
       }
       const script = document.createElement('script')
-      script.src = options.key === BANNER_468_KEY ? BANNER_468_SRC : BANNER_728_SRC
+      script.src = options.src
+      script.async = true
       container.appendChild(script)
+      scripts.push(script)
       return script
     }
 
-    const banner468Script = injectBanner(banner468Container, {
-      key: BANNER_468_KEY,
-      width: 468,
-      height: 60,
-    })
-    const banner728Script = injectBanner(banner728Container, {
-      key: BANNER_728_KEY,
-      width: 728,
-      height: 90,
-    })
+    const loadAds = async () => {
+      if (loaded || cancelled) return
+      loaded = true
 
+      const nativeScript = document.createElement('script')
+      nativeScript.async = true
+      nativeScript.dataset.cfasync = 'false'
+      nativeScript.src = NATIVE_SRC
+      nativeContainer.appendChild(nativeScript)
+      scripts.push(nativeScript)
+
+      // Load the two HighPerformanceFormat banners sequentially so each script
+      // reads its own atOptions object instead of racing with the other banner.
+      const loadBanner = (container: HTMLDivElement, options: BannerOptions) =>
+        new Promise<void>((resolve) => {
+          const script = injectBanner(container, options)
+          if (!script) return resolve()
+          script.addEventListener('load', () => resolve(), { once: true })
+          script.addEventListener('error', () => resolve(), { once: true })
+        })
+
+      await loadBanner(banner468Container, {
+        key: BANNER_468_KEY,
+        width: 468,
+        height: 60,
+        src: BANNER_468_SRC,
+      })
+      await loadBanner(banner728Container, {
+        key: BANNER_728_KEY,
+        width: 728,
+        height: 90,
+        src: BANNER_728_SRC,
+      })
+
+      if (bannerWindow.atOptions?.key === BANNER_728_KEY || bannerWindow.atOptions?.key === BANNER_468_KEY) {
+        delete bannerWindow.atOptions
+      }
+    }
+
+    // Keep third-party ad work out of the initial render. Start loading shortly
+    // before the ad section enters the viewport, while retaining the provider's
+    // existing ad units and placements.
+    if ('IntersectionObserver' in globalThis) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            observer.disconnect()
+            void loadAds()
+          }
+        },
+        { rootMargin: '700px 0px' },
+      )
+      observer.observe(root)
+
+      return () => {
+        cancelled = true
+        observer.disconnect()
+        scripts.forEach((script) => script.remove())
+        if (bannerWindow.atOptions?.key === BANNER_728_KEY || bannerWindow.atOptions?.key === BANNER_468_KEY) {
+          delete bannerWindow.atOptions
+        }
+      }
+    }
+
+    void loadAds()
     return () => {
-      nativeScript.remove()
-      banner468Script.remove()
-      banner728Script.remove()
-      if (bannerWindow.atOptions?.key === BANNER_468_KEY || bannerWindow.atOptions?.key === BANNER_728_KEY) {
+      cancelled = true
+      scripts.forEach((script) => script.remove())
+      if (bannerWindow.atOptions?.key === BANNER_728_KEY || bannerWindow.atOptions?.key === BANNER_468_KEY) {
         delete bannerWindow.atOptions
       }
     }
   }, [])
 
   return (
-    <section className="cmp-monetization" aria-label="Advertisements">
-      <div className="cmp-ad-block cmp-surface p-5 sm:p-6">
+    <section ref={adRootRef} className="cmp-monetization" aria-label="Advertisements">
+      <div className="cmp-ad-block cmp-surface min-h-[190px] p-5 sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <span className="cmp-eyebrow">Advertisement</span>
@@ -84,26 +142,26 @@ export default function EffectiveCpmHomeAds() {
           <div
             ref={nativeRef}
             id={NATIVE_CONTAINER_ID}
-            className="cmp-ad-native w-full max-w-xl min-w-0"
+            className="cmp-ad-native min-h-[100px] w-full max-w-xl min-w-0"
             aria-label="Sponsored advertisement"
           />
         </div>
       </div>
 
-      <div className="cmp-ad-block cmp-surface p-5 text-center sm:p-6">
+      <div className="cmp-ad-block cmp-surface min-h-[120px] p-5 text-center sm:p-6">
         <span className="cmp-ad-label">Advertisement · 468×60</span>
         <div
           ref={banner468Ref}
-          className="cmp-ad-banner mx-auto mt-3 max-w-full overflow-hidden"
+          className="cmp-ad-banner mx-auto mt-3 min-h-[60px] max-w-full overflow-hidden"
           aria-label="Sponsored advertisement"
         />
       </div>
 
-      <div className="cmp-ad-block cmp-surface p-5 text-center sm:p-6">
+      <div className="cmp-ad-block cmp-surface min-h-[150px] p-5 text-center sm:p-6">
         <span className="cmp-ad-label">Advertisement · 728×90</span>
         <div
           ref={banner728Ref}
-          className="cmp-ad-banner cmp-ad-banner-wide mx-auto mt-3 max-w-full overflow-hidden"
+          className="cmp-ad-banner cmp-ad-banner-wide mx-auto mt-3 min-h-[90px] max-w-full overflow-hidden"
           aria-label="Sponsored advertisement"
         />
       </div>
