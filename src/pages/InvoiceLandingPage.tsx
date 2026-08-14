@@ -4,8 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 const PAGES = {
   'gst-invoice': {
     title: 'Free GST Invoice Maker | Create GST Invoices Online | CraftMyPage',
-    description: 'Create a professional GST-ready invoice layout in your browser with line items, tax fields, totals and A4 PDF export. Review your tax details before issuing an invoice.',
-    keywords: 'free gst invoice maker, gst invoice generator, gst invoice template, create gst invoice online, gst invoice PDF',
+    description: 'Create a professional GST-ready invoice in your browser with business details, line items, tax fields, totals and A4 PDF export. Review your tax details before issuing an invoice.',
     eyebrow: 'GST invoicing',
     heading: 'Create a clean GST invoice in your browser.',
     intro: 'Build an invoice with business and customer details, line items, taxes, totals and payment information, then export an A4 PDF without uploading the document to a server.',
@@ -14,7 +13,6 @@ const PAGES = {
   'freelancer-invoice': {
     title: 'Free Freelancer Invoice Maker | CraftMyPage',
     description: 'Create a professional freelancer invoice with services, rates, taxes, discounts, due dates and payment terms. Customize it in your browser and download an A4 PDF.',
-    keywords: 'freelancer invoice maker, freelance invoice generator, freelancer invoice template, freelance invoice PDF, free freelancer invoice',
     eyebrow: 'Freelancer invoices',
     heading: 'Create a professional freelancer invoice.',
     intro: 'Turn your services, rates and payment terms into a polished invoice without a complicated accounting suite. Customize the document in your browser and download a clean A4 PDF.',
@@ -23,7 +21,6 @@ const PAGES = {
   'invoice-templates': {
     title: 'Free Invoice Templates | Professional Invoice Maker | CraftMyPage',
     description: 'Choose a professional invoice style and customize business details, line items, taxes, discounts and payment terms. Download a clean A4 invoice PDF.',
-    keywords: 'free invoice templates, professional invoice template, invoice maker, invoice PDF template, printable invoice template',
     eyebrow: 'Invoice templates',
     heading: 'Start from a professional invoice template.',
     intro: 'Pick a focused invoice layout, customize the content you need, and export the finished document as an A4 PDF. The core editor runs in your browser.',
@@ -32,6 +29,12 @@ const PAGES = {
 } as const
 
 type PageKey = keyof typeof PAGES
+
+const FAQS = [
+  ['Can I create an invoice without an account?', 'Yes. The invoice maker is designed to let you create and edit an invoice in your browser without requiring an accounting subscription.'],
+  ['Can I download the finished invoice?', 'Yes. After reviewing the document, you can export an A4 PDF that is ready to save, share or print.'],
+  ['What should I check before sending an invoice?', 'Review the customer details, invoice number, dates, line items, tax values, totals and payment instructions before sending it.'],
+]
 
 export default function InvoiceLandingPage() {
   const { intent = 'invoice-templates' } = useParams()
@@ -43,7 +46,6 @@ export default function InvoiceLandingPage() {
       <Helmet>
         <title>{page.title}</title>
         <meta name="description" content={page.description} />
-        <meta name="keywords" content={page.keywords} />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="CraftMyPage" />
@@ -84,6 +86,41 @@ export default function InvoiceLandingPage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            <div className="cmp-surface p-8 sm:p-10">
+              <span className="cmp-eyebrow">Choose the right starting point</span>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Create the invoice you actually need.</h2>
+              <p className="mt-4 leading-7 text-slate-600">Use the GST-focused page for tax-ready invoices, the freelancer page for service billing, or the template collection when you want to start with a professional layout.</p>
+              <div className="mt-6 flex flex-wrap gap-3 text-sm font-semibold">
+                <Link className="cmp-secondary-btn" to="/invoices/gst-invoice">GST invoices</Link>
+                <Link className="cmp-secondary-btn" to="/invoices/freelancer-invoice">Freelancer invoices</Link>
+                <Link className="cmp-secondary-btn" to="/invoices/invoice-templates">Invoice templates</Link>
+              </div>
+            </div>
+            <div className="cmp-surface p-8 sm:p-10">
+              <span className="cmp-eyebrow">Before you send</span>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Use a quick invoice review.</h2>
+              <ul className="mt-5 space-y-3 text-slate-600">
+                <li>• Confirm customer and business details.</li>
+                <li>• Check invoice number and issue/due dates.</li>
+                <li>• Verify quantities, rates, taxes, discounts and totals.</li>
+                <li>• Confirm payment instructions before sharing the PDF.</li>
+              </ul>
+            </div>
+          </div>
+
+          <section className="mt-12" aria-labelledby="invoice-faq">
+            <h2 id="invoice-faq" className="text-3xl font-bold tracking-tight text-slate-900">Invoice maker questions</h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {FAQS.map(([question, answer]) => (
+                <article className="cmp-card" key={question}>
+                  <h3 className="text-lg font-bold text-slate-900">{question}</h3>
+                  <p className="mt-3 leading-7 text-slate-600">{answer}</p>
+                </article>
+              ))}
+            </div>
+          </section>
 
           <div className="mt-12 cmp-surface p-8 sm:p-10">
             <span className="cmp-eyebrow">Why use CraftMyPage?</span>
