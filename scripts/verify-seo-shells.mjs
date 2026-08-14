@@ -14,9 +14,11 @@ function count(html, pattern) {
 }
 
 function getSchemaObjects(parsed) {
-  if (Array.isArray(parsed)) return parsed
-  if (parsed && Array.isArray(parsed['@graph'])) return parsed['@graph']
-  return [parsed]
+  if (Array.isArray(parsed)) return parsed.map((schema) => ({ schema, context: undefined }))
+  if (parsed && Array.isArray(parsed['@graph'])) {
+    return parsed['@graph'].map((schema) => ({ schema, context: parsed['@context'] }))
+  }
+  return [{ schema: parsed, context: parsed?.['@context'] }]
 }
 
 for (const path of allPaths) {
@@ -46,9 +48,16 @@ for (const path of allPaths) {
       throw new Error(`Invalid JSON-LD on ${path}: ${error instanceof Error ? error.message : String(error)}`)
     }
 
+    if (!parsed || typeof parsed !== 'object') throw new Error(`Malformed schema document on ${path}`)
+    const documentContext = parsed['@context']
     const schemaObjects = getSchemaObjects(parsed)
-    if (schemaObjects.length === 0 || schemaObjects.some((schema) => !schema || schema['@context'] !== 'https://schema.org' || !schema['@type'])) {
-      throw new Error(`Malformed schema object on ${path}`)
+    if (schemaObjects.length === 0) throw new Error(`Empty schema document on ${path}`)
+
+    for (const { schema, context } of schemaObjects) {
+      const effectiveContext = context ?? documentContext
+      if (!schema || typeof schema !== 'object' || effectiveContext !== 'https://schema.org' || !schema['@type']) {
+        throw new Error(`Malformed schema object on ${path}`)
+      }
     }
   }
 }
