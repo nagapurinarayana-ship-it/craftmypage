@@ -2,6 +2,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
+const SOCIAL_IMAGE = `${SITE_URL}/og-image.svg`
 const DIST = 'dist'
 
 const routes = {
@@ -58,6 +59,15 @@ for (const path of allPaths) {
   const canonical = `${SITE_URL}${path}`
   const title = meta.title.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
   const description = meta.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+  const webPageSchema = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: meta.title,
+    description: meta.description,
+    url: canonical,
+    isPartOf: { '@type': 'WebSite', name: 'CraftMyPage', url: `${SITE_URL}/` },
+  })
+
   let html = base
     .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
     .replace(/<meta name="description" content="[^"]*"\s*\/>/, `<meta name="description" content="${description}" />`)
@@ -67,6 +77,9 @@ for (const path of allPaths) {
     .replace(/<meta property="og:url" content="[^"]*"\s*\/>/, `<meta property="og:url" content="${canonical}" />`)
     .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`)
+
+  html = html.replace('</head>', `    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />\n    <meta name="googlebot" content="index,follow" />\n    <meta name="application-name" content="CraftMyPage" />\n    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    <script type="application/ld+json">${webPageSchema}</script>\n  </head>`)
+
   const fallback = `<noscript><main><h1>${title}</h1><p>${description}</p><p><a href="${SITE_URL}/tools/invoice-maker">Free Invoice Maker</a> · <a href="${SITE_URL}/tools/invitation-maker">Free Invitation Maker</a> · <a href="${SITE_URL}/tools/resume-builder">Free Resume Builder</a> · <a href="${SITE_URL}/guides">Guides</a></p></main></noscript>`
   html = html.replace('<div id="root"></div>', `<div id="root"></div>${fallback}`)
   const output = path === '/' ? join(DIST, 'index.html') : join(DIST, path.replace(/^\//, ''), 'index.html')
