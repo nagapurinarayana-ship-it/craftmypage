@@ -113,6 +113,20 @@ function structuredDataFor(path, meta) {
   return schemas
 }
 
+function escapeHtml(value) {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+}
+
+function fallbackLinks(path) {
+  const link = (href, label) => `<a href="${SITE_URL}${href}">${escapeHtml(label)}</a>`
+  if (path === '/') return `${link('/tools/invoice-maker', 'Free Invoice Maker')} · ${link('/tools/invitation-maker', 'Free Invitation Maker')} · ${link('/tools/resume-builder', 'Free Resume Builder')} · ${link('/guides', 'Guides')}`
+  if (path.startsWith('/tools/invoice-maker') || path.startsWith('/invoices/')) return `${link('/tools/invoice-maker', 'Open Invoice Maker')} · ${link('/guides/how-to-create-an-invoice', 'Invoice Guide')} · ${link('/guides', 'All Guides')}`
+  if (path.startsWith('/tools/resume-builder') || path.startsWith('/resumes/')) return `${link('/tools/resume-builder', 'Open Resume Builder')} · ${link('/guides/ats-friendly-resume', 'ATS Resume Guide')} · ${link('/guides', 'All Guides')}`
+  if (path.startsWith('/tools/invitation-maker') || path.startsWith('/invitations/')) return `${link('/tools/invitation-maker', 'Open Invitation Maker')} · ${link('/invitations/birthday', 'Birthday Invitations')} · ${link('/invitations/wedding', 'Wedding Invitations')} · ${link('/guides', 'Invitation Guides')}`
+  if (path.startsWith('/guides/')) return `${link('/guides', 'All Guides')} · ${link('/tools/invoice-maker', 'Invoice Maker')} · ${link('/tools/invitation-maker', 'Invitation Maker')} · ${link('/tools/resume-builder', 'Resume Builder')}`
+  return `${link('/', 'CraftMyPage Home')} · ${link('/tools/invoice-maker', 'Invoice Maker')} · ${link('/tools/invitation-maker', 'Invitation Maker')} · ${link('/tools/resume-builder', 'Resume Builder')}`
+}
+
 const base = await readFile(join(DIST, 'index.html'), 'utf8')
 const sitemap = await readFile('public/sitemap.xml', 'utf8')
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => new URL(m[1]).pathname)
@@ -122,8 +136,8 @@ for (const path of allPaths) {
   const meta = metaFor(path)
   if (!meta) continue
   const canonical = `${SITE_URL}${path}`
-  const title = meta.title.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
-  const description = meta.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+  const title = escapeHtml(meta.title)
+  const description = escapeHtml(meta.description)
   const structuredDataScripts = structuredDataFor(path, meta)
     .map(schema => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
     .join('\n    ')
@@ -140,7 +154,7 @@ for (const path of allPaths) {
 
   html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    ${structuredDataScripts}\n  </head>`)
 
-  const fallback = `<noscript><main><h1>${title}</h1><p>${description}</p><p><a href="${SITE_URL}/tools/invoice-maker">Free Invoice Maker</a> · <a href="${SITE_URL}/tools/invitation-maker">Free Invitation Maker</a> · <a href="${SITE_URL}/tools/resume-builder">Free Resume Builder</a> · <a href="${SITE_URL}/guides">Guides</a></p></main></noscript>`
+  const fallback = `<noscript><main><h1>${title}</h1><p>${description}</p><nav aria-label="Related CraftMyPage tools and guides">${fallbackLinks(path)}</nav></main></noscript>`
   html = html.replace('<div id="root"></div>', `<div id="root"></div>${fallback}`)
   const output = path === '/' ? join(DIST, 'index.html') : join(DIST, path.replace(/^\//, ''), 'index.html')
   await mkdir(dirname(output), { recursive: true })
