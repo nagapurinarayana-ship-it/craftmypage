@@ -93,32 +93,11 @@ export default function EffectiveCpmHomeAds() {
       }
     }
 
-    // Keep third-party ad work out of the initial render. Start loading shortly
-    // before the ad section enters the viewport, while retaining the provider's
-    // existing ad units and placements.
-    if ('IntersectionObserver' in globalThis) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            observer.disconnect()
-            void loadAds()
-          }
-        },
-        { rootMargin: '700px 0px' },
-      )
-      observer.observe(root)
-
-      return () => {
-        cancelled = true
-        observer.disconnect()
-        scripts.forEach((script) => script.remove())
-        if (bannerWindow.atOptions?.key === BANNER_728_KEY || bannerWindow.atOptions?.key === BANNER_468_KEY) {
-          delete bannerWindow.atOptions
-        }
-      }
-    }
-
+    // These are revenue-bearing above-the-fold/page-visible units. Initialize
+    // them immediately rather than waiting for viewport intersection so provider
+    // scripts can reliably create their ad frames on first render.
     void loadAds()
+
     return () => {
       cancelled = true
       scripts.forEach((script) => script.remove())
