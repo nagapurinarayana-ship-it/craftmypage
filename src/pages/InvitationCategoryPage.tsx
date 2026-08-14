@@ -39,6 +39,17 @@ const CATEGORY_TIPS: Record<string, string[]> = {
   anniversary: ['Include the couple or honorees, date, time and venue.', 'Choose a style that matches the tone of the celebration.', 'Proofread names and dates before sharing the final invitation.'],
 }
 
+const CATEGORY_GUIDES: Record<string, { path: string; label: string }> = {
+  birthday: { path: '/guides/birthday-invitation-whatsapp', label: 'Birthday invitation sharing tips' },
+  wedding: { path: '/guides/wedding-invitation-wording', label: 'Wedding invitation wording guide' },
+  housewarming: { path: '/guides/housewarming-invitation-wording', label: 'Housewarming invitation wording guide' },
+  naming: { path: '/guides/naming-ceremony-invitation', label: 'Naming ceremony invitation guide' },
+  baby: { path: '/guides/invitation-details', label: 'Invitation details checklist' },
+  engagement: { path: '/guides/invitation-details', label: 'Invitation details checklist' },
+  party: { path: '/guides/invitation-details', label: 'Invitation details checklist' },
+  anniversary: { path: '/guides/invitation-details', label: 'Invitation details checklist' },
+}
+
 const TEMPLATE_CATEGORY_BY_ROUTE: Record<string, string> = { baby: 'baby-shower', naming: 'naming-ceremony' }
 const RELATED_CATEGORIES = ['birthday', 'wedding', 'engagement', 'baby', 'housewarming', 'naming', 'party', 'anniversary']
 
@@ -62,10 +73,18 @@ export default function InvitationCategoryPage() {
   const title = CATEGORY_TITLES[category] ?? 'Invitation Templates'
   const description = CATEGORY_DESCRIPTIONS[category] ?? 'Browse free invitation templates you can customize in your browser.'
   const tips = CATEGORY_TIPS[category] ?? ['Add the event name, date, time and venue.', 'Choose a layout that is easy to read on a phone.', 'Proofread the final details before sharing.']
+  const guide = CATEGORY_GUIDES[category] ?? CATEGORY_GUIDES.birthday
   const relatedCategories = RELATED_CATEGORIES.filter((item) => item !== category)
+  const makerPath = CATEGORY_TITLES[category] ? `/invitations/${category}/maker` : '/tools/invitation-maker'
 
   return (
     <div className="cmp-tool-shell">
+      <nav aria-label="Breadcrumb" className="mb-5 text-sm text-slate-500">
+        <Link to="/tools/invitation-maker" className="underline decoration-slate-300 underline-offset-4 hover:text-slate-900">Invitation Maker</Link>
+        <span className="mx-2" aria-hidden="true">/</span>
+        <span aria-current="page">{title}</span>
+      </nav>
+
       <div className="mb-8 max-w-3xl">
         <span className="cmp-eyebrow">Invitation Templates</span>
         <h1 className="cmp-tool-title mt-3">{title}</h1>
@@ -74,8 +93,8 @@ export default function InvitationCategoryPage() {
           Start with a template, personalize the wording and details in the CraftMyPage invitation maker, then prepare the finished invitation for sharing or printing.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link to="/tools/invitation-maker" className="cmp-primary-btn">Open invitation maker</Link>
-          <Link to="/guides/invitation-details" className="cmp-secondary-btn">Invitation details checklist</Link>
+          <Link to={makerPath} className="cmp-primary-btn">Create a {title.replace(/ Invitations$/, '')} invitation</Link>
+          <Link to={guide.path} className="cmp-secondary-btn">{guide.label}</Link>
         </div>
       </div>
 
