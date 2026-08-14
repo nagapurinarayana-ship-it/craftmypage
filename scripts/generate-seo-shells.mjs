@@ -124,7 +124,9 @@ for (const path of allPaths) {
   const canonical = `${SITE_URL}${path}`
   const title = meta.title.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
   const description = meta.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
-  const structuredData = structuredDataFor(path, meta).map(schema => JSON.stringify(schema)).join('')
+  const structuredDataScripts = structuredDataFor(path, meta)
+    .map(schema => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
+    .join('\n    ')
 
   let html = base
     .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
@@ -136,7 +138,7 @@ for (const path of allPaths) {
     .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`)
 
-  html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    ${structuredData.split('</script><script type="application/ld+json">').map((json) => `<script type="application/ld+json">${json}</script>`).join('')}\n  </head>`)
+  html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    ${structuredDataScripts}\n  </head>`)
 
   const fallback = `<noscript><main><h1>${title}</h1><p>${description}</p><p><a href="${SITE_URL}/tools/invoice-maker">Free Invoice Maker</a> · <a href="${SITE_URL}/tools/invitation-maker">Free Invitation Maker</a> · <a href="${SITE_URL}/tools/resume-builder">Free Resume Builder</a> · <a href="${SITE_URL}/guides">Guides</a></p></main></noscript>`
   html = html.replace('<div id="root"></div>', `<div id="root"></div>${fallback}`)
