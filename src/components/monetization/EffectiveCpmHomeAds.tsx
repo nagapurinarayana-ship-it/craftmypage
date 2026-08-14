@@ -16,7 +16,7 @@ type BannerOptions = {
 }
 
 type BannerWindow = typeof globalThis & {
-  atOptions?: BannerOptions & { format: string; params: Record<string, unknown> }
+  atOptions?: Omit<BannerOptions, 'src'> & { format: string; params: Record<string, unknown> }
 }
 
 export default function EffectiveCpmHomeAds() {
