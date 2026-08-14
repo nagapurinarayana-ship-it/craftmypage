@@ -1,5 +1,4 @@
 import type Konva from 'konva'
-import { PDFDocument } from 'pdf-lib'
 
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
@@ -42,6 +41,7 @@ export async function exportToPdf(
   options: { filename?: string; title?: string } = {},
 ): Promise<Blob> {
   void options
+  const { PDFDocument } = await import('pdf-lib')
   const width = stage.width()
   const height = stage.height()
   const pageWidth = 595
