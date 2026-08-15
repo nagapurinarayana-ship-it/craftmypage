@@ -104,6 +104,17 @@ body {
     .invoice-maker-page .cmp-tool-header {
       position: static;
       padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .invoice-maker-page .cmp-tool-title {
+      font-size: 1.35rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .invoice-maker-page .cmp-tool-subtitle {
+      font-size: .84rem !important;
+      line-height: 1.45 !important;
     }
 
     .invoice-maker-page .cmp-tool-header > div:last-child {
@@ -121,10 +132,23 @@ body {
       width: 100%;
     }
 
+    .invoice-maker-page .cmp-tool-header button {
+      flex: 1 1 calc(50% - 4px);
+      min-height: 42px;
+      padding: 9px 10px !important;
+      font-size: .78rem;
+    }
+
     .invoice-maker-page .invoice-preview-host {
-      padding: 8px !important;
+      padding: 6px !important;
       max-height: none !important;
       overflow: visible !important;
+      border-radius: 14px;
+    }
+
+    .invoice-maker-page .invoice-preview-host > .flex {
+      padding-left: 3px;
+      padding-right: 3px;
     }
 
     .invoice-maker-page .invoice-print-root {
@@ -140,51 +164,127 @@ body {
 
     .invoice-maker-page .invoice-print-page {
       min-height: auto !important;
-      padding: 18px !important;
-      border-radius: 14px;
-      font-size: 13px;
+      padding: 12px !important;
+      border-radius: 12px;
+      font-size: 12px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
+    }
+
+    /* Compact the nested A4 sections for a readable phone preview without changing print/PDF sizing. */
+    .invoice-maker-page .invoice-print-page > .p-8,
+    .invoice-maker-page .invoice-print-page > .p-12 {
+      padding: 12px !important;
     }
 
     .invoice-maker-page .invoice-print-page h1 {
-      font-size: 1.5rem !important;
-      line-height: 1.15 !important;
+      font-size: 1.35rem !important;
+      line-height: 1.12 !important;
       overflow-wrap: anywhere;
     }
 
     .invoice-maker-page .invoice-print-page h2 {
-      font-size: 1.4rem !important;
-      line-height: 1.15 !important;
+      font-size: 1.25rem !important;
+      line-height: 1.12 !important;
     }
 
     .invoice-maker-page .invoice-print-page p {
       overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
+    /* Keep From/To and invoice metadata usable on narrow phones. */
+    .invoice-maker-page .invoice-print-page .grid.grid-cols-2,
+    .invoice-maker-page .invoice-print-page .grid.grid-cols-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 10px !important;
+    }
+
+    .invoice-maker-page .invoice-print-page .grid.grid-cols-4 {
+      font-size: 10px;
+    }
+
+    /* Tables stay inside the phone instead of creating horizontal page overflow. */
     .invoice-maker-page .invoice-print-page table {
+      width: 100%;
       table-layout: fixed;
-      font-size: 11px;
+      font-size: 10px;
     }
 
     .invoice-maker-page .invoice-print-page th,
     .invoice-maker-page .invoice-print-page td {
-      padding: 7px 5px !important;
+      padding: 6px 4px !important;
       overflow-wrap: anywhere;
       word-break: break-word;
+      vertical-align: top;
     }
 
     .invoice-maker-page .invoice-print-page th:nth-child(1),
-    .invoice-maker-page .invoice-print-page td:nth-child(1) { width: 45%; }
+    .invoice-maker-page .invoice-print-page td:nth-child(1) { width: 43%; }
     .invoice-maker-page .invoice-print-page th:nth-child(2),
-    .invoice-maker-page .invoice-print-page td:nth-child(2) { width: 16%; }
+    .invoice-maker-page .invoice-print-page td:nth-child(2) { width: 15%; }
     .invoice-maker-page .invoice-print-page th:nth-child(3),
-    .invoice-maker-page .invoice-print-page td:nth-child(3) { width: 20%; }
+    .invoice-maker-page .invoice-print-page td:nth-child(3) { width: 21%; }
     .invoice-maker-page .invoice-print-page th:nth-child(4),
-    .invoice-maker-page .invoice-print-page td:nth-child(4) { width: 19%; }
+    .invoice-maker-page .invoice-print-page td:nth-child(4) { width: 21%; }
 
     .invoice-maker-page .invoice-print-page img {
-      max-width: 100%;
+      max-width: 88px;
+      max-height: 52px;
       height: auto;
       object-fit: contain;
+    }
+
+    /* Prevent the totals block from becoming a wide desktop-sized element. */
+    .invoice-maker-page .invoice-print-page .w-64,
+    .invoice-maker-page .invoice-print-page .w-48 {
+      width: min(100%, 15rem) !important;
+    }
+
+    .invoice-maker-page .invoice-print-page .text-4xl {
+      font-size: 1.65rem !important;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .invoice-maker-page {
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+
+    .invoice-maker-page .cmp-tool-header {
+      padding: 11px;
+    }
+
+    .invoice-maker-page .cmp-tool-header button {
+      flex-basis: 100%;
+    }
+
+    .invoice-maker-page .invoice-preview-host {
+      padding: 4px !important;
+    }
+
+    .invoice-maker-page .invoice-print-page {
+      padding: 8px !important;
+      font-size: 11px;
+    }
+
+    .invoice-maker-page .invoice-print-page > .p-8,
+    .invoice-maker-page .invoice-print-page > .p-12 {
+      padding: 9px !important;
+    }
+
+    .invoice-maker-page .invoice-print-page .grid.grid-cols-2,
+    .invoice-maker-page .invoice-print-page .grid.grid-cols-4 {
+      gap: 7px !important;
+    }
+
+    .invoice-maker-page .invoice-print-page table {
+      font-size: 9px;
+    }
+
+    .invoice-maker-page .invoice-print-page th,
+    .invoice-maker-page .invoice-print-page td {
+      padding: 5px 3px !important;
     }
   }
 }
