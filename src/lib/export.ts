@@ -2,13 +2,32 @@ import type Konva from 'konva'
 
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+  const isAndroid = /Android/i.test(navigator.userAgent)
+  const isPdf = blob.type === 'application/pdf' || filename.toLowerCase().endsWith('.pdf')
+
+  // Android browsers can ignore the download attribute for Blob-backed PDFs.
+  // Open the generated PDF in the browser viewer instead, where it can be saved.
+  if (isAndroid && isPdf) {
+    const opened = window.open(url, '_blank', 'noopener,noreferrer')
+    if (!opened) {
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+    }
+  } else {
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.rel = 'noopener'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
+  window.setTimeout(() => URL.revokeObjectURL(url), 5000)
 }
 
 export async function exportStageToPng(stage: Konva.Stage, pixelRatio = 2): Promise<Blob> {
@@ -44,7 +63,10 @@ export async function exportStageToPng(stage: Konva.Stage, pixelRatio = 2): Prom
 }
 
 export function downloadPng(stage: Konva.Stage, baseName: string): void {
-  exportStageToPng(stage).then((blob) => downloadBlob(blob, `${sanitizeFilename(baseName)}.png`))
+  exportStageToPng(stage).then((blob) => downloadBlob(blob, `${sanitizeFilename(baseName)}.png`)).catch((error) => {
+    console.error('Invitation PNG export failed', error)
+    window.alert('Unable to create the PNG. Please try again.')
+  })
 }
 
 export function standardFilename(baseName: string, purpose = ''): string {
@@ -61,7 +83,6 @@ export async function exportToPdf(
   stage: Konva.Stage,
   options: { filename?: string; title?: string } = {},
 ): Promise<Blob> {
-  void options
   const { PDFDocument } = await import('pdf-lib')
   const width = stage.width()
   const height = stage.height()
@@ -74,6 +95,9 @@ export async function exportToPdf(
   const offsetY = (pageHeight - renderedHeight) / 2
 
   const pdfDoc = await PDFDocument.create()
+  if (options.title) pdfDoc.setTitle(options.title)
+  pdfDoc.setCreator('CraftMyPage Invitation Maker')
+  pdfDoc.setProducer('CraftMyPage Invitation Maker')
   const page = pdfDoc.addPage([pageWidth, pageHeight])
   const pngBlob = await exportStageToPng(stage, 2)
   const pngBytes = await pngBlob.arrayBuffer()
@@ -88,5 +112,8 @@ export async function exportToPdf(
 }
 
 export function downloadPdf(stage: Konva.Stage, options: { filename?: string; title?: string } = {}): void {
-  exportToPdf(stage, options).then((blob) => downloadBlob(blob, `${sanitizeFilename(options.filename ?? 'invitation')}.pdf`))
+  exportToPdf(stage, options).then((blob) => downloadBlob(blob, `${sanitizeFilename(options.filename ?? 'invitation')}.pdf`)).catch((error) => {
+    console.error('Invitation PDF export failed', error)
+    window.alert('Unable to create the PDF. Please try again.')
+  })
 }
