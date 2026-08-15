@@ -61,11 +61,20 @@ export async function exportResumeToPdf(data: ResumeData): Promise<Blob> {
   }
 
   const drawSection = (title: string) => {
-    ensureSpace(sectionGap + lineHeight)
+    // Keep the divider below the heading and leave a real gap before the first
+    // content line. The previous positioning caused the divider to cross the
+    // first resume entry, which looked like strikethrough text in PDF viewers.
+    ensureSpace(sectionGap + lineHeight + 10)
     y -= sectionGap
     page.drawText(title, { x: margin, y, size: 12, font: boldFont, color: rgb(0, 0, 0) })
     y -= lineHeight
-    page.drawLine({ start: { x: margin, y: y + 4 }, end: { x: pageWidth - margin, y: y + 4 }, thickness: 0.8, color: rgb(0.3, 0.3, 0.3) })
+    page.drawLine({
+      start: { x: margin, y: y + 1 },
+      end: { x: pageWidth - margin, y: y + 1 },
+      thickness: 0.8,
+      color: rgb(0.3, 0.3, 0.3),
+    })
+    y -= 8
   }
 
   const c = data.contact
