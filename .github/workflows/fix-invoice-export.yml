@@ -1,0 +1,138 @@
+name: Repair invoice export
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch invoice PDF logo rendering
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path('src/lib/invoice-pdf.ts')
+          text = path.read_text()
+
+          text = text.replace(
+              "import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'",
+              "import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage, type PDFImage } from 'pdf-lib'"
+          )
+
+          marker = "function stringToRGB(hex: string) {"
+          helper = r'''async function embedInvoiceLogo(pdfDoc: PDFDocument, source: string | null | undefined): Promise<PDFImage | null> {
+  if (!source || !source.startsWith('data:image/')) return null
+  try {
+    const comma = source.indexOf(',')
+    if (comma < 0) return null
+    const mime = source.slice(5, comma).split(';')[0].toLowerCase()
+    const encoded = source.slice(comma + 1)
+    const binary = atob(encoded)
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+    if (mime === 'image/png') return await pdfDoc.embedPng(bytes)
+    if (mime === 'image/jpeg' || mime === 'image/jpg') return await pdfDoc.embedJpg(bytes)
+    if (mime === 'image/webp') {
+      const image = new Image()
+      image.src = source
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth || image.width
+      canvas.height = image.naturalHeight || image.height
+      const context = canvas.getContext('2d')
+      if (!context) return null
+      context.drawImage(image, 0, 0)
+      const png = canvas.toDataURL('image/png')
+      const pngBinary = atob(png.slice(png.indexOf(',') + 1))
+      const pngBytes = Uint8Array.from(pngBinary, (char) => char.charCodeAt(0))
+      return await pdfDoc.embedPng(pngBytes)
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
+function drawInvoiceLogo(page: PDFPage, logo: PDFImage | null, x: number, y: number, maxWidth: number, maxHeight: number) {
+  if (!logo) return
+  const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height)
+  const width = logo.width * scale
+  const height = logo.height * scale
+  page.drawImage(logo, { x, y: y + (maxHeight - height) / 2, width, height })
+}
+
+'''
+          if marker not in text:
+              raise SystemExit('invoice-pdf marker not found')
+          text = text.replace(marker, helper + marker, 1)
+
+          replacements = [
+              (
+                  "  const accentRGB = stringToRGB(invoice.accentColor)\n  let y = 750\n  page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT, y, size: 28, font: bold, color: accentRGB })",
+                  "  const accentRGB = stringToRGB(invoice.accentColor)\n  const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)\n  let y = 710\n  drawInvoiceLogo(page, logo, LEFT, 735, 56, 40)\n  page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT, y, size: 28, font: bold, color: accentRGB })"
+              ),
+              (
+                  "  y -= 60\n  drawPartyBlock(page, 'From:', businessLines(invoice), LEFT, y, font, bold)",
+                  "  y -= 70\n  drawPartyBlock(page, 'From:', businessLines(invoice), LEFT, y, font, bold)"
+              ),
+              (
+                  "  const accentRGB = stringToRGB(invoice.accentColor)\n  let y = 760\n  const nextPage = () =>",
+                  "  const accentRGB = stringToRGB(invoice.accentColor)\n  const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)\n  let y = 760\n  drawInvoiceLogo(page, logo, LEFT, 708, 48, 34)\n  const nextPage = () =>"
+              ),
+              (
+                  "  const accentRGB = stringToRGB(invoice.accentColor)\n  let y = 680\n  const nextPage = () =>",
+                  "  const accentRGB = stringToRGB(invoice.accentColor)\n  const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)\n  let y = 680\n  drawInvoiceLogo(page, logo, LEFT, 742, 48, 34)\n  const nextPage = () =>"
+              ),
+              (
+                  "  page.drawRectangle({ x: 0, y: 700, width: 595, height: 100, color: accentRGB })\n  page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT, y: 770, size: 24, font: bold, color: rgb(1, 1, 1) })",
+                  "  page.drawRectangle({ x: 0, y: 700, width: 595, height: 100, color: accentRGB })\n  drawInvoiceLogo(page, logo, LEFT, 748, 44, 34)\n  page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT + 54, y: 770, size: 24, font: bold, color: rgb(1, 1, 1) })"
+              )
+          ]
+
+          for old, new in replacements:
+              if old not in text:
+                  raise SystemExit('expected invoice-pdf pattern not found: ' + old[:90])
+              text = text.replace(old, new, 1)
+
+          path.write_text(text)
+          PY
+
+      - name: Improve mobile preview host
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          path = Path('src/index.css')
+          text = path.read_text()
+          old = "  .invoice-maker-page .invoice-preview-host {\n    width: 100%;\n    min-width: 0;\n    max-width: 100%;\n    box-sizing: border-box;\n  }"
+          new = old + "\n\n  @media (max-width: 640px) {\n    .invoice-maker-page .invoice-preview-host {\n      margin-left: 0;\n      margin-right: 0;\n      border-radius: 14px;\n    }\n  }"
+          if old not in text:
+              raise SystemExit('preview host CSS pattern not found')
+          text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+
+      - name: Commit repaired export
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/lib/invoice-pdf.ts src/index.css
+          git commit -m 'Fix invoice logo export and mobile preview' || exit 0
+          git push
+
+      - name: Remove one-time workflow
+        if: always()
+        run: |
+          git rm -f .github/workflows/fix-invoice-export.yml || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Remove one-time invoice repair workflow' || true
+          git push || true
