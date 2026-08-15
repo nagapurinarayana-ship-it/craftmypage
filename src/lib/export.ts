@@ -23,16 +23,18 @@ export async function exportStageToPng(stage: Konva.Stage, pixelRatio = 2): Prom
       const scaleY = stage.scaleY()
       const x = stage.x()
       const y = stage.y()
+      let dataUrl: string
 
-      stage.scale({ x: 1, y: 1 })
-      stage.position({ x: 0, y: 0 })
-      stage.draw()
-
-      const dataUrl = stage.toDataURL({ pixelRatio })
-
-      stage.scale({ x: scaleX, y: scaleY })
-      stage.position({ x, y })
-      stage.draw()
+      try {
+        stage.scale({ x: 1, y: 1 })
+        stage.position({ x: 0, y: 0 })
+        stage.draw()
+        dataUrl = stage.toDataURL({ pixelRatio })
+      } finally {
+        stage.scale({ x: scaleX, y: scaleY })
+        stage.position({ x, y })
+        stage.draw()
+      }
 
       fetch(dataUrl).then((res) => res.blob()).then(resolve).catch(reject)
     } catch (error) {
