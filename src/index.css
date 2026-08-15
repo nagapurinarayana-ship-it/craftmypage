@@ -73,9 +73,11 @@ body {
     min-width: 0;
   }
 
-  .invoice-maker-page .invoice-preview-shell {
+  .invoice-maker-page .invoice-preview-host {
     width: 100%;
     min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .invoice-maker-page .invoice-print-root {
@@ -119,10 +121,21 @@ body {
       width: 100%;
     }
 
+    .invoice-maker-page .invoice-preview-host {
+      padding: 8px !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
     .invoice-maker-page .invoice-print-root {
       padding: 0 !important;
       background: transparent !important;
       overflow-x: hidden;
+    }
+
+    .invoice-maker-page .invoice-print-container {
+      width: 100%;
+      max-width: 100%;
     }
 
     .invoice-maker-page .invoice-print-page {
@@ -138,7 +151,11 @@ body {
       overflow-wrap: anywhere;
     }
 
-    .invoice-maker-page .invoice-print-page h2,
+    .invoice-maker-page .invoice-print-page h2 {
+      font-size: 1.4rem !important;
+      line-height: 1.15 !important;
+    }
+
     .invoice-maker-page .invoice-print-page p {
       overflow-wrap: anywhere;
     }
