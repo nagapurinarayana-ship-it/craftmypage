@@ -14,7 +14,26 @@ export function downloadBlob(blob: Blob, filename: string): void {
 export async function exportStageToPng(stage: Konva.Stage, pixelRatio = 2): Promise<Blob> {
   return new Promise((resolve, reject) => {
     try {
+      // The editor Stage is visually scaled (for example 0.4x for the
+      // on-screen preview). Konva's export uses the Stage's transform too,
+      // so exporting directly would place the invitation in only 40% of the
+      // downloaded canvas, leaving the rest blank. Temporarily reset the
+      // Stage transform for a true full-canvas export, then restore it.
+      const scaleX = stage.scaleX()
+      const scaleY = stage.scaleY()
+      const x = stage.x()
+      const y = stage.y()
+
+      stage.scale({ x: 1, y: 1 })
+      stage.position({ x: 0, y: 0 })
+      stage.draw()
+
       const dataUrl = stage.toDataURL({ pixelRatio })
+
+      stage.scale({ x: scaleX, y: scaleY })
+      stage.position({ x, y })
+      stage.draw()
+
       fetch(dataUrl).then((res) => res.blob()).then(resolve).catch(reject)
     } catch (error) {
       reject(error)
