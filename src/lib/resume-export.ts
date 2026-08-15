@@ -44,26 +44,50 @@ export async function exportResumeToPdf(data: ResumeData): Promise<Blob> {
     }
   }
 
+  // Wrap by words and also split long unbroken tokens (URLs, long skill strings,
+  // etc.) so exported PDFs never clip content outside the page.
+  const wrapLine = (text: string, size: number, f: typeof font): string[] => {
+    if (!text) return ['']
+    const output: string[] = []
+    let line = ''
+    for (const word of text.split(/\s+/)) {
+      if (!word) continue
+      const candidate = line ? `${line} ${word}` : word
+      if (f.widthOfTextAtSize(candidate, size) <= maxWidth) {
+        line = candidate
+        continue
+      }
+      if (line) output.push(line)
+      line = ''
+      let chunk = ''
+      for (const char of word) {
+        const test = chunk + char
+        if (f.widthOfTextAtSize(test, size) > maxWidth && chunk) {
+          output.push(chunk)
+          chunk = char
+        } else chunk = test
+      }
+      line = chunk
+    }
+    if (line || output.length === 0) output.push(line)
+    return output
+  }
+
   const drawText = (text: string, size: number, bold = false, gap = lineHeight) => {
     const f = bold ? boldFont : font
-    const words = text.split(' ')
-    let line = ''
-    for (const word of words) {
-      const test = line ? `${line} ${word}` : word
-      if (f.widthOfTextAtSize(test, size) > maxWidth) {
+    // Preserve user-entered Enter / Shift+Enter line breaks in the PDF.
+    const paragraphs = String(text ?? '').replace(/\r\n?/g, '\n').split('\n')
+    for (const paragraph of paragraphs) {
+      const lines = wrapLine(paragraph, size, f)
+      for (const line of lines) {
         ensureSpace(gap)
-        page.drawText(line, { x: margin, y, size, font: f, color: rgb(0, 0, 0) })
+        if (line) page.drawText(line, { x: margin, y, size, font: f, color: rgb(0, 0, 0) })
         y -= gap
-        line = word
-      } else line = test
+      }
     }
-    if (line) { ensureSpace(gap); page.drawText(line, { x: margin, y, size, font: f, color: rgb(0, 0, 0) }); y -= gap }
   }
 
   const drawSection = (title: string) => {
-    // Keep the divider below the heading and leave a real gap before the first
-    // content line. The previous positioning caused the divider to cross the
-    // first resume entry, which looked like strikethrough text in PDF viewers.
     ensureSpace(sectionGap + lineHeight + 10)
     y -= sectionGap
     page.drawText(title, { x: margin, y, size: 12, font: boldFont, color: rgb(0, 0, 0) })
@@ -78,8 +102,8 @@ export async function exportResumeToPdf(data: ResumeData): Promise<Blob> {
   }
 
   const c = data.contact
-  if (c.fullName) { page.drawText(c.fullName, { x: margin, y, size: 22, font: boldFont }); y -= 24 }
-  if (c.jobTitle) { page.drawText(c.jobTitle, { x: margin, y, size: 13, font }); y -= 18 }
+  if (c.fullName) { drawText(c.fullName, 22, true, 24) }
+  if (c.jobTitle) { drawText(c.jobTitle, 13, false, 18) }
   const contactLine = [c.email, c.phone, c.location, c.website, c.linkedin].filter(Boolean).join(' | ')
   if (contactLine) { drawText(contactLine, 10); y -= 6 }
   if (data.summary) { drawSection('PROFESSIONAL SUMMARY'); drawText(data.summary, 11) }
@@ -93,7 +117,7 @@ export async function exportResumeToPdf(data: ResumeData): Promise<Blob> {
   for (const section of data.customSections) { if (section.title) drawSection(section.title.toUpperCase()); if (section.content) drawText(section.content, 10) }
 
   const pdfBytes = await pdfDoc.save()
-  return new Blob([pdfBytes.buffer], { type: 'application/pdf' })
+  return new Blob([pdfBytes], { type: 'application/pdf' })
 }
 
 export function downloadTextFile(text: string, filename: string): void {
