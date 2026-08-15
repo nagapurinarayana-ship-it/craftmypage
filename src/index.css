@@ -67,4 +67,107 @@ body {
       max-width: 468px;
     }
   }
+
+  .invoice-maker-page,
+  .invoice-maker-page * {
+    min-width: 0;
+  }
+
+  .invoice-maker-page .invoice-preview-shell {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .invoice-maker-page .invoice-print-root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .invoice-maker-page .invoice-print-page {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 640px) {
+    .invoice-maker-page {
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-top: 16px;
+    }
+
+    .invoice-maker-page .cmp-tool-header {
+      position: static;
+      padding: 14px;
+    }
+
+    .invoice-maker-page .cmp-tool-header > div:last-child {
+      width: 100%;
+      justify-content: stretch;
+    }
+
+    .invoice-maker-page .cmp-tool-header input,
+    .invoice-maker-page .cmp-tool-header button {
+      min-width: 0;
+    }
+
+    .invoice-maker-page .cmp-tool-header input {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    .invoice-maker-page .invoice-print-root {
+      padding: 0 !important;
+      background: transparent !important;
+      overflow-x: hidden;
+    }
+
+    .invoice-maker-page .invoice-print-page {
+      min-height: auto !important;
+      padding: 18px !important;
+      border-radius: 14px;
+      font-size: 13px;
+    }
+
+    .invoice-maker-page .invoice-print-page h1 {
+      font-size: 1.5rem !important;
+      line-height: 1.15 !important;
+      overflow-wrap: anywhere;
+    }
+
+    .invoice-maker-page .invoice-print-page h2,
+    .invoice-maker-page .invoice-print-page p {
+      overflow-wrap: anywhere;
+    }
+
+    .invoice-maker-page .invoice-print-page table {
+      table-layout: fixed;
+      font-size: 11px;
+    }
+
+    .invoice-maker-page .invoice-print-page th,
+    .invoice-maker-page .invoice-print-page td {
+      padding: 7px 5px !important;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .invoice-maker-page .invoice-print-page th:nth-child(1),
+    .invoice-maker-page .invoice-print-page td:nth-child(1) { width: 45%; }
+    .invoice-maker-page .invoice-print-page th:nth-child(2),
+    .invoice-maker-page .invoice-print-page td:nth-child(2) { width: 16%; }
+    .invoice-maker-page .invoice-print-page th:nth-child(3),
+    .invoice-maker-page .invoice-print-page td:nth-child(3) { width: 20%; }
+    .invoice-maker-page .invoice-print-page th:nth-child(4),
+    .invoice-maker-page .invoice-print-page td:nth-child(4) { width: 19%; }
+
+    .invoice-maker-page .invoice-print-page img {
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+  }
 }
