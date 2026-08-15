@@ -41,14 +41,27 @@ export default function ResumeBuilderPage() {
     try {
       const blob = await exportResumeToPdf(project.data)
       const url = URL.createObjectURL(blob)
+      const filename = `${project.data.contact.fullName || 'resume'}.pdf`
       const a = document.createElement('a')
       a.href = url
-      a.download = `${project.data.contact.fullName || 'resume'}.pdf`
+      a.download = filename
+      a.rel = 'noopener'
       document.body.appendChild(a)
       a.click()
-      document.body.removeChild(a)
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-    } finally { setExporting(false) }
+      a.remove()
+
+      // Some Android browsers ignore the download attribute for blob URLs.
+      // Open the generated PDF as a fallback so the browser's PDF viewer can save it.
+      window.setTimeout(() => {
+        if (/Android/i.test(navigator.userAgent)) window.open(url, '_blank', 'noopener,noreferrer')
+        window.setTimeout(() => URL.revokeObjectURL(url), 5000)
+      }, 250)
+    } catch (error) {
+      console.error('Resume PDF export failed', error)
+      window.alert('Unable to create the PDF. Please try again.')
+    } finally {
+      setExporting(false)
+    }
   }
   const handleDownloadTxt = () => { if (project) downloadTextFile(resumeToPlainText(project.data), `${project.data.contact.fullName || 'resume'}.txt`) }
   const handleOpen = (saved: ResumeProject) => { setProject(JSON.parse(JSON.stringify(saved))); setShowPreview(false) }
@@ -67,10 +80,10 @@ export default function ResumeBuilderPage() {
     <div className="cmp-tool-shell resume-builder-page">
       <div className="cmp-tool-header sticky top-20 z-30 print:hidden"><div><button type="button" className="text-sm font-semibold text-indigo-700 hover:text-indigo-900" onClick={() => setProject(null)}>← Back to templates</button><h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{project.name}</h1><p className="mt-1 text-xs text-slate-500">Your resume content stays local until you export it.</p></div><div className="flex flex-wrap gap-2"><button type="button" className="cmp-secondary-btn px-4 py-2" onClick={() => setShowPreview(!showPreview)}>{showPreview ? 'Edit' : 'Preview'}</button><button type="button" className="cmp-secondary-btn px-4 py-2" onClick={handleSave}>Save locally</button><button type="button" className="cmp-secondary-btn px-4 py-2" onClick={() => window.print()}>Print</button><button type="button" className="cmp-secondary-btn px-4 py-2" onClick={handleDownloadTxt}>Download TXT</button><button type="button" className="cmp-primary-btn px-4 py-2" onClick={handleDownloadPdf} disabled={exporting}>{exporting ? 'Exporting...' : 'Download PDF'}</button></div></div>
 
-      {showPreview ? <div className="mx-auto max-w-4xl print:hidden"><ResumePreview data={project.data} /></div> : <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print:hidden"><div className="cmp-surface max-h-[80vh] overflow-y-auto p-5 sm:p-6"><ResumeForm data={project.data} onChange={updateData} /></div><div className="hidden max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm lg:block"><ResumePreview data={project.data} /></div></div>}
+      {showPreview ? <div className="mx-auto max-w-4xl print:hidden"><ResumePreview data={project.data} /></div> : <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] print:hidden"><div className="cmp-surface max-h-[80vh] overflow-y-auto p-5 sm:p-6"><ResumeForm key={project.id} data={project.data} onChange={updateData} /></div><div className="hidden max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 shadow-sm lg:block"><ResumePreview data={project.data} /></div></div>}
 
-      <div className="resume-print-container"><ResumePreview data={project.data} /></div>
-      <style>{`@page { size: A4; margin: 12mm; } @media print { html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; } body * { visibility: hidden !important; } .resume-print-container, .resume-print-container * { visibility: visible !important; } .resume-print-container { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; } .resume-print-container > div { box-shadow: none !important; border: 0 !important; border-radius: 0 !important; } }`}</style>
+      <div className="resume-print-container hidden"><ResumePreview data={project.data} /></div>
+      <style>{`@page { size: A4; margin: 12mm; } @media print { html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; } body * { visibility: hidden !important; } .resume-print-container { display: block !important; visibility: visible !important; position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; } .resume-print-container * { visibility: visible !important; } .resume-print-container > div { box-shadow: none !important; border: 0 !important; border-radius: 0 !important; } }`}</style>
     </div>
   )
 }
