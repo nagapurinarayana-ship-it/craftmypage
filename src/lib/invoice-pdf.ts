@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage, type PDFImage } from 'pdf-lib'
 import type { Invoice, Currency, InvoiceCalculations } from './invoice'
 import { getCurrencyConfig } from './invoice'
 import { calculateInvoice, calculateLineItemAmount } from './invoice-calculator'
@@ -33,6 +33,46 @@ export async function generateInvoicePDF(invoice: Invoice): Promise<Blob> {
   else await renderModernPDF(pdfDoc, invoice, calc)
   const pdfBytes = await pdfDoc.save()
   return new Blob([pdfBytes.buffer], { type: 'application/pdf' })
+}
+
+async function embedInvoiceLogo(pdfDoc: PDFDocument, source: string | null | undefined): Promise<PDFImage | null> {
+  if (!source || !source.startsWith('data:image/')) return null
+  try {
+    const comma = source.indexOf(',')
+    if (comma < 0) return null
+    const mime = source.slice(5, comma).split(';')[0].toLowerCase()
+    const encoded = source.slice(comma + 1)
+    const binary = atob(encoded)
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+    if (mime === 'image/png') return await pdfDoc.embedPng(bytes)
+    if (mime === 'image/jpeg' || mime === 'image/jpg') return await pdfDoc.embedJpg(bytes)
+    if (mime === 'image/webp') {
+      const image = new Image()
+      image.src = source
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth || image.width
+      canvas.height = image.naturalHeight || image.height
+      const context = canvas.getContext('2d')
+      if (!context) return null
+      context.drawImage(image, 0, 0)
+      const png = canvas.toDataURL('image/png')
+      const pngBinary = atob(png.slice(png.indexOf(',') + 1))
+      const pngBytes = Uint8Array.from(pngBinary, (char) => char.charCodeAt(0))
+      return await pdfDoc.embedPng(pngBytes)
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
+function drawInvoiceLogo(page: PDFPage, logo: PDFImage | null, x: number, y: number, maxWidth: number, maxHeight: number) {
+  if (!logo) return
+  const scale = Math.min(maxWidth / logo.width, maxHeight / logo.height)
+  const width = logo.width * scale
+  const height = logo.height * scale
+  page.drawImage(logo, { x, y: y + (maxHeight - height) / 2, width, height })
 }
 
 function stringToRGB(hex: string) {
@@ -97,12 +137,14 @@ async function renderProfessionalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc
   const font = await pdfDoc.embedFont(StandardFonts.TimesRoman)
   const bold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold)
   const accentRGB = stringToRGB(invoice.accentColor)
-  let y = 750
+  const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)
+  let y = 710
+  drawInvoiceLogo(page, logo, LEFT, 735, 56, 40)
   page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT, y, size: 28, font: bold, color: accentRGB })
   page.drawText(safeText(invoice.invoiceDetails.title) || 'Invoice', { x: 450, y, size: 24, font: bold })
   page.drawText(`# ${safeText(invoice.invoiceDetails.invoiceNumber) || 'Draft'}`, { x: 450, y: y - 25, size: 11, font, color: rgb(0.4, 0.4, 0.4) })
   if (invoice.invoiceDetails.referenceNumber) page.drawText(`Ref: ${safeText(invoice.invoiceDetails.referenceNumber)}`, { x: 450, y: y - 41, size: 9, font, color: rgb(0.45, 0.45, 0.45) })
-  y -= 60
+  y -= 70
   drawPartyBlock(page, 'From:', businessLines(invoice), LEFT, y, font, bold)
   drawPartyBlock(page, 'Bill To:', customerLines(invoice), 350, y, font, bold)
   y -= 108
@@ -141,7 +183,9 @@ async function renderMinimalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: Inv
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const accentRGB = stringToRGB(invoice.accentColor)
+  const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)
   let y = 760
+  drawInvoiceLogo(page, logo, LEFT, 708, 48, 34)
   const nextPage = () => { page = pdfDoc.addPage(PAGE_SIZE); y = drawContinuationHeader(page, invoice, font, bold, 770, accentRGB) }
   page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT, y, size: 24, font: bold, color: accentRGB })
   page.drawText(safeText(invoice.invoiceDetails.title) || 'Invoice', { x: 450, y, size: 20, font: bold })
@@ -164,10 +208,12 @@ async function renderModernPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: Invo
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const accentRGB = stringToRGB(invoice.accentColor)
+  const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)
   let y = 680
   const nextPage = () => { page = pdfDoc.addPage(PAGE_SIZE); y = drawContinuationHeader(page, invoice, font, bold, 770, accentRGB) }
   page.drawRectangle({ x: 0, y: 700, width: 595, height: 100, color: accentRGB })
-  page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT, y: 770, size: 24, font: bold, color: rgb(1, 1, 1) })
+  drawInvoiceLogo(page, logo, LEFT, 748, 44, 34)
+  page.drawText(safeText(invoice.business.name) || 'Invoice', { x: LEFT + 54, y: 770, size: 24, font: bold, color: rgb(1, 1, 1) })
   page.drawText(safeText(invoice.invoiceDetails.title) || 'Invoice', { x: 450, y: 770, size: 18, font: bold, color: rgb(1, 1, 1) })
   page.drawText(`# ${safeText(invoice.invoiceDetails.invoiceNumber) || 'Draft'}`, { x: 450, y: 750, size: 10, font, color: rgb(1, 1, 1) })
   y = 670
