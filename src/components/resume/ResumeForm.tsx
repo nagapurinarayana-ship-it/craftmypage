@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ResumeData } from '../../lib/resume'
 import { createId } from '../../lib/resume'
 
@@ -7,6 +8,8 @@ type ResumeFormProps = {
 }
 
 export default function ResumeForm({ data, onChange }: ResumeFormProps) {
+  const [skillsInput, setSkillsInput] = useState(data.skills.join(', '))
+
   const updateContact = (field: keyof ResumeData['contact'], value: string) => {
     onChange({ ...data, contact: { ...data.contact, [field]: value } })
   }
@@ -70,11 +73,21 @@ export default function ResumeForm({ data, onChange }: ResumeFormProps) {
     onChange({ ...data, education: data.education.filter((e) => e.id !== id) })
   }
 
-  const updateSkills = (value: string) => {
+  const commitSkills = (value: string) => {
     onChange({
       ...data,
-      skills: value.split(',').map((s) => s.trim()).filter(Boolean),
+      skills: value
+        .split(/[,\n]/)
+        .map((s) => s.trim())
+        .filter(Boolean),
     })
+  }
+
+  const updateSkills = (value: string) => {
+    // Keep the raw text in local state so commas, Enter, and Shift+Enter are
+    // not immediately removed while the user is typing.
+    setSkillsInput(value)
+    commitSkills(value)
   }
 
   return (
@@ -198,11 +211,13 @@ export default function ResumeForm({ data, onChange }: ResumeFormProps) {
         <textarea
           className="w-full border rounded px-2 py-1.5 text-gray-900"
           rows={3}
-          value={data.skills.join(', ')}
+          value={skillsInput}
           onChange={(e) => updateSkills(e.target.value)}
+          onBlur={() => commitSkills(skillsInput)}
           placeholder="JavaScript, React, TypeScript, Node.js, SQL..."
+          spellCheck={false}
         />
-        <p className="text-xs text-gray-500 mt-1">Separate skills with commas.</p>
+        <p className="text-xs text-gray-500 mt-1">Separate skills with commas or new lines. Enter and Shift+Enter work normally.</p>
       </section>
     </div>
   )
