@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-const NATIVE_SRC = 'https://pl30815334.effectivecpmnetwork.com/29feded00f4ae2c8a3b2719189977fff/invoke.js'
 const BANNER_468_SRC = 'https://www.highperformanceformat.com/75b0fc4d7ef9bda7dbda8e3863498abc/invoke.js'
 const BANNER_728_SRC = 'https://www.highperformanceformat.com/b5828b9099d859c0a506e4067dd77370/invoke.js'
-const NATIVE_CONTAINER_ID = 'container-29feded00f4ae2c8a3b2719189977fff'
-const SMARTLINK = 'https://www.effectivecpmnetwork.com/hcit0ft2?key=3383ae2b2a94f70103f6b28c372f4f72'
 const BANNER_468_KEY = '75b0fc4d7ef9bda7dbda8e3863498abc'
 const BANNER_728_KEY = 'b5828b9099d859c0a506e4067dd77370'
 
@@ -21,16 +18,14 @@ type BannerWindow = typeof globalThis & {
 
 export default function EffectiveCpmHomeAds() {
   const adRootRef = useRef<HTMLElement | null>(null)
-  const nativeRef = useRef<HTMLDivElement | null>(null)
   const banner468Ref = useRef<HTMLDivElement | null>(null)
   const banner728Ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const root = adRootRef.current
-    const nativeContainer = nativeRef.current
     const banner468Container = banner468Ref.current
     const banner728Container = banner728Ref.current
-    if (!root || !nativeContainer || !banner468Container || !banner728Container) return
+    if (!root || !banner468Container || !banner728Container) return
 
     let cancelled = false
     let loaded = false
@@ -58,12 +53,6 @@ export default function EffectiveCpmHomeAds() {
       if (loaded || cancelled) return
       loaded = true
 
-      const nativeScript = document.createElement('script')
-      nativeScript.async = true
-      nativeScript.dataset.cfasync = 'false'
-      nativeScript.src = NATIVE_SRC
-      nativeContainer.appendChild(nativeScript)
-      scripts.push(nativeScript)
 
       // Load the two HighPerformanceFormat banners sequentially so each script
       // reads its own atOptions object instead of racing with the other banner.
@@ -109,23 +98,6 @@ export default function EffectiveCpmHomeAds() {
 
   return (
     <section ref={adRootRef} className="cmp-monetization" aria-label="Advertisements">
-      <div className="cmp-ad-block cmp-surface min-h-[190px] p-5 sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <span className="cmp-eyebrow">Advertisement</span>
-            <h2 className="mt-3 text-xl font-bold text-slate-900">Free tools, supported by relevant sponsorships.</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Advertising is kept outside the editing workflow so your documents stay the focus.
-            </p>
-          </div>
-          <div
-            ref={nativeRef}
-            id={NATIVE_CONTAINER_ID}
-            className="cmp-ad-native min-h-[100px] w-full max-w-xl min-w-0"
-            aria-label="Sponsored advertisement"
-          />
-        </div>
-      </div>
 
       <div className="cmp-ad-block cmp-surface min-h-[120px] p-5 text-center sm:p-6">
         <span className="cmp-ad-label">Advertisement · 468×60</span>
@@ -145,22 +117,6 @@ export default function EffectiveCpmHomeAds() {
         />
       </div>
 
-      <div className="cmp-ad-block cmp-surface p-5 sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span className="cmp-ad-label">Sponsored</span>
-            <p className="mt-1 text-sm text-slate-600">Explore sponsored offers related to productivity and document work.</p>
-          </div>
-          <a
-            href={SMARTLINK}
-            target="_blank"
-            rel="sponsored noopener noreferrer"
-            className="cmp-secondary-btn shrink-0"
-          >
-            Explore sponsored offers →
-          </a>
-        </div>
-      </div>
     </section>
   )
 }
