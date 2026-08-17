@@ -25,7 +25,7 @@ export default function EffectiveCpmHomeAds() {
           width={ad.width}
           height={ad.height}
           loading="eager"
-          sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
           referrerPolicy="no-referrer-when-downgrade"
           className="mx-auto mt-3 block max-w-full overflow-hidden border-0"
           style={{ width: ad.width, height: ad.height }}
@@ -39,7 +39,7 @@ export default function EffectiveCpmHomeAds() {
           width="100%"
           height="260"
           loading="lazy"
-          sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
           referrerPolicy="no-referrer-when-downgrade"
           className="mx-auto mt-3 block w-full max-w-3xl border-0"
         />
