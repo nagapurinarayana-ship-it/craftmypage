@@ -8,15 +8,15 @@ const POPUNDER_SRC = 'https://pl30815332.effectivecpmnetwork.com/98/cd/4d/98cd4d
 const SOCIAL_BAR_SRC = 'https://pl30815335.effectivecpmnetwork.com/e7/87/aa/e787aa4e8d5075169853c0d1fe5fcabc.js'
 
 function bannerDocument(ad: typeof DESKTOP) {
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><script>atOptions={key:"${ad.key}",format:"iframe",height:${ad.height},width:${ad.width},params:{}};<\/script><script src="https://www.highperformanceformat.com/${ad.key}/invoke.js"><\/script></body></html>`
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><script>atOptions={key:"${ad.key}",format:"iframe",height:${ad.height},width:${ad.width},params:{}};</script><script src="https://www.highperformanceformat.com/${ad.key}/invoke.js"></script></body></html>`
 }
 
 export default function EffectiveCpmHomeAds() {
   const wide = typeof window !== 'undefined' && window.matchMedia('(min-width: 760px)').matches
   const ad = wide ? DESKTOP : MOBILE
   const srcDoc = useMemo(() => bannerDocument(ad), [ad])
-  const nativeSrcDoc = useMemo(() => `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:auto;background:transparent}</style></head><body><script async data-cfasync="false" src="${NATIVE_SRC}"><\/script><div id="${NATIVE_ID}"></div></body></html>`, [])
-  const remainingSrcDoc = useMemo(() => `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;min-height:120px;overflow:hidden;background:transparent}</style></head><body><script src="${POPUNDER_SRC}"><\/script><script src="${SOCIAL_BAR_SRC}"><\/script></body></html>`, [])
+  const nativeSrcDoc = useMemo(() => `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:auto;background:transparent}</style></head><body><script async data-cfasync="false" src="${NATIVE_SRC}"></script><div id="${NATIVE_ID}"></div></body></html>`, [])
+  const remainingSrcDoc = useMemo(() => `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;min-height:120px;overflow:hidden;background:transparent}</style></head><body><script src="${POPUNDER_SRC}"></script><script src="${SOCIAL_BAR_SRC}"></script></body></html>`, [])
 
   return (
     <section className="cmp-monetization" aria-label="Advertisements">
