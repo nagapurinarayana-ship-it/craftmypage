@@ -44,7 +44,8 @@ function metadata(pathname: string) {
 }
 
 export default function RouteSeoDynamic() {
-  const { pathname } = useLocation()
+  const { pathname: rawPathname } = useLocation()
+  const pathname = rawPathname === '/' ? '/' : rawPathname.replace(/\/+$/, '')
   const meta = metadata(pathname)
   if (!meta) return null
 
