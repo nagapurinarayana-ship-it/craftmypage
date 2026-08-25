@@ -124,6 +124,7 @@ export default function RouteSeo() {
       <meta name="twitter:title" content={meta.title} />
       <meta name="twitter:description" content={meta.description} />
       <meta name="twitter:image" content={SOCIAL_IMAGE} />
+      {softwareSchema ? <script type="application/ld+json">{JSON.stringify(softwareSchema)}</script> : null}
     </Helmet>
   )
 }
