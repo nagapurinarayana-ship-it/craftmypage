@@ -34,6 +34,7 @@ const guideMeta = {
 const categoryNames = { birthday: 'Birthday', wedding: 'Wedding', engagement: 'Engagement', baby: 'Baby Shower', housewarming: 'Housewarming', naming: 'Naming Ceremony', party: 'Party', anniversary: 'Anniversary' }
 
 function metaFor(path) {
+  path = path === '/' ? '/' : path.replace(/\/+$/, '')
   if (routes[path]) return { title: routes[path][0], description: routes[path][1] }
   const guide = path.match(/^\/guides\/([^/]+)$/)
   if (guide && guideMeta[guide[1]]) return { title: guideMeta[guide[1]][0], description: guideMeta[guide[1]][1] }
