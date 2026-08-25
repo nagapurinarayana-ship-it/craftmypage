@@ -83,7 +83,8 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
 }
 
 export default function RouteSeo() {
-  const { pathname } = useLocation()
+  const { pathname: rawPathname } = useLocation()
+  const pathname = rawPathname === '/' ? '/' : rawPathname.replace(/\/+$/, '')
 
   if (pathname.startsWith('/invoices/') || pathname.startsWith('/resumes/') || /^\/invitations\/(birthday|wedding|baby|housewarming)\/maker$/.test(pathname)) return null
 
