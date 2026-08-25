@@ -12,7 +12,7 @@ function bannerDocument(ad: typeof DESKTOP) {
 }
 
 export default function EffectiveCpmHomeAds() {
-  const wide = typeof window !== 'undefined' && window.matchMedia('(min-width: 760px)').matches
+  const wide = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(min-width: 760px)').matches
   const ad = wide ? DESKTOP : MOBILE
   const srcDoc = useMemo(() => bannerDocument(ad), [ad])
   const nativeSrcDoc = useMemo(() => `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:auto;background:transparent}</style></head><body><script async data-cfasync="false" src="${NATIVE_SRC}"></script><div id="${NATIVE_ID}"></div></body></html>`, [])
