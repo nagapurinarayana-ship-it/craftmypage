@@ -58,7 +58,6 @@ export async function exportResumeToPdf(data: ResumeData): Promise<Blob> {
         continue
       }
       if (line) output.push(line)
-      line = ''
       let chunk = ''
       for (const char of word) {
         const test = chunk + char
