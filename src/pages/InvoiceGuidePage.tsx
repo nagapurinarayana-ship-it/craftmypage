@@ -12,15 +12,15 @@ export default function InvoiceGuidePage() {
       <Helmet>
         <title>How to Create a Professional Invoice for Free</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href={`${SITE_URL}/guides/how-to-create-an-invoice`} />
+        <link rel="canonical" href={`${SITE_URL}/guides/how-to-create-an-invoice/`} />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Article',
             headline: 'How to Create a Professional Invoice for Free',
             description,
-            url: `${SITE_URL}/guides/how-to-create-an-invoice`,
-            mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/guides/how-to-create-an-invoice` },
+            url: `${SITE_URL}/guides/how-to-create-an-invoice/`,
+            mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/guides/how-to-create-an-invoice/` },
             author: { '@type': 'Organization', name: SITE_NAME, url: `${SITE_URL}/about` },
             publisher: { '@type': 'Organization', name: SITE_NAME, url: `${SITE_URL}/about` },
             datePublished: publishedDate,

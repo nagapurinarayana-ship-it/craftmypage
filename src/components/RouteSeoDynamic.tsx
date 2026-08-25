@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useLocation } from 'react-router-dom'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
+const canonicalUrl = (pathname: string) => `${SITE_URL}${pathname}/`
 
 const titleize = (value: string) => value
   .split('-')
@@ -16,7 +17,7 @@ function metadata(pathname: string) {
     return {
       title: `${name} Invoice Template & Maker | CraftMyPage`,
       description: `Create a professional ${name.toLowerCase()} invoice in your browser with CraftMyPage. Customize the document and download your invoice PDF.`,
-      canonical: `${SITE_URL}${pathname}`,
+      canonical: canonicalUrl(pathname),
     }
   }
 
@@ -26,7 +27,7 @@ function metadata(pathname: string) {
     return {
       title: `${name} Resume Template & Builder | CraftMyPage`,
       description: `Create a clean ${name.toLowerCase()} resume in your browser with CraftMyPage. Customize your content and download an A4 PDF.`,
-      canonical: `${SITE_URL}${pathname}`,
+      canonical: canonicalUrl(pathname),
     }
   }
 
@@ -36,7 +37,7 @@ function metadata(pathname: string) {
     return {
       title: `${name} Invitation Maker | Free Templates | CraftMyPage`,
       description: `Create and customize a ${name.toLowerCase()} invitation in your browser with CraftMyPage. Personalize the design and download or share it.`,
-      canonical: `${SITE_URL}${pathname}`,
+      canonical: canonicalUrl(pathname),
     }
   }
 

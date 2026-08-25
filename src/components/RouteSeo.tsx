@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 
 const SITE_URL = 'https://craftmypage.pages.dev'
 const SOCIAL_IMAGE = `${SITE_URL}/og-image.svg`
+const canonicalUrl = (pathname: string) => pathname === '/' ? `${SITE_URL}/` : `${SITE_URL}${pathname}/`
 
 const GUIDE_METADATA: Record<string, { title: string; description: string; keywords: string }> = {
   'birthday-invitation-whatsapp': { title: 'How to Create a Birthday Invitation for WhatsApp | CraftMyPage', description: 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.', keywords: 'birthday invitation whatsapp, birthday invitation for whatsapp, whatsapp birthday invitation, birthday invite template' },
@@ -62,24 +63,24 @@ function getRouteMetadata(pathname: string): { title: string; description: strin
   }
 
   const toolMeta = TOOL_METADATA[pathname]
-  if (toolMeta) return { title: `${toolMeta.name} | CraftMyPage`, description: toolMeta.description, canonical: SITE_URL + pathname, keywords: toolMeta.keywords, software: toolMeta }
+  if (toolMeta) return { title: `${toolMeta.name} | CraftMyPage`, description: toolMeta.description, canonical: canonicalUrl(pathname), keywords: toolMeta.keywords, software: toolMeta }
 
   const staticMeta = staticRoutes[pathname]
-  if (staticMeta) return { ...staticMeta, canonical: SITE_URL + pathname, keywords: ROUTE_KEYWORDS[pathname] || 'CraftMyPage, online document tools' }
+  if (staticMeta) return { ...staticMeta, canonical: canonicalUrl(pathname), keywords: ROUTE_KEYWORDS[pathname] || 'CraftMyPage, online document tools' }
 
   const guideMatch = pathname.match(/^\/guides\/([^/]+)$/)
   if (guideMatch) {
     const meta = GUIDE_METADATA[guideMatch[1]]
-    return meta ? { ...meta, canonical: SITE_URL + pathname } : { title: 'Guide Not Found | CraftMyPage', description: 'The requested CraftMyPage guide could not be found.', canonical: SITE_URL + pathname, keywords: 'CraftMyPage guides, document guides' }
+    return meta ? { ...meta, canonical: canonicalUrl(pathname) } : { title: 'Guide Not Found | CraftMyPage', description: 'The requested CraftMyPage guide could not be found.', canonical: canonicalUrl(pathname), keywords: 'CraftMyPage guides, document guides' }
   }
 
   const categoryMatch = pathname.match(/^\/invitations\/([^/]+)$/)
   if (categoryMatch) {
     const category = CATEGORY_METADATA[categoryMatch[1]]
-    return category ? { title: `${category.name} Invitation Templates | CraftMyPage`, description: category.description, canonical: SITE_URL + pathname, keywords: category.keywords } : { title: 'Invitation Templates | CraftMyPage', description: 'Browse free invitation templates you can customize in your browser.', canonical: SITE_URL + pathname, keywords: 'free invitation templates, invitation maker, invitation card maker' }
+    return category ? { title: `${category.name} Invitation Templates | CraftMyPage`, description: category.description, canonical: canonicalUrl(pathname), keywords: category.keywords } : { title: 'Invitation Templates | CraftMyPage', description: 'Browse free invitation templates you can customize in your browser.', canonical: canonicalUrl(pathname), keywords: 'free invitation templates, invitation maker, invitation card maker' }
   }
 
-  return { title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', description: 'Create professional invoices, invitations and resumes in your browser.', canonical: SITE_URL + pathname, keywords: 'CraftMyPage, invoice maker, invitation maker, resume builder' }
+  return { title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', description: 'Create professional invoices, invitations and resumes in your browser.', canonical: canonicalUrl(pathname), keywords: 'CraftMyPage, invoice maker, invitation maker, resume builder' }
 }
 
 export default function RouteSeo() {
