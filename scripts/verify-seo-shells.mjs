@@ -35,6 +35,9 @@ for (const path of allPaths) {
   if (count(html, /<link rel="canonical"/g) !== 1) throw new Error(`Duplicate canonical: ${path}`)
   if (count(html, /<title>/g) !== 1) throw new Error(`Duplicate title: ${path}`)
   if (count(html, /<meta name="description"/g) !== 1) throw new Error(`Duplicate description: ${path}`)
+  if (count(html, /<meta property="og:image" content=/g) !== 1) throw new Error(`Duplicate or missing Open Graph image: ${path}`)
+  if (count(html, /<meta name="twitter:card" content=/g) !== 1) throw new Error(`Duplicate or missing Twitter card: ${path}`)
+  if (count(html, /<meta name="twitter:image" content=/g) !== 1) throw new Error(`Duplicate or missing Twitter image: ${path}`)
   if (/<meta name="keywords"/i.test(html)) throw new Error(`Obsolete meta keywords found: ${path}`)
 
   const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => match[1])

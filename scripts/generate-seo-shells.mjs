@@ -153,6 +153,21 @@ for (const path of allPaths) {
     .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/, `<meta name="twitter:title" content="${title}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/, `<meta name="twitter:description" content="${description}" />`)
 
+  const generatedSocialTags = [
+    ['property', 'og:image'],
+    ['property', 'og:image:alt'],
+    ['property', 'og:image:type'],
+    ['property', 'og:image:width'],
+    ['property', 'og:image:height'],
+    ['name', 'twitter:card'],
+    ['name', 'twitter:image'],
+    ['name', 'twitter:image:alt'],
+  ]
+  for (const [attribute, key] of generatedSocialTags) {
+    const pattern = new RegExp(`\\s*<meta\\s+${attribute}="${key}"[^>]*>`, 'gi')
+    html = html.replace(pattern, '')
+  }
+
   html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta property="og:image:alt" content="CraftMyPage — free browser document tools" />\n    <meta property="og:image:type" content="image/svg+xml" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:image:alt" content="CraftMyPage — free browser document tools" />\n    ${structuredDataScripts}\n  </head>`)
 
   const fallback = `<noscript><main><h1>${title}</h1><p>${description}</p><nav aria-label="Related CraftMyPage tools and guides">${fallbackLinks(path)}</nav></main></noscript>`
