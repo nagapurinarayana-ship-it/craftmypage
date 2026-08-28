@@ -8,9 +8,10 @@ import EffectiveCpmHomeAds from './monetization/EffectiveCpmHomeAds'
 export default function Layout() {
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const isInvoiceMaker = location.pathname === '/tools/invoice-maker'
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-gray-900 bg-white">
+    <div className={`min-h-screen flex flex-col font-sans text-gray-900 bg-white${isInvoiceMaker ? ' invoice-print-layout' : ''}`}>
       <RouteSeo />
       <RouteSeoDynamic />
       <Nav />

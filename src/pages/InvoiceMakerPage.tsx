@@ -241,12 +241,15 @@ export default function InvoiceMakerPage() {
         @page { size: A4; margin: 0; }
         @media print {
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+          .invoice-print-layout { display: block !important; min-height: 0 !important; }
+          .invoice-print-layout > :not(main) { display: none !important; }
+          .invoice-print-layout > main { display: block !important; }
           body * { visibility: hidden !important; }
           .invoice-preview-host, .invoice-preview-host * { visibility: visible !important; }
           .invoice-preview-host { position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important; max-height: none !important; overflow: visible !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; background: #fff !important; box-shadow: none !important; }
           .invoice-print-root { padding: 0 !important; background: #fff !important; }
           .invoice-print-container { width: 210mm !important; max-width: none !important; margin: 0 !important; }
-          .invoice-print-page { width: 210mm !important; min-height: 297mm !important; box-sizing: border-box !important; overflow: visible !important; page-break-after: auto; }
+          .invoice-print-page { width: 210mm !important; min-height: 0 !important; box-sizing: border-box !important; overflow: visible !important; page-break-after: auto; }
           .invoice-maker-page { margin: 0 !important; padding: 0 !important; }
         }
       `}</style>
