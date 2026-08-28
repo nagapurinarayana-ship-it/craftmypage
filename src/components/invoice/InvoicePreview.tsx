@@ -100,7 +100,7 @@ export default function InvoicePreview({ invoice }: InvoicePreviewProps) {
       {invoice.paymentInfo.notes && <div className="mb-6 text-sm print:break-inside-avoid"><p className="font-bold text-gray-800 mb-2">Notes:</p><p className="text-gray-600 whitespace-pre-wrap">{invoice.paymentInfo.notes}</p></div>}
       {invoice.paymentInfo.instructions && <div className="mb-6 text-sm print:break-inside-avoid"><p className="font-bold text-gray-800 mb-2">Payment Instructions:</p><p className="text-gray-600 whitespace-pre-wrap">{invoice.paymentInfo.instructions}</p></div>}
       {invoice.paymentInfo.thankYouMessage && <div className="text-center text-sm text-gray-600 italic mb-6 print:break-inside-avoid">{invoice.paymentInfo.thankYouMessage}</div>}
-      <div className="border-t pt-4 text-xs text-gray-500 text-center print:break-inside-avoid"><p>Generated with CraftMyPage</p></div>
+      {invoice.showBranding && <div className="border-t pt-4 text-xs text-gray-400 text-center print:break-inside-avoid"><p>Created with CraftMyPage</p></div>}
     </div>
   )
 
@@ -137,7 +137,7 @@ export default function InvoicePreview({ invoice }: InvoicePreviewProps) {
       </div></div>
       {invoice.paymentInfo.notes && <div className="mb-6 text-sm print:break-inside-avoid"><p className="font-semibold mb-1">Notes</p><p className="whitespace-pre-wrap text-gray-600">{invoice.paymentInfo.notes}</p></div>}
       {invoice.paymentInfo.instructions && <div className="mb-6 text-sm print:break-inside-avoid"><p className="font-semibold mb-1">Payment Instructions</p><p className="whitespace-pre-wrap text-gray-600">{invoice.paymentInfo.instructions}</p></div>}
-      <div className="text-xs text-gray-500 text-center print:break-inside-avoid"><p>Created with CraftMyPage</p></div>
+      {invoice.showBranding && <div className="text-xs text-gray-400 text-center print:break-inside-avoid"><p>Created with CraftMyPage</p></div>}
     </div>
   )
 

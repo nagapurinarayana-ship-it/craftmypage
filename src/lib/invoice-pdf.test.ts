@@ -112,4 +112,34 @@ describe('Invoice PDF export', () => {
     expect(pdf.getPageCount()).toBe(1)
     expect(await readPdfText(pdf)).toBeTruthy()
   })
+
+  it.each(['professional', 'minimal', 'modern'] as const)('exports the premium %s template without branding by default', async (template) => {
+    const invoice = createEmptyInvoice(generateId())
+    invoice.template = template
+    invoice.business.name = 'Premium Test Studio'
+    invoice.customer.name = 'Premium Client'
+    invoice.lineItems[0].description = 'Professional service'
+    invoice.lineItems[0].unitPrice = 1250
+
+    const blob = await generateInvoicePDF(invoice)
+    const pdf = await PDFDocument.load(await blobToArrayBuffer(blob))
+
+    expect(invoice.showBranding).toBe(false)
+    expect(pdf.getPageCount()).toBe(1)
+    expect(pdf.getTitle()).toContain(invoice.invoiceDetails.invoiceNumber)
+  })
+
+  it('moves dense professional payment details to a continuation page instead of omitting them', async () => {
+    const invoice = createEmptyInvoice(generateId())
+    invoice.business = { ...invoice.business, name: 'Dense Invoice Studio', address: '42 Long Address', city: 'Hyderabad', state: 'Telangana', postalCode: '500033', country: 'India', phone: '+91 90000 12345', email: 'billing@example.com', taxId: '36ABCDE1234F1Z5' }
+    invoice.customer = { ...invoice.customer, name: 'Dense Invoice Client', billingAddress: '8 Financial District', billingCity: 'Hyderabad', billingState: 'Telangana', billingPostalCode: '500032', billingCountry: 'India', email: 'accounts@example.com' }
+    invoice.invoiceDetails.projectPeriod = 'August 2026'
+    invoice.lineItems = Array.from({ length: 8 }, (_, index) => ({ id: `dense-${index}`, description: `Professional service ${index + 1}`, itemCode: '', quantity: 1, unit: 'item', unitPrice: 1000, discount: 0, discountType: 'fixed' as const, taxRate: 0 }))
+    invoice.paymentInfo = { ...invoice.paymentInfo, bankName: 'Test Bank', accountNumber: 'XXXX1234', instructions: 'Reference the invoice number.', notes: 'Thank you.', termsAndConditions: 'Payment is due within 30 days.', signatureField: 'Authorized Signatory' }
+
+    const blob = await generateInvoicePDF(invoice)
+    const pdf = await PDFDocument.load(await blobToArrayBuffer(blob))
+
+    expect(pdf.getPageCount()).toBeGreaterThan(1)
+  })
 })

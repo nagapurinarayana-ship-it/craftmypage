@@ -48,6 +48,7 @@ function isValidInvoiceData(data: unknown): data is Invoice {
   if (!Array.isArray(data.lineItems) || !isRecord(data.settings) || !isRecord(data.paymentInfo)) return false
   if (!['professional', 'minimal', 'modern'].includes(String(data.template))) return false
   if (!isString(data.accentColor) || !/^#[0-9a-fA-F]{6}$/.test(data.accentColor)) return false
+  if (data.showBranding !== undefined && typeof data.showBranding !== 'boolean') return false
 
   const business = data.business
   const customer = data.customer

@@ -1175,6 +1175,19 @@ export default function InvoiceForm({
               <span className="text-sm text-gray-600">{invoice.accentColor}</span>
             </div>
           </div>
+
+          <label className="flex items-start gap-3 rounded-md border p-3">
+            <input
+              type="checkbox"
+              checked={Boolean(invoice.showBranding)}
+              onChange={(e) => onInvoiceChange({ ...invoice, showBranding: e.target.checked })}
+              className="mt-1"
+            />
+            <span>
+              <span className="block text-sm font-medium text-gray-800">Include CraftMyPage credit</span>
+              <span className="block text-xs text-gray-500">Off by default for a clean client-ready invoice.</span>
+            </span>
+          </label>
         </div>
       </section>
     </div>

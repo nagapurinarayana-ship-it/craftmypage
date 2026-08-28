@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage, type PDFImage } from 'pdf-lib'
+import { PDFDocument, PDFName, PDFString, StandardFonts, rgb, type PDFFont, type PDFPage, type PDFImage } from 'pdf-lib'
 import type { Invoice, Currency, InvoiceCalculations } from './invoice'
 import { getCurrencyConfig } from './invoice'
 import { calculateInvoice, calculateLineItemAmount } from './invoice-calculator'
@@ -28,9 +28,11 @@ export async function generateInvoicePDF(invoice: Invoice): Promise<Blob> {
   pdfDoc.setCreator('CraftMyPage Invoice Maker')
   pdfDoc.setProducer('CraftMyPage Invoice Maker')
   pdfDoc.setKeywords(['invoice', 'CraftMyPage', invoiceNumber, businessName].filter(Boolean))
+  pdfDoc.catalog.set(PDFName.of('Lang'), PDFString.of('en-US'))
   if (invoice.template === 'professional') await renderProfessionalPDF(pdfDoc, invoice, calc)
   else if (invoice.template === 'minimal') await renderMinimalPDF(pdfDoc, invoice, calc)
   else await renderModernPDF(pdfDoc, invoice, calc)
+  addPageNumbers(pdfDoc, invoice)
   const pdfBytes = await pdfDoc.save()
   return new Blob([pdfBytes.buffer], { type: 'application/pdf' })
 }
@@ -91,6 +93,9 @@ function drawKeyValue(page: PDFPage, label: string, value: string, x: number, y:
   page.drawText(label, { x, y, size: 8, font, color: rgb(0.42, 0.42, 0.42) })
   page.drawText(clean.substring(0, 48), { x, y: y - 12, size: 9, font: bold })
 }
+function drawRightAlignedText(page: PDFPage, text: string, right: number, y: number, size: number, font: PDFFont, color = rgb(0.12, 0.12, 0.12)) {
+  page.drawText(text, { x: right - font.widthOfTextAtSize(text, size), y, size, font, color })
+}
 function businessLines(invoice: Invoice): string[] { return [invoice.business.name, invoice.business.contactPerson ? `Attn: ${invoice.business.contactPerson}` : '', invoice.business.address, invoice.business.city ? `${invoice.business.city}${invoice.business.state ? `, ${invoice.business.state}` : ''}${invoice.business.postalCode ? ` ${invoice.business.postalCode}` : ''}` : '', invoice.business.country, invoice.business.phone, invoice.business.email, invoice.business.website, invoice.business.taxId ? `Tax ID: ${invoice.business.taxId}` : ''].map(safeText).filter(Boolean) }
 function customerLines(invoice: Invoice): string[] { return [invoice.customer.name, invoice.customer.contactPerson ? `Attn: ${invoice.customer.contactPerson}` : '', invoice.customer.billingAddress, invoice.customer.billingCity ? `${invoice.customer.billingCity}${invoice.customer.billingState ? `, ${invoice.customer.billingState}` : ''}${invoice.customer.billingPostalCode ? ` ${invoice.customer.billingPostalCode}` : ''}` : '', invoice.customer.billingCountry, invoice.customer.phone, invoice.customer.email, invoice.customer.taxId ? `Tax ID: ${invoice.customer.taxId}` : ''].map(safeText).filter(Boolean) }
 function drawPartyBlock(page: PDFPage, title: string, lines: string[], x: number, y: number, font: PDFFont, bold: PDFFont, maxLines = 8) { page.drawText(title, { x, y, size: 10, font: bold }); lines.slice(0, maxLines).forEach((line, index) => page.drawText(line.substring(0, 52), { x, y: y - 15 - index * 12, size: 9, font, color: index === 0 ? rgb(0.12, 0.12, 0.12) : rgb(0.38, 0.38, 0.38) })) }
@@ -110,15 +115,23 @@ function drawGstBlock(page: PDFPage, invoice: Invoice, font: PDFFont, bold: PDFF
 }
 function drawSummary(page: PDFPage, calc: InvoiceCalculations, invoice: Invoice, font: PDFFont, bold: PDFFont, x: number, y: number, accentRGB: ReturnType<typeof stringToRGB>, modern = false): number {
   const width = 200
-  page.drawText(`Subtotal: ${formatPdfCurrency(calc.subtotal, invoice.invoiceDetails.currency)}`, { x, y, size: 9.5, font }); y -= 15
-  if (calc.discountAmount > 0) { page.drawText(`Discount: -${formatPdfCurrency(calc.discountAmount, invoice.invoiceDetails.currency)}`, { x, y, size: 9.5, font }); y -= 15 }
-  if (calc.shippingCharge !== 0) { page.drawText(`Shipping: ${formatPdfCurrency(calc.shippingCharge, invoice.invoiceDetails.currency)}`, { x, y, size: 9.5, font }); y -= 15 }
-  if (calc.adjustment !== 0) { page.drawText(`Adjustment: ${formatPdfCurrency(calc.adjustment, invoice.invoiceDetails.currency)}`, { x, y, size: 9.5, font }); y -= 15 }
-  Object.entries(calc.taxBreakdown).forEach(([label, value]) => { page.drawText(`${label}: ${formatPdfCurrency(value, invoice.invoiceDetails.currency)}`, { x, y, size: 9, font }); y -= 14 })
-  if (calc.amountPaid > 0) { page.drawText(`Paid: ${formatPdfCurrency(calc.amountPaid, invoice.invoiceDetails.currency)}`, { x, y, size: 9, font }); y -= 14 }
-  page.drawLine({ start: { x, y: y + 5 }, end: { x: x + width, y: y + 5 }, thickness: 1, color: accentRGB })
-  page.drawText(`${modern ? 'TOTAL' : 'TOTAL DUE'}: ${formatPdfCurrency(calc.balanceDue, invoice.invoiceDetails.currency)}`, { x, y: y - 15, size: modern ? 14 : 13, font: bold, color: accentRGB })
-  return y - 35
+  const rows: Array<[string, string]> = [['Subtotal', formatPdfCurrency(calc.subtotal, invoice.invoiceDetails.currency)]]
+  if (calc.discountAmount > 0) rows.push(['Discount', `-${formatPdfCurrency(calc.discountAmount, invoice.invoiceDetails.currency)}`])
+  if (calc.shippingCharge !== 0) rows.push(['Shipping', formatPdfCurrency(calc.shippingCharge, invoice.invoiceDetails.currency)])
+  if (calc.adjustment !== 0) rows.push(['Adjustment', formatPdfCurrency(calc.adjustment, invoice.invoiceDetails.currency)])
+  Object.entries(calc.taxBreakdown).forEach(([label, value]) => rows.push([label, formatPdfCurrency(value, invoice.invoiceDetails.currency)]))
+  if (calc.amountPaid > 0) rows.push(['Paid', formatPdfCurrency(calc.amountPaid, invoice.invoiceDetails.currency)])
+  const panelHeight = rows.length * 15 + 42
+  page.drawRectangle({ x: x - 12, y: y - panelHeight + 10, width: width + 24, height: panelHeight, color: rgb(0.97, 0.98, 1) })
+  rows.forEach(([label, value]) => {
+    page.drawText(label, { x, y, size: 9, font, color: rgb(0.38, 0.42, 0.5) })
+    drawRightAlignedText(page, value, x + width, y, 9, font)
+    y -= 15
+  })
+  page.drawLine({ start: { x, y: y + 5 }, end: { x: x + width, y: y + 5 }, thickness: 1.5, color: accentRGB })
+  page.drawText(modern ? 'TOTAL' : 'TOTAL DUE', { x, y: y - 16, size: 11, font: bold, color: accentRGB })
+  drawRightAlignedText(page, formatPdfCurrency(calc.balanceDue, invoice.invoiceDetails.currency), x + width, y - 17, modern ? 14 : 13, bold, accentRGB)
+  return y - 40
 }
 function drawPaymentAndTerms(page: PDFPage, invoice: Invoice, font: PDFFont, bold: PDFFont, x: number, y: number, accentRGB: ReturnType<typeof stringToRGB>): number {
   let cursor = y; const payment = invoice.paymentInfo
@@ -130,12 +143,27 @@ function drawPaymentAndTerms(page: PDFPage, invoice: Invoice, font: PDFFont, bol
   if (payment.thankYouMessage) { page.drawText(safeText(payment.thankYouMessage).substring(0, 100), { x, y: cursor, size: 8, font, color: rgb(0.4, 0.4, 0.4) }); cursor -= 14 }
   return cursor
 }
-function drawFooter(page: PDFPage, font: PDFFont) { page.drawText('Generated with CraftMyPage — Free invoice maker', { x: LEFT, y: 20, size: 8, font, color: rgb(0.6, 0.6, 0.6) }) }
+function hasPaymentAndTerms(invoice: Invoice): boolean {
+  const payment = invoice.paymentInfo
+  return Boolean(payment.bankName || payment.accountNumber || payment.ifscCode || payment.upiId || payment.instructions || payment.notes || payment.termsAndConditions || payment.signatureField || payment.thankYouMessage)
+}
+function drawFooter(page: PDFPage, font: PDFFont, invoice: Invoice) {
+  if (!invoice.showBranding) return
+  page.drawText('Created with CraftMyPage', { x: LEFT, y: 20, size: 7, font, color: rgb(0.72, 0.72, 0.72) })
+}
+function addPageNumbers(pdfDoc: PDFDocument, invoice: Invoice) {
+  const pages = pdfDoc.getPages()
+  pages.forEach((page, index) => {
+    if (pages.length === 1 && !invoice.showBranding) return
+    const label = `Page ${index + 1} of ${pages.length}`
+    page.drawText(label, { x: 280, y: 20, size: 7, color: rgb(0.62, 0.62, 0.62) })
+  })
+}
 
 async function renderProfessionalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: InvoiceCalculations) {
   let page = pdfDoc.addPage(PAGE_SIZE)
-  const font = await pdfDoc.embedFont(StandardFonts.TimesRoman)
-  const bold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold)
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const accentRGB = stringToRGB(invoice.accentColor)
   const logo = await embedInvoiceLogo(pdfDoc, invoice.business.logo)
   let y = 710
@@ -166,16 +194,19 @@ async function renderProfessionalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc
     page.drawText(safeText(item.description || 'Item').substring(0, 36), { x: tableX + 10, y, size: 8.5, font })
     page.drawText(String(item.quantity), { x: tableX + tableWidth * colWidths[0] + 10, y, size: 8.5, font })
     page.drawText(safeText(item.unit || 'pcs').substring(0, 10), { x: tableX + tableWidth * (colWidths[0] + colWidths[1]) + 10, y, size: 8.5, font })
-    page.drawText(formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency), { x: tableX + tableWidth * (colWidths[0] + colWidths[1] + colWidths[2]) + 6, y, size: 8.5, font })
-    page.drawText(formatPdfCurrency(amount, invoice.invoiceDetails.currency), { x: tableX + tableWidth * (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]) + 6, y, size: 8.5, font })
+    drawRightAlignedText(page, formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency), tableX + tableWidth * (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3]) - 8, y, 8.5, font)
+    drawRightAlignedText(page, formatPdfCurrency(amount, invoice.invoiceDetails.currency), RIGHT - 8, y, 8.5, font)
     page.drawLine({ start: { x: tableX, y: y - 9 }, end: { x: tableX + tableWidth, y: y - 9 }, thickness: 0.45, color: rgb(0.85, 0.85, 0.85) })
     y -= 28
   })
   y -= 10
   if (y < 180) { page = pdfDoc.addPage(PAGE_SIZE); y = drawContinuationHeader(page, invoice, font, bold, 780, accentRGB) }
   y = drawSummary(page, calc, invoice, font, bold, RIGHT - 200, y, accentRGB)
-  if (y > 120) y = drawPaymentAndTerms(page, invoice, font, bold, LEFT, y, accentRGB)
-  drawFooter(page, font)
+  if (hasPaymentAndTerms(invoice)) {
+    if (y <= 120) { page = pdfDoc.addPage(PAGE_SIZE); y = drawContinuationHeader(page, invoice, font, bold, 780, accentRGB) }
+    y = drawPaymentAndTerms(page, invoice, font, bold, LEFT, y, accentRGB)
+  }
+  drawFooter(page, font, invoice)
 }
 
 async function renderMinimalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: InvoiceCalculations) {
@@ -200,7 +231,7 @@ async function renderMinimalPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: Inv
   page.drawLine({ start: { x: LEFT, y }, end: { x: RIGHT, y }, thickness: 1, color: accentRGB }); y -= 20
   page.drawText('Description', { x: LEFT, y, size: 9, font: bold }); page.drawText('Amount', { x: 475, y, size: 9, font: bold }); y -= 18
   invoice.lineItems.forEach((item) => { if (y < 120) nextPage(); const amount = calculateLineItemAmount(item); page.drawText(safeText(item.description || 'Item').substring(0, 62), { x: LEFT, y, size: 9.5, font }); page.drawText(formatPdfCurrency(amount, invoice.invoiceDetails.currency), { x: 470, y, size: 9.5, font: bold }); page.drawText(`${item.quantity} × ${formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency)}${item.discount > 0 ? ` · discount ${item.discount}${item.discountType === 'percentage' ? '%' : ''}` : ''}`, { x: LEFT, y: y - 12, size: 8, font, color: rgb(0.55, 0.55, 0.55) }); y -= 30 })
-  if (y < 170) nextPage(); y = drawSummary(page, calc, invoice, font, bold, 345, y, accentRGB); if (y > 100) y = drawPaymentAndTerms(page, invoice, font, bold, LEFT, y, accentRGB); drawFooter(page, font)
+  if (y < 170) nextPage(); y = drawSummary(page, calc, invoice, font, bold, 345, y, accentRGB); if (hasPaymentAndTerms(invoice)) { if (y <= 100) nextPage(); y = drawPaymentAndTerms(page, invoice, font, bold, LEFT, y, accentRGB) } drawFooter(page, font, invoice)
 }
 
 async function renderModernPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: InvoiceCalculations) {
@@ -224,5 +255,5 @@ async function renderModernPDF(pdfDoc: PDFDocument, invoice: Invoice, calc: Invo
   page.drawRectangle({ x: LEFT, y: y - 25, width: CONTENT_WIDTH, height: 25, color: accentRGB })
   page.drawText('Description', { x: LEFT + 10, y: y - 17, size: 9, font: bold, color: rgb(1, 1, 1) }); page.drawText('Amount', { x: 475, y: y - 17, size: 9, font: bold, color: rgb(1, 1, 1) }); y -= 38
   invoice.lineItems.forEach((item) => { if (y < 130) nextPage(); const amount = calculateLineItemAmount(item); page.drawText(safeText(item.description || 'Item').substring(0, 60), { x: LEFT + 10, y, size: 9.5, font }); page.drawText(formatPdfCurrency(amount, invoice.invoiceDetails.currency), { x: 470, y, size: 9.5, font: bold }); page.drawText(`${item.quantity} × ${formatPdfCurrency(item.unitPrice, invoice.invoiceDetails.currency)}${item.discount > 0 ? ` · discount ${item.discount}${item.discountType === 'percentage' ? '%' : ''}` : ''}`, { x: LEFT + 10, y: y - 12, size: 8, font, color: rgb(0.55, 0.55, 0.55) }); y -= 30 })
-  if (y < 175) nextPage(); y = drawSummary(page, calc, invoice, font, bold, 345, y, accentRGB, true); if (y > 100) y = drawPaymentAndTerms(page, invoice, font, bold, LEFT, y, accentRGB); drawFooter(page, font)
+  if (y < 175) nextPage(); y = drawSummary(page, calc, invoice, font, bold, 345, y, accentRGB, true); if (hasPaymentAndTerms(invoice)) { if (y <= 100) nextPage(); y = drawPaymentAndTerms(page, invoice, font, bold, LEFT, y, accentRGB) } drawFooter(page, font, invoice)
 }

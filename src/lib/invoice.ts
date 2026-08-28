@@ -15,7 +15,7 @@ export interface GSTSettings { supplierGSTIN: string; customerGSTIN: string; pla
 export interface InvoiceSettings { taxMode: TaxMode; simpleTax?: SimpleTaxSettings; gst?: GSTSettings }
 export interface PaymentInfo { instructions: string; bankName: string; accountNumber: string; ifscCode: string; upiId: string; notes: string; termsAndConditions: string; thankYouMessage: string; signatureField: string }
 export interface InvoiceCalculations { subtotal: number; discountAmount: number; discountedSubtotal: number; shippingCharge: number; adjustment: number; subtotalBeforeTax: number; taxAmount: number; taxBreakdown: Record<string, number>; amountPaid: number; balanceDue: number; grandTotal: number; paymentStatus: PaymentStatus }
-export interface Invoice { id: string; business: BusinessDetails; customer: CustomerDetails; invoiceDetails: InvoiceDetails; lineItems: LineItem[]; settings: InvoiceSettings; paymentInfo: PaymentInfo; template: 'professional' | 'minimal' | 'modern'; accentColor: string; calculations: InvoiceCalculations; createdAt: number; updatedAt: number; draftName: string }
+export interface Invoice { id: string; business: BusinessDetails; customer: CustomerDetails; invoiceDetails: InvoiceDetails; lineItems: LineItem[]; settings: InvoiceSettings; paymentInfo: PaymentInfo; template: 'professional' | 'minimal' | 'modern'; accentColor: string; showBranding?: boolean; calculations: InvoiceCalculations; createdAt: number; updatedAt: number; draftName: string }
 
 const clampMoney = (value: number): number => Math.round((Number.isFinite(value) ? value : 0) * 100) / 100
 const safeNumber = (value: number): number => Number.isFinite(value) ? value : 0
@@ -29,7 +29,7 @@ export function createEmptyInvoice(id: string): Invoice {
     lineItems: [{ id: generateId(), description: '', itemCode: '', unit: 'pcs', quantity: 1, unitPrice: 0, discount: 0, discountType: 'fixed', taxRate: 0 }],
     settings: { taxMode: 'none' },
     paymentInfo: { instructions: '', bankName: '', accountNumber: '', ifscCode: '', upiId: '', notes: '', termsAndConditions: '', thankYouMessage: '', signatureField: '' },
-    template: 'professional', accentColor: '#2563eb', calculations: { subtotal: 0, discountAmount: 0, discountedSubtotal: 0, shippingCharge: 0, adjustment: 0, subtotalBeforeTax: 0, taxAmount: 0, taxBreakdown: {}, amountPaid: 0, balanceDue: 0, grandTotal: 0, paymentStatus: 'unpaid' }, createdAt: now, updatedAt: now, draftName: 'Untitled Invoice' }
+    template: 'professional', accentColor: '#2563eb', showBranding: false, calculations: { subtotal: 0, discountAmount: 0, discountedSubtotal: 0, shippingCharge: 0, adjustment: 0, subtotalBeforeTax: 0, taxAmount: 0, taxBreakdown: {}, amountPaid: 0, balanceDue: 0, grandTotal: 0, paymentStatus: 'unpaid' }, createdAt: now, updatedAt: now, draftName: 'Untitled Invoice' }
 }
 
 export function generateId(): string { return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` }
