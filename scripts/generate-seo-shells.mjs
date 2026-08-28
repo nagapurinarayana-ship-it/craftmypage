@@ -31,6 +31,18 @@ const guideMeta = {
   'one-page-vs-two-page-resume': ['One-Page vs Two-Page Resume | CraftMyPage', 'Understand when a one-page or two-page resume is the better choice.'],
 }
 
+const invoiceMeta = {
+  'gst-invoice': ['Free GST Invoice Generator Online | CraftMyPage', 'Create a GST-ready invoice online with GSTIN, HSN or SAC codes, CGST, SGST or IGST, payment details and a professional A4 PDF. Free and no account required.'],
+  'freelancer-invoice': ['Free Freelancer Invoice Generator | CraftMyPage', 'Create a professional freelancer invoice online with services, rates, taxes, discounts, due dates and payment terms, then download a clean A4 PDF.'],
+  'invoice-templates': ['Free Invoice Templates & Online Invoice Maker | CraftMyPage', 'Choose a professional invoice template, customize business and client details, calculate totals and download a print-ready A4 PDF for free.'],
+}
+
+const invoiceFaqs = [
+  ['Can I create an invoice without an account?', 'Yes. The invoice maker lets you create and edit an invoice in your browser without requiring an accounting subscription.'],
+  ['Can I download the finished invoice?', 'Yes. After reviewing the document, you can export an A4 PDF that is ready to save, share or print.'],
+  ['What should I check before sending an invoice?', 'Review the customer details, invoice number, dates, line items, tax values, totals and payment instructions before sending it.'],
+]
+
 const categoryNames = { birthday: 'Birthday', wedding: 'Wedding', engagement: 'Engagement', baby: 'Baby Shower', housewarming: 'Housewarming', naming: 'Naming Ceremony', party: 'Party', anniversary: 'Anniversary' }
 
 function metaFor(path) {
@@ -43,7 +55,7 @@ function metaFor(path) {
   const maker = path.match(/^\/invitations\/([^/]+)\/maker$/)
   if (maker && categoryNames[maker[1]]) return { title: `Free ${categoryNames[maker[1]]} Invitation Maker | CraftMyPage`, description: `Create and customize a ${categoryNames[maker[1]].toLowerCase()} invitation in your browser and download it for sharing or printing.` }
   const invoice = path.match(/^\/invoices\/([^/]+)$/)
-  if (invoice) return { title: `${invoice[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} | Free Invoice Maker | CraftMyPage`, description: 'Create a professional invoice with CraftMyPage and download a clean PDF from your browser.' }
+  if (invoice && invoiceMeta[invoice[1]]) return { title: invoiceMeta[invoice[1]][0], description: invoiceMeta[invoice[1]][1] }
   const resume = path.match(/^\/resumes\/([^/]+)$/)
   if (resume) return { title: `${resume[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} | Free Resume Builder | CraftMyPage`, description: 'Create a clean, ATS-friendly resume with CraftMyPage and download it as a PDF.' }
   return null
@@ -108,6 +120,29 @@ function structuredDataFor(path, meta) {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       isAccessibleForFree: true,
+    })
+  }
+
+  if (/^\/invoices\//.test(path)) {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: meta.title.replace(/ \| CraftMyPage$/, ''),
+      description: meta.description,
+      url: `${SITE_URL}${path}`,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web browser',
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    })
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: invoiceFaqs.map(([question, answer]) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: { '@type': 'Answer', text: answer },
+      })),
     })
   }
 
