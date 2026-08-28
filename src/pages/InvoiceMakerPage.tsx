@@ -246,7 +246,7 @@ export default function InvoiceMakerPage() {
           .invoice-preview-host { position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important; max-height: none !important; overflow: visible !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; background: #fff !important; box-shadow: none !important; }
           .invoice-print-root { padding: 0 !important; background: #fff !important; }
           .invoice-print-container { width: 210mm !important; max-width: none !important; margin: 0 !important; }
-          .invoice-print-page { width: 210mm !important; min-height: 296mm !important; box-sizing: border-box !important; overflow: visible !important; page-break-after: auto; }
+          .invoice-print-page { width: 210mm !important; min-height: 0 !important; box-sizing: border-box !important; overflow: visible !important; page-break-after: auto; }
           .invoice-maker-page { margin: 0 !important; padding: 0 !important; }
         }
       `}</style>
