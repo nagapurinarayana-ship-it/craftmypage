@@ -8,6 +8,13 @@ const DIST = 'dist'
 const sitemap = await readFile('public/sitemap.xml', 'utf8')
 const paths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname)
 const allPaths = [...new Set(['/', ...paths])]
+const invoicePaths = new Set([
+  '/invoices/gst-invoice/',
+  '/invoices/freelancer-invoice/',
+  '/invoices/invoice-templates/',
+])
+const invoiceTitles = new Set()
+const invoiceDescriptions = new Set()
 
 function count(html, pattern) {
   return (html.match(pattern) || []).length
@@ -40,6 +47,16 @@ for (const path of allPaths) {
   if (count(html, /<meta name="twitter:image" content=/g) !== 1) throw new Error(`Duplicate or missing Twitter image: ${path}`)
   if (/<meta name="keywords"/i.test(html)) throw new Error(`Obsolete meta keywords found: ${path}`)
 
+  if (invoicePaths.has(path)) {
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1]
+    const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1]
+    if (!title || !description) throw new Error(`Missing invoice metadata: ${path}`)
+    if (invoiceTitles.has(title)) throw new Error(`Duplicate invoice title: ${path}`)
+    if (invoiceDescriptions.has(description)) throw new Error(`Duplicate invoice description: ${path}`)
+    invoiceTitles.add(title)
+    invoiceDescriptions.add(description)
+  }
+
   const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => match[1])
   if (jsonLd.length === 0) throw new Error(`Missing structured data: ${path}`)
 
@@ -62,6 +79,12 @@ for (const path of allPaths) {
         throw new Error(`Malformed schema object on ${path}`)
       }
     }
+  }
+
+  if (invoicePaths.has(path)) {
+    const schemaTypes = jsonLd.flatMap((raw) => getSchemaObjects(JSON.parse(raw)).map(({ schema }) => schema['@type']))
+    if (!schemaTypes.includes('WebApplication')) throw new Error(`Missing WebApplication schema: ${path}`)
+    if (!schemaTypes.includes('FAQPage')) throw new Error(`Missing FAQPage schema: ${path}`)
   }
 }
 

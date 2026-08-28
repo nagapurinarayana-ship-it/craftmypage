@@ -3,24 +3,24 @@ import { Link, useParams } from 'react-router-dom'
 
 const PAGES = {
   'gst-invoice': {
-    title: 'Free GST Invoice Maker | Create GST Invoices Online | CraftMyPage',
-    description: 'Create a professional GST-ready invoice in your browser with business details, line items, tax fields, totals and A4 PDF export. Review your tax details before issuing an invoice.',
+    title: 'Free GST Invoice Generator Online | CraftMyPage',
+    description: 'Create a GST-ready invoice online with GSTIN, HSN or SAC codes, CGST, SGST or IGST, payment details and a professional A4 PDF. Free and no account required.',
     eyebrow: 'GST invoicing',
     heading: 'Create a clean GST invoice in your browser.',
     intro: 'Build an invoice with business and customer details, line items, taxes, totals and payment information, then export an A4 PDF without uploading the document to a server.',
     points: ['Add GSTIN and business details', 'Show tax rates and calculated totals clearly', 'Review the invoice before downloading the A4 PDF', 'Keep your draft in the browser while you work'],
   },
   'freelancer-invoice': {
-    title: 'Free Freelancer Invoice Maker | CraftMyPage',
-    description: 'Create a professional freelancer invoice with services, rates, taxes, discounts, due dates and payment terms. Customize it in your browser and download an A4 PDF.',
+    title: 'Free Freelancer Invoice Generator | CraftMyPage',
+    description: 'Create a professional freelancer invoice online with services, rates, taxes, discounts, due dates and payment terms, then download a clean A4 PDF.',
     eyebrow: 'Freelancer invoices',
     heading: 'Create a professional freelancer invoice.',
     intro: 'Turn your services, rates and payment terms into a polished invoice without a complicated accounting suite. Customize the document in your browser and download a clean A4 PDF.',
     points: ['Describe services and line-item rates', 'Add discounts and tax information when needed', 'Set invoice and due dates', 'Add payment instructions and client details'],
   },
   'invoice-templates': {
-    title: 'Free Invoice Templates | Professional Invoice Maker | CraftMyPage',
-    description: 'Choose a professional invoice style and customize business details, line items, taxes, discounts and payment terms. Download a clean A4 invoice PDF.',
+    title: 'Free Invoice Templates & Online Invoice Maker | CraftMyPage',
+    description: 'Choose a professional invoice template, customize business and client details, calculate totals and download a print-ready A4 PDF for free.',
     eyebrow: 'Invoice templates',
     heading: 'Start from a professional invoice template.',
     intro: 'Pick a focused invoice layout, customize the content you need, and export the finished document as an A4 PDF. The core editor runs in your browser.',
@@ -40,6 +40,32 @@ export default function InvoiceLandingPage() {
   const { intent = 'invoice-templates' } = useParams()
   const page = PAGES[(intent as PageKey)] ?? PAGES['invoice-templates']
   const canonical = `https://craftmypage.pages.dev/invoices/${intent}`
+  const schemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: page.title,
+      description: page.description,
+      url: canonical,
+      about: { '@type': 'SoftwareApplication', name: 'CraftMyPage Invoice Maker', applicationCategory: 'BusinessApplication' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: page.title.replace(/ \| CraftMyPage$/, ''),
+      description: page.description,
+      url: canonical,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web browser',
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: FAQS.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
+    },
+  ]
 
   return (
     <>
@@ -52,16 +78,7 @@ export default function InvoiceLandingPage() {
         <meta property="og:title" content={page.title} />
         <meta property="og:description" content={page.description} />
         <meta property="og:url" content={canonical} />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: page.title,
-            description: page.description,
-            url: canonical,
-            about: { '@type': 'SoftwareApplication', name: 'CraftMyPage Invoice Maker', applicationCategory: 'BusinessApplication' },
-          })}
-        </script>
+        {schemas.map((schema) => <script key={schema['@type']} type="application/ld+json">{JSON.stringify(schema)}</script>)}
       </Helmet>
 
       <div className="cmp-page">
