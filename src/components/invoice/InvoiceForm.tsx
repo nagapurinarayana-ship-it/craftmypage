@@ -684,7 +684,7 @@ export default function InvoiceForm({
                   <input
                     type="number"
                     step="0.01"
-                    value={item.quantity}
+                    value={item.quantity === 0 ? '' : item.quantity}
                     onChange={(e) =>
                       updateLineItem(item.id, {
                         quantity: parseFloat(e.target.value) || 0,
@@ -717,7 +717,7 @@ export default function InvoiceForm({
                   <input
                     type="number"
                     step="0.01"
-                    value={item.unitPrice}
+                    value={item.unitPrice === 0 ? '' : item.unitPrice}
                     onChange={(e) =>
                       updateLineItem(item.id, {
                         unitPrice: parseFloat(e.target.value) || 0,
@@ -736,7 +736,7 @@ export default function InvoiceForm({
                     <input
                       type="number"
                       step="0.01"
-                      value={item.discount}
+                      value={item.discount === 0 ? '' : item.discount}
                       onChange={(e) =>
                         updateLineItem(item.id, {
                           discount: parseFloat(e.target.value) || 0,
@@ -767,7 +767,7 @@ export default function InvoiceForm({
                   <input
                     type="number"
                     step="0.01"
-                    value={item.taxRate}
+                    value={item.taxRate === 0 ? '' : item.taxRate}
                     onChange={(e) =>
                       updateLineItem(item.id, {
                         taxRate: parseFloat(e.target.value) || 0,
@@ -953,7 +953,7 @@ export default function InvoiceForm({
                   <input
                     type="number"
                     step="0.01"
-                    value={invoice.settings.gst.cgstRate}
+                    value={invoice.settings.gst.cgstRate === 0 ? '' : invoice.settings.gst.cgstRate}
                     onChange={(e) =>
                       updateSettings({
                         gst: { ...invoice.settings.gst!, cgstRate: parseFloat(e.target.value) || 0 },
@@ -971,7 +971,7 @@ export default function InvoiceForm({
                   <input
                     type="number"
                     step="0.01"
-                    value={invoice.settings.gst.sgstRate}
+                    value={invoice.settings.gst.sgstRate === 0 ? '' : invoice.settings.gst.sgstRate}
                     onChange={(e) =>
                       updateSettings({
                         gst: { ...invoice.settings.gst!, sgstRate: parseFloat(e.target.value) || 0 },
@@ -992,7 +992,7 @@ export default function InvoiceForm({
                 <input
                   type="number"
                   step="0.01"
-                  value={invoice.settings.gst.igstRate}
+                  value={invoice.settings.gst.igstRate === 0 ? '' : invoice.settings.gst.igstRate}
                   onChange={(e) =>
                     updateSettings({
                       gst: { ...invoice.settings.gst!, igstRate: parseFloat(e.target.value) || 0 },

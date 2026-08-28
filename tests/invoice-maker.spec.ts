@@ -31,6 +31,22 @@ test.describe('Invoice Maker production export validation', () => {
     expect(pdf.getPageCount()).toBe(1)
   })
 
+  test('keeps zero-value number fields empty while users enter quantity and price', async ({ page }) => {
+    const quantity = page.getByRole('spinbutton').nth(0)
+    const unitPrice = page.locator('input[type="number"][placeholder="0.00"]').first()
+
+    await quantity.fill('')
+    await unitPrice.fill('')
+    await expect(quantity).toHaveValue('')
+    await expect(unitPrice).toHaveValue('')
+
+    await quantity.fill('12')
+    await unitPrice.fill('2500')
+    await expect(quantity).toHaveValue('12')
+    await expect(unitPrice).toHaveValue('2500')
+    await expect(page.getByText('₹30,000.00').last()).toBeVisible()
+  })
+
   test('prints only the invoice document and keeps a normal invoice to one A4 page', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'Playwright PDF printing is Chromium-only')
     await createInvoice(page)
