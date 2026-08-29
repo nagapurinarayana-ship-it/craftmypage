@@ -30,6 +30,15 @@ const PAGES = {
 
 type PageKey = keyof typeof PAGES
 
+const GST_CHECKLIST = [
+  ['Supplier and customer details', 'Add the legal business names, addresses and GSTINs where applicable. Check the customer GSTIN before issuing the invoice.'],
+  ['Invoice identity and dates', 'Use a unique invoice number and include the issue date. Add the payment due date separately when you offer credit terms.'],
+  ['Goods or services', 'Describe each line item clearly and add the relevant HSN code for goods or SAC code for services when required.'],
+  ['Tax and place of supply', 'Confirm the place of supply and whether the transaction is intra-state or inter-state before choosing CGST and SGST or IGST.'],
+  ['Values and totals', 'Review quantity, rate, discounts, taxable value, tax rate, tax amount and final invoice total before downloading.'],
+  ['Payment and declaration', 'Add payment instructions and any declaration or terms your business needs, then review the final A4 PDF.'],
+] as const
+
 const FAQS = [
   ['Can I create an invoice without an account?', 'Yes. The invoice maker is designed to let you create and edit an invoice in your browser without requiring an accounting subscription.'],
   ['Can I download the finished invoice?', 'Yes. After reviewing the document, you can export an A4 PDF that is ready to save, share or print.'],
@@ -103,6 +112,25 @@ export default function InvoiceLandingPage() {
               </div>
             ))}
           </div>
+
+          {intent === 'gst-invoice' && (
+            <section className="mt-12 cmp-surface p-8 sm:p-10" aria-labelledby="gst-invoice-checklist">
+              <span className="cmp-eyebrow">GST invoice checklist</span>
+              <h2 id="gst-invoice-checklist" className="mt-3 text-3xl font-bold tracking-tight text-slate-900">What to include before downloading a GST invoice</h2>
+              <p className="mt-4 max-w-3xl leading-7 text-slate-600">A professional GST invoice needs more than a tax percentage. Use this practical review to catch missing identity, supply and calculation details before you send the PDF.</p>
+              <div className="mt-7 grid gap-4 md:grid-cols-2">
+                {GST_CHECKLIST.map(([title, detail]) => (
+                  <article className="cmp-card" key={title}>
+                    <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                    <p className="mt-3 leading-7 text-slate-600">{detail}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-7 border-l-4 border-indigo-500 bg-indigo-50 p-5 text-sm leading-6 text-slate-700">
+                <strong>Tax check:</strong> Intra-state supplies generally use CGST and SGST, while inter-state supplies generally use IGST. Tax treatment can depend on the transaction, so confirm current requirements with the <a className="font-bold text-indigo-700 underline" href="https://cbic-gst.gov.in/faq.html" target="_blank" rel="noopener noreferrer">official CBIC GST guidance</a> or a qualified tax professional.
+              </div>
+            </section>
+          )}
 
           <div className="mt-12 grid gap-6 lg:grid-cols-2">
             <div className="cmp-surface p-8 sm:p-10">
