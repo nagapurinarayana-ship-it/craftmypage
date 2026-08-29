@@ -6,7 +6,7 @@ const PAGES = {
     title: 'Free GST Invoice Generator Online | CraftMyPage',
     description: 'Create a GST-ready invoice online with GSTIN, HSN or SAC codes, CGST, SGST or IGST, payment details and a professional A4 PDF. Free and no account required.',
     eyebrow: 'GST invoicing',
-    heading: 'Create a clean GST invoice in your browser.',
+    heading: 'Free GST invoice generator with professional PDF download.',
     intro: 'Build an invoice with business and customer details, line items, taxes, totals and payment information, then export an A4 PDF without uploading the document to a server.',
     points: ['Add GSTIN and business details', 'Show tax rates and calculated totals clearly', 'Review the invoice before downloading the A4 PDF', 'Keep your draft in the browser while you work'],
   },
@@ -14,7 +14,7 @@ const PAGES = {
     title: 'Free Freelancer Invoice Generator | CraftMyPage',
     description: 'Create a professional freelancer invoice online with services, rates, taxes, discounts, due dates and payment terms, then download a clean A4 PDF.',
     eyebrow: 'Freelancer invoices',
-    heading: 'Create a professional freelancer invoice.',
+    heading: 'Free freelancer invoice generator with PDF download.',
     intro: 'Turn your services, rates and payment terms into a polished invoice without a complicated accounting suite. Customize the document in your browser and download a clean A4 PDF.',
     points: ['Describe services and line-item rates', 'Add discounts and tax information when needed', 'Set invoice and due dates', 'Add payment instructions and client details'],
   },
@@ -22,7 +22,7 @@ const PAGES = {
     title: 'Free Invoice Templates & Online Invoice Maker | CraftMyPage',
     description: 'Choose a professional invoice template, customize business and client details, calculate totals and download a print-ready A4 PDF for free.',
     eyebrow: 'Invoice templates',
-    heading: 'Start from a professional invoice template.',
+    heading: 'Professional free invoice templates you can edit and download.',
     intro: 'Pick a focused invoice layout, customize the content you need, and export the finished document as an A4 PDF. The core editor runs in your browser.',
     points: ['Choose from focused professional styles', 'Customize business, client and payment details', 'Calculate line totals, discounts and taxes', 'Download a print-ready A4 PDF'],
   },
@@ -37,6 +37,14 @@ const GST_CHECKLIST = [
   ['Tax and place of supply', 'Confirm the place of supply and whether the transaction is intra-state or inter-state before choosing CGST and SGST or IGST.'],
   ['Values and totals', 'Review quantity, rate, discounts, taxable value, tax rate, tax amount and final invoice total before downloading.'],
   ['Payment and declaration', 'Add payment instructions and any declaration or terms your business needs, then review the final A4 PDF.'],
+] as const
+
+const GST_STEPS = [
+  ['Enter supplier details', 'Add the legal supplier name, address and GSTIN. Use the registered details that apply to the supply.'],
+  ['Add the customer and supply', 'Enter the recipient details, place of supply when required, and clear goods or services descriptions with HSN or SAC codes where applicable.'],
+  ['Check quantity, rate and discounts', 'Review every line before tax. Empty number fields stay empty until you enter a value, which makes accidental zero amounts easier to spot.'],
+  ['Apply the correct tax treatment', 'Use CGST and SGST or IGST only after confirming whether the supply is intra-state or inter-state and checking the applicable rate.'],
+  ['Review and download', 'Check the serial number, dates, taxable value, tax components, total and payment details in the A4 preview before downloading the PDF.'],
 ] as const
 
 const FAQS = [
@@ -127,7 +135,22 @@ export default function InvoiceLandingPage() {
                 ))}
               </div>
               <div className="mt-7 border-l-4 border-indigo-500 bg-indigo-50 p-5 text-sm leading-6 text-slate-700">
-                <strong>Tax check:</strong> Intra-state supplies generally use CGST and SGST, while inter-state supplies generally use IGST. Tax treatment can depend on the transaction, so confirm current requirements with the <a className="font-bold text-indigo-700 underline" href="https://cbic-gst.gov.in/faq.html" target="_blank" rel="noopener noreferrer">official CBIC GST guidance</a> or a qualified tax professional.
+                <strong>Tax check:</strong> Intra-state supplies generally use CGST and SGST, while inter-state supplies generally use IGST. Tax treatment can depend on the transaction, so confirm current requirements with the <a className="font-bold text-indigo-700 underline" href="https://cbic-gst.gov.in/gst-invoice-rules.html" target="_blank" rel="noopener noreferrer">official CBIC tax-invoice rules</a> or a qualified tax professional.
+              </div>
+              <div className="mt-10">
+                <h2 className="text-2xl font-bold tracking-tight text-slate-900">How to make a GST invoice in five clear steps</h2>
+                <ol className="mt-5 grid gap-4">
+                  {GST_STEPS.map(([title, detail], index) => (
+                    <li className="cmp-card flex gap-4" key={title}>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-black text-white">{index + 1}</span>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                        <p className="mt-2 leading-7 text-slate-600">{detail}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <p className="mt-5 text-sm leading-6 text-slate-600">CraftMyPage helps prepare and calculate an invoice document; it does not replace accounting records, e-invoicing obligations or professional tax advice.</p>
               </div>
             </section>
           )}
