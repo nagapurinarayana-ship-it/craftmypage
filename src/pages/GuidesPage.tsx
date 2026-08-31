@@ -58,7 +58,21 @@ export default function GuidesPage() {
           <h2 className="text-2xl font-bold text-slate-900">Resume guides</h2>
           <p className="mt-1 text-sm text-slate-500">Simple advice for students, engineers and experienced professionals.</p>
         </div>
-        <div className="grid gap-5 md:grid-cols-2">{resumeGuides.map((guide) => <GuideCard key={guide.slug} guide={guide} />)}</div>
+        <div className="grid gap-5 md:grid-cols-2">
+          <a
+            href="/guides/ats-resume-keywords/"
+            className="group rounded-2xl border border-indigo-200 bg-indigo-50/50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-indigo-700">resume</span>
+              <span className="text-xs font-medium text-slate-400">7 min</span>
+            </div>
+            <h3 className="mt-4 text-lg font-bold leading-6 text-slate-900 group-hover:text-indigo-700">ATS resume keywords: match job descriptions naturally</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Find job-relevant keywords, place them where the evidence lives and avoid keyword stuffing.</p>
+            <span className="mt-4 inline-flex text-sm font-semibold text-indigo-600">Read keyword guide →</span>
+          </a>
+          {resumeGuides.map((guide) => <GuideCard key={guide.slug} guide={guide} />)}
+        </div>
       </section>
     </div>
   )
