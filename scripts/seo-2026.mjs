@@ -51,6 +51,32 @@ for (const file of files) {
       .replace(/<meta\s+name=["']twitter:description["']\s+content=["'][^"']*["'][^>]*>/i, `<meta name="twitter:description" content="${escapeAttr(description)}" />`)
   }
 
+  // Generated route shells can inherit social tags from more than one source.
+  // Keep exactly one copy of every ranking/share-critical meta directive.
+  for (const [attribute, key] of [
+    ['name', 'description'],
+    ['name', 'robots'],
+    ['property', 'og:type'],
+    ['property', 'og:site_name'],
+    ['property', 'og:locale'],
+    ['property', 'og:title'],
+    ['property', 'og:description'],
+    ['property', 'og:url'],
+    ['property', 'og:image'],
+    ['property', 'og:image:alt'],
+    ['property', 'og:image:type'],
+    ['property', 'og:image:width'],
+    ['property', 'og:image:height'],
+    ['name', 'twitter:card'],
+    ['name', 'twitter:title'],
+    ['name', 'twitter:description'],
+    ['name', 'twitter:image'],
+    ['name', 'twitter:image:alt'],
+  ]) {
+    html = dedupeMeta(html, attribute, key)
+  }
+  html = dedupeCanonical(html)
+
   await writeFile(file, html, 'utf8')
 }
 
@@ -62,6 +88,30 @@ async function collect(dir) {
     if (entry.isDirectory()) await collect(full)
     else if (entry.isFile() && entry.name.endsWith('.html')) files.push(full)
   }
+}
+
+function dedupeMeta(html, attribute, key) {
+  const pattern = new RegExp(`<meta\\s+${attribute}=["']${escapeRegex(key)}["'][^>]*>`, 'gi')
+  let seen = false
+  return html.replace(pattern, tag => {
+    if (seen) return ''
+    seen = true
+    return tag
+  })
+}
+
+function dedupeCanonical(html) {
+  const pattern = /<link\s+rel=["']canonical["'][^>]*>/gi
+  let seen = false
+  return html.replace(pattern, tag => {
+    if (seen) return ''
+    seen = true
+    return tag
+  })
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function escapeAttr(value) {
