@@ -39,12 +39,12 @@ for (const path of allPaths) {
   if (!/<title>[^<]+<\/title>/.test(html)) throw new Error(`Missing title: ${path}`)
   if (!/<meta name="description" content="[^"]+"/.test(html)) throw new Error(`Missing description: ${path}`)
   if (!canonicalPattern.test(html)) throw new Error(`Incorrect canonical: ${path}`)
-  if (count(html, /<link rel="canonical"/g) !== 1) throw new Error(`Duplicate canonical: ${path}`)
+  if (count(html, /<link\b[^>]*\brel="canonical"[^>]*>/g) !== 1) throw new Error(`Duplicate canonical: ${path}`)
   if (count(html, /<title>/g) !== 1) throw new Error(`Duplicate title: ${path}`)
-  if (count(html, /<meta name="description"/g) !== 1) throw new Error(`Duplicate description: ${path}`)
-  if (count(html, /<meta property="og:image" content=/g) !== 1) throw new Error(`Duplicate or missing Open Graph image: ${path}`)
-  if (count(html, /<meta name="twitter:card" content=/g) !== 1) throw new Error(`Duplicate or missing Twitter card: ${path}`)
-  if (count(html, /<meta name="twitter:image" content=/g) !== 1) throw new Error(`Duplicate or missing Twitter image: ${path}`)
+  if (count(html, /<meta\b[^>]*\bname="description"[^>]*>/g) !== 1) throw new Error(`Duplicate description: ${path}`)
+  if (count(html, /<meta\b[^>]*\bproperty="og:image"[^>]*>/g) !== 1) throw new Error(`Duplicate or missing Open Graph image: ${path}`)
+  if (count(html, /<meta\b[^>]*\bname="twitter:card"[^>]*>/g) !== 1) throw new Error(`Duplicate or missing Twitter card: ${path}`)
+  if (count(html, /<meta\b[^>]*\bname="twitter:image"[^>]*>/g) !== 1) throw new Error(`Duplicate or missing Twitter image: ${path}`)
   if (/<meta name="keywords"/i.test(html)) throw new Error(`Obsolete meta keywords found: ${path}`)
 
   if (invoicePaths.has(path)) {
@@ -84,8 +84,8 @@ for (const path of allPaths) {
   if (invoicePaths.has(path)) {
     const schemaTypes = jsonLd.flatMap((raw) => getSchemaObjects(JSON.parse(raw)).map(({ schema }) => schema['@type']))
     if (!schemaTypes.includes('WebApplication')) throw new Error(`Missing WebApplication schema: ${path}`)
-    if (!schemaTypes.includes('FAQPage')) throw new Error(`Missing FAQPage schema: ${path}`)
+    if (schemaTypes.includes('FAQPage')) throw new Error(`Unsupported FAQPage schema should be removed: ${path}`)
   }
 }
 
-console.log(`Verified SEO shells, canonical metadata and JSON-LD for ${allPaths.length} routes.`)
+console.log(`Verified SEO shells, canonical metadata and purposeful JSON-LD for ${allPaths.length} routes.`)
