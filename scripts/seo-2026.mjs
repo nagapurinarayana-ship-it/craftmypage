@@ -33,8 +33,10 @@ for (const file of files) {
   const relative = file.slice(dist.length + 1).replaceAll('\\', '/')
 
   // General utility/business pages do not gain useful FAQ rich-result coverage.
-  // Keep visible FAQ content, but keep JSON-LD focused on supported page types.
-  html = html.replace(/<script\s+type=["']application\/ld\+json["']>\s*\{[\s\S]*?["']@type["']\s*:\s*["']FAQPage["'][\s\S]*?<\/script>\s*/gi, '')
+  // Remove only an individual FAQPage JSON-LD document. Do not use a cross-script
+  // regex: it can accidentally consume WebPage/Breadcrumb/WebApplication schemas
+  // that appear before the FAQ block in generated HTML.
+  html = removeJsonLdType(html, 'FAQPage')
 
   if (!html.includes('property="og:locale"')) {
     html = html.replace('</head>', '    <meta property="og:locale" content="en_IN" />\n  </head>')
@@ -91,6 +93,27 @@ async function collect(dir) {
     if (entry.isDirectory()) await collect(full)
     else if (entry.isFile() && entry.name.endsWith('.html')) files.push(full)
   }
+}
+
+function removeJsonLdType(html, schemaType) {
+  const pattern = /<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>\s*/gi
+  return html.replace(pattern, (full, raw) => {
+    try {
+      const parsed = JSON.parse(raw)
+      if (parsed?.['@type'] === schemaType) return ''
+      if (Array.isArray(parsed?.['@graph'])) {
+        const graph = parsed['@graph'].filter(item => item?.['@type'] !== schemaType)
+        if (graph.length !== parsed['@graph'].length) {
+          if (graph.length === 0) return ''
+          return `<script type="application/ld+json">${JSON.stringify({ ...parsed, '@graph': graph })}</script>\n`
+        }
+      }
+    } catch (_) {
+      // Preserve malformed/unknown JSON-LD here; the strict verifier will report it
+      // with the route name instead of this refinement pass silently deleting data.
+    }
+    return full
+  })
 }
 
 function removeMeta(html, attribute, key) {
