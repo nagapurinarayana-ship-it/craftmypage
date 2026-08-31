@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/inject-effective-cpm.mjs && node scripts/fix-invoice-guide-output.mjs && node scripts/generate-seo-shells.mjs && node scripts/verify-seo-shells.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/inject-effective-cpm.mjs && node scripts/fix-invoice-guide-output.mjs && node scripts/generate-seo-shells.mjs && node scripts/seo-2026.mjs && node scripts/verify-seo-shells.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
