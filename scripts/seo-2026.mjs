@@ -2,6 +2,7 @@ import { readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const dist = 'dist'
+const SOCIAL_IMAGE = 'https://craftmypage.pages.dev/og-image.svg'
 const overrides = {
   'tools/invoice-maker/index.html': [
     'Free Invoice Maker Online — No Signup, PDF Download | CraftMyPage',
@@ -31,8 +32,8 @@ for (const file of files) {
   let html = await readFile(file, 'utf8')
   const relative = file.slice(dist.length + 1).replaceAll('\\', '/')
 
-  // FAQ rich results are not generally available for utility/business sites. Keep
-  // visible FAQs, but remove FAQPage JSON-LD so structured data stays purposeful.
+  // General utility/business pages do not gain useful FAQ rich-result coverage.
+  // Keep visible FAQ content, but keep JSON-LD focused on supported page types.
   html = html.replace(/<script\s+type=["']application\/ld\+json["']>\s*\{[\s\S]*?["']@type["']\s*:\s*["']FAQPage["'][\s\S]*?<\/script>\s*/gi, '')
 
   if (!html.includes('property="og:locale"')) {
@@ -51,8 +52,6 @@ for (const file of files) {
       .replace(/<meta\s+name=["']twitter:description["']\s+content=["'][^"']*["'][^>]*>/i, `<meta name="twitter:description" content="${escapeAttr(description)}" />`)
   }
 
-  // Generated route shells can inherit social tags from more than one source.
-  // Keep exactly one copy of every ranking/share-critical meta directive.
   for (const [attribute, key] of [
     ['name', 'description'],
     ['name', 'robots'],
@@ -62,20 +61,24 @@ for (const file of files) {
     ['property', 'og:title'],
     ['property', 'og:description'],
     ['property', 'og:url'],
-    ['property', 'og:image'],
     ['property', 'og:image:alt'],
     ['property', 'og:image:type'],
     ['property', 'og:image:width'],
     ['property', 'og:image:height'],
-    ['name', 'twitter:card'],
     ['name', 'twitter:title'],
     ['name', 'twitter:description'],
-    ['name', 'twitter:image'],
     ['name', 'twitter:image:alt'],
   ]) {
     html = dedupeMeta(html, attribute, key)
   }
   html = dedupeCanonical(html)
+
+  // Rebuild the three verifier-critical social tags from scratch. This avoids
+  // attribute-order or inherited-template duplicates in generated route shells.
+  html = removeMeta(html, 'property', 'og:image')
+  html = removeMeta(html, 'name', 'twitter:card')
+  html = removeMeta(html, 'name', 'twitter:image')
+  html = html.replace('</head>', `    <meta property="og:image" content="${SOCIAL_IMAGE}" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${SOCIAL_IMAGE}" />\n  </head>`)
 
   await writeFile(file, html, 'utf8')
 }
@@ -90,8 +93,13 @@ async function collect(dir) {
   }
 }
 
+function removeMeta(html, attribute, key) {
+  const pattern = new RegExp(`<meta\\b[^>]*\\b${attribute}=["']${escapeRegex(key)}["'][^>]*>\\s*`, 'gi')
+  return html.replace(pattern, '')
+}
+
 function dedupeMeta(html, attribute, key) {
-  const pattern = new RegExp(`<meta\\s+${attribute}=["']${escapeRegex(key)}["'][^>]*>`, 'gi')
+  const pattern = new RegExp(`<meta\\b[^>]*\\b${attribute}=["']${escapeRegex(key)}["'][^>]*>`, 'gi')
   let seen = false
   return html.replace(pattern, tag => {
     if (seen) return ''
@@ -101,7 +109,7 @@ function dedupeMeta(html, attribute, key) {
 }
 
 function dedupeCanonical(html) {
-  const pattern = /<link\s+rel=["']canonical["'][^>]*>/gi
+  const pattern = /<link\b[^>]*\brel=["']canonical["'][^>]*>/gi
   let seen = false
   return html.replace(pattern, tag => {
     if (seen) return ''
