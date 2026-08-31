@@ -13,6 +13,7 @@ const GUIDE_METADATA: Record<string, { title: string; description: string; keywo
   'housewarming-invitation-wording': { title: 'Housewarming Invitation Wording | CraftMyPage', description: 'Warm and formal housewarming and Gruhapravesam invitation wording examples.', keywords: 'housewarming invitation wording, housewarming invite, gruhapravesam invitation wording, new home invitation' },
   'naming-ceremony-invitation': { title: 'Naming Ceremony Invitation Examples | CraftMyPage', description: 'Naming ceremony invitation wording and design ideas for a memorable celebration.', keywords: 'naming ceremony invitation, baby naming invitation, naming ceremony invite, naming ceremony wording' },
   'ats-friendly-resume': { title: 'How to Create an ATS-Friendly Resume | CraftMyPage', description: 'Practical ATS-friendly resume tips covering headings, formatting, keywords, and layout.', keywords: 'ats friendly resume, ats resume, ats resume format, ats resume tips, applicant tracking system resume' },
+  'ats-resume-keywords': { title: 'ATS Resume Keywords: Match Job Descriptions Naturally | CraftMyPage', description: 'Learn how to find ATS resume keywords in a job description, use them naturally and support each important skill with real evidence.', keywords: 'ats resume keywords, resume keywords, job description keywords, ats keywords, resume keyword matching' },
   'fresher-resume-format': { title: 'Fresher Resume Format with Examples | CraftMyPage', description: 'A clear resume structure for students and fresh graduates with limited experience.', keywords: 'fresher resume format, resume for freshers, student resume, graduate resume, fresher resume examples' },
   'software-engineer-resume': { title: 'Software Engineer Resume Guide | CraftMyPage', description: 'Practical tips for writing a software engineering resume that highlights measurable impact.', keywords: 'software engineer resume, software developer resume, engineering resume, software engineer cv' },
   'one-page-vs-two-page-resume': { title: 'One-Page vs Two-Page Resume | CraftMyPage', description: 'Understand when a one-page or two-page resume is the better choice.', keywords: 'one page resume, two page resume, resume length, one page vs two page resume' },
@@ -36,8 +37,8 @@ const TOOL_METADATA: Record<string, { name: string; description: string; keyword
 }
 
 const ROUTE_KEYWORDS: Record<string, string> = {
-  '/': 'free invoice maker, free invitation maker, free resume builder, invoice generator, invitation maker, resume builder, online document maker',
-  '/guides': 'invoice guides, invitation guides, resume guides, invoice tips, invitation tips, resume tips',
+  '/': 'free invoice maker, GST invoice generator, freelancer invoice generator, free invitation maker, birthday invitation maker, wedding invitation maker, free resume builder, ATS resume builder, resume maker, online document maker',
+  '/guides': 'invoice guides, invitation guides, resume guides, ATS resume keywords, invoice tips, invitation wording, resume tips',
   '/guides/how-to-create-an-invoice': 'how to create an invoice, invoice guide, professional invoice, invoice format, invoice best practices',
   '/about': 'CraftMyPage, browser document editor, privacy first document tools',
   '/contact': 'CraftMyPage contact, support, feedback',
@@ -48,13 +49,13 @@ const ROUTE_KEYWORDS: Record<string, string> = {
 function getRouteMetadata(pathname: string): { title: string; description: string; canonical: string; keywords: string; software?: { name: string; description: string } } {
   if (pathname === '/') return {
     title: 'CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder',
-    description: 'Create professional invoices, invitations and resumes in your browser. No account, no watermark and no core document uploads.',
+    description: 'Create GST and freelancer invoices, invitations and ATS-friendly resumes in your browser. No account, no watermark and no core document uploads.',
     canonical: `${SITE_URL}/`,
     keywords: ROUTE_KEYWORDS['/'],
   }
 
   const staticRoutes: Record<string, { title: string; description: string }> = {
-    '/guides': { title: 'Invitation, Resume & Invoice Guides | CraftMyPage', description: 'Practical guides for creating invitations, resumes and invoices with CraftMyPage.' },
+    '/guides': { title: 'Invitation, Resume & Invoice Guides | CraftMyPage', description: 'Practical guides for invoices, ATS resumes, resume keywords, invitation wording and browser-based document creation.' },
     '/guides/how-to-create-an-invoice': { title: 'How to Create a Professional Invoice for Free | CraftMyPage', description: 'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.' },
     '/about': { title: 'About CraftMyPage', description: 'Learn about CraftMyPage, its privacy-first design approach, and browser-based editors.' },
     '/contact': { title: 'Contact CraftMyPage', description: 'Contact CraftMyPage with questions, suggestions, or feedback.' },
