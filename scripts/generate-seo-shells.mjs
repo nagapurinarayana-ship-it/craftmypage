@@ -6,11 +6,11 @@ const SOCIAL_IMAGE = `${SITE_URL}/og-image.svg`
 const DIST = 'dist'
 
 const routes = {
-  '/': ['CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', 'Create professional invoices, invitations and resumes in your browser. No account, no watermark and no core document uploads.'],
-  '/tools/invoice-maker': ['Free Invoice Maker | CraftMyPage', 'Create professional invoices in your browser, save drafts locally, calculate taxes and download A4 invoice PDFs.'],
-  '/tools/invitation-maker': ['Free Invitation Maker | CraftMyPage', 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser.'],
-  '/tools/resume-builder': ['Free Resume Builder | CraftMyPage', 'Build a clean ATS-friendly resume from a template, edit it in your browser, and download an A4 PDF.'],
-  '/guides': ['Invitation, Resume & Invoice Guides | CraftMyPage', 'Practical guides for creating invitations, resumes and invoices with CraftMyPage.'],
+  '/': ['CraftMyPage — Free Invoice Maker, Invitation Maker & Resume Builder', 'Create GST and freelancer invoices, invitations and ATS-friendly resumes in your browser. No account, no watermark and no core document uploads.'],
+  '/tools/invoice-maker': ['Free Invoice Maker Online | CraftMyPage', 'Create professional invoices online in your browser, calculate taxes and discounts, save drafts locally and download A4 invoice PDFs with no signup.'],
+  '/tools/invitation-maker': ['Free Invitation Maker Online | CraftMyPage', 'Create and customize free birthday, wedding, baby shower, housewarming and party invitations in your browser for WhatsApp, social sharing or print.'],
+  '/tools/resume-builder': ['Free ATS Resume Builder Online | CraftMyPage', 'Build a clean ATS-friendly resume from a template, edit it in your browser and download an A4 PDF with no signup or watermark.'],
+  '/guides': ['Invitation, Resume & Invoice Guides | CraftMyPage', 'Practical guides for GST invoices, ATS resumes, resume keywords, invitation wording and browser-based document creation.'],
   '/guides/how-to-create-an-invoice': ['How to Create a Professional Invoice for Free | CraftMyPage', 'Learn how to create a professional invoice for free, including required information, numbering, payment terms, taxes, discounts, and best practices.'],
   '/about': ['About CraftMyPage', 'Learn about CraftMyPage, its privacy-first design approach, and browser-based editors.'],
   '/contact': ['Contact CraftMyPage', 'Contact CraftMyPage with questions, suggestions, or feedback.'],
@@ -19,20 +19,21 @@ const routes = {
 }
 
 const guideMeta = {
-  'birthday-invitation-whatsapp': ['How to Create a Birthday Invitation for WhatsApp | CraftMyPage', 'Learn practical birthday invitation sizes, wording, and sharing tips for WhatsApp.'],
+  'birthday-invitation-whatsapp': ['How to Create a Birthday Invitation for WhatsApp | CraftMyPage', 'Learn practical birthday invitation sizes, wording, templates and sharing tips for WhatsApp.'],
   'wedding-invitation-wording': ['Wedding Invitation Wording Examples | CraftMyPage', 'Classic, modern, and Indian wedding invitation wording examples you can customize.'],
-  'invitation-details': ['What Details Should an Invitation Contain? | CraftMyPage', 'A practical checklist of the essential details every invitation should include.'],
-  'invitation-sizes': ['Invitation Sizes for WhatsApp, Instagram and Print | CraftMyPage', 'Choose practical invitation dimensions for messaging, social media, and printing.'],
+  'invitation-details': ['What Details Should an Invitation Contain? | CraftMyPage', 'A practical invitation-card checklist covering date, time, venue, RSVP and other essential details.'],
+  'invitation-sizes': ['Invitation Sizes for WhatsApp, Instagram and Print | CraftMyPage', 'Choose practical invitation dimensions for WhatsApp, Instagram, social sharing and printing.'],
   'housewarming-invitation-wording': ['Housewarming Invitation Wording | CraftMyPage', 'Warm and formal housewarming and Gruhapravesam invitation wording examples.'],
-  'naming-ceremony-invitation': ['Naming Ceremony Invitation Examples | CraftMyPage', 'Naming ceremony invitation wording and design ideas for a memorable celebration.'],
-  'ats-friendly-resume': ['How to Create an ATS-Friendly Resume | CraftMyPage', 'Practical ATS-friendly resume tips covering headings, formatting, keywords, and layout.'],
-  'fresher-resume-format': ['Fresher Resume Format with Examples | CraftMyPage', 'A clear resume structure for students and fresh graduates with limited experience.'],
-  'software-engineer-resume': ['Software Engineer Resume Guide | CraftMyPage', 'Practical tips for writing a software engineering resume that highlights measurable impact.'],
-  'one-page-vs-two-page-resume': ['One-Page vs Two-Page Resume | CraftMyPage', 'Understand when a one-page or two-page resume is the better choice.'],
+  'naming-ceremony-invitation': ['Naming Ceremony Invitation Examples | CraftMyPage', 'Naming ceremony invitation wording and design ideas for a memorable family celebration.'],
+  'ats-friendly-resume': ['How to Create an ATS-Friendly Resume | CraftMyPage', 'Practical ATS-friendly resume format tips covering headings, formatting, keywords and layout.'],
+  'ats-resume-keywords': ['ATS Resume Keywords: Match Job Descriptions Naturally | CraftMyPage', 'Learn how to find ATS resume keywords in a job description, use them naturally and support important skills with real evidence.'],
+  'fresher-resume-format': ['Fresher Resume Format with Examples | CraftMyPage', 'A clear resume format for freshers, students and new graduates with limited experience.'],
+  'software-engineer-resume': ['Software Engineer Resume Guide | CraftMyPage', 'Practical tips for writing a software engineer or developer resume that highlights technical skills and measurable impact.'],
+  'one-page-vs-two-page-resume': ['One-Page vs Two-Page Resume | CraftMyPage', 'Understand when a one-page or two-page resume is the better choice for your experience level.'],
 }
 
 const invoiceMeta = {
-  'gst-invoice': ['Free GST Invoice Generator Online | CraftMyPage', 'Create a GST-ready invoice online with GSTIN, HSN or SAC codes, CGST, SGST or IGST, payment details and a professional A4 PDF. Free and no account required.'],
+  'gst-invoice': ['Free GST Invoice Generator India | CraftMyPage', 'Create a GST-ready invoice online with GSTIN, HSN or SAC codes, CGST, SGST or IGST, payment details and a professional A4 PDF. Free and no account required.'],
   'freelancer-invoice': ['Free Freelancer Invoice Generator | CraftMyPage', 'Create a professional freelancer invoice online with services, rates, taxes, discounts, due dates and payment terms, then download a clean A4 PDF.'],
   'invoice-templates': ['Free Invoice Templates & Online Invoice Maker | CraftMyPage', 'Choose a professional invoice template, customize business and client details, calculate totals and download a print-ready A4 PDF for free.'],
 }
@@ -53,11 +54,11 @@ function metaFor(path) {
   const category = path.match(/^\/invitations\/([^/]+)$/)
   if (category && categoryNames[category[1]]) return { title: `${categoryNames[category[1]]} Invitation Templates | CraftMyPage`, description: `Free ${categoryNames[category[1]].toLowerCase()} invitation templates you can customize in your browser.` }
   const maker = path.match(/^\/invitations\/([^/]+)\/maker$/)
-  if (maker && categoryNames[maker[1]]) return { title: `Free ${categoryNames[maker[1]]} Invitation Maker | CraftMyPage`, description: `Create and customize a ${categoryNames[maker[1]].toLowerCase()} invitation in your browser and download it for sharing or printing.` }
+  if (maker && categoryNames[maker[1]]) return { title: `Free ${categoryNames[maker[1]]} Invitation Maker | CraftMyPage`, description: `Create and customize a ${categoryNames[maker[1]].toLowerCase()} invitation in your browser and download it for WhatsApp, social sharing or printing.` }
   const invoice = path.match(/^\/invoices\/([^/]+)$/)
   if (invoice && invoiceMeta[invoice[1]]) return { title: invoiceMeta[invoice[1]][0], description: invoiceMeta[invoice[1]][1] }
   const resume = path.match(/^\/resumes\/([^/]+)$/)
-  if (resume) return { title: `${resume[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} | Free Resume Builder | CraftMyPage`, description: 'Create a clean, ATS-friendly resume with CraftMyPage and download it as a PDF.' }
+  if (resume) return { title: `${resume[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} | Free ATS Resume Builder | CraftMyPage`, description: 'Create a clean, ATS-friendly resume with CraftMyPage and download it as a PDF with no signup or watermark.' }
   return null
 }
 
@@ -155,11 +156,11 @@ function escapeHtml(value) {
 
 function fallbackLinks(path) {
   const link = (href, label) => `<a href="${SITE_URL}${href}">${escapeHtml(label)}</a>`
-  if (path === '/') return `${link('/tools/invoice-maker', 'Free Invoice Maker')} · ${link('/tools/invitation-maker', 'Free Invitation Maker')} · ${link('/tools/resume-builder', 'Free Resume Builder')} · ${link('/guides', 'Guides')}`
-  if (path.startsWith('/tools/invoice-maker') || path.startsWith('/invoices/')) return `${link('/tools/invoice-maker', 'Open Invoice Maker')} · ${link('/guides/how-to-create-an-invoice', 'Invoice Guide')} · ${link('/guides', 'All Guides')}`
-  if (path.startsWith('/tools/resume-builder') || path.startsWith('/resumes/')) return `${link('/tools/resume-builder', 'Open Resume Builder')} · ${link('/guides/ats-friendly-resume', 'ATS Resume Guide')} · ${link('/guides', 'All Guides')}`
-  if (path.startsWith('/tools/invitation-maker') || path.startsWith('/invitations/')) return `${link('/tools/invitation-maker', 'Open Invitation Maker')} · ${link('/invitations/birthday', 'Birthday Invitations')} · ${link('/invitations/wedding', 'Wedding Invitations')} · ${link('/guides', 'Invitation Guides')}`
-  if (path.startsWith('/guides/')) return `${link('/guides', 'All Guides')} · ${link('/tools/invoice-maker', 'Invoice Maker')} · ${link('/tools/invitation-maker', 'Invitation Maker')} · ${link('/tools/resume-builder', 'Resume Builder')}`
+  if (path === '/') return `${link('/tools/invoice-maker', 'Free Invoice Maker')} · ${link('/invoices/gst-invoice', 'GST Invoice Generator')} · ${link('/tools/invitation-maker', 'Free Invitation Maker')} · ${link('/tools/resume-builder', 'Free ATS Resume Builder')} · ${link('/guides/ats-resume-keywords', 'ATS Resume Keywords')} · ${link('/guides', 'Guides')}`
+  if (path.startsWith('/tools/invoice-maker') || path.startsWith('/invoices/')) return `${link('/tools/invoice-maker', 'Free Invoice Maker')} · ${link('/invoices/gst-invoice', 'GST Invoice Generator India')} · ${link('/invoices/freelancer-invoice', 'Freelancer Invoice Generator')} · ${link('/guides/how-to-create-an-invoice', 'Invoice Guide')}`
+  if (path.startsWith('/tools/resume-builder') || path.startsWith('/resumes/')) return `${link('/tools/resume-builder', 'Free ATS Resume Builder')} · ${link('/guides/ats-friendly-resume', 'ATS-Friendly Resume Guide')} · ${link('/guides/ats-resume-keywords', 'ATS Resume Keywords')} · ${link('/guides/fresher-resume-format', 'Fresher Resume Format')}`
+  if (path.startsWith('/tools/invitation-maker') || path.startsWith('/invitations/')) return `${link('/tools/invitation-maker', 'Free Invitation Maker')} · ${link('/invitations/birthday', 'Birthday Invitations')} · ${link('/guides/birthday-invitation-whatsapp', 'Birthday Invitation for WhatsApp')} · ${link('/guides/wedding-invitation-wording', 'Wedding Invitation Wording')}`
+  if (path.startsWith('/guides/')) return `${link('/guides', 'All Guides')} · ${link('/tools/invoice-maker', 'Invoice Maker')} · ${link('/tools/invitation-maker', 'Invitation Maker')} · ${link('/tools/resume-builder', 'ATS Resume Builder')}`
   return `${link('/', 'CraftMyPage Home')} · ${link('/tools/invoice-maker', 'Invoice Maker')} · ${link('/tools/invitation-maker', 'Invitation Maker')} · ${link('/tools/resume-builder', 'Resume Builder')}`
 }
 
