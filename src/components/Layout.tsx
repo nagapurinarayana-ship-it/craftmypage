@@ -4,6 +4,7 @@ import Footer from './Footer'
 import RouteSeo from './RouteSeo'
 import RouteSeoDynamic from './RouteSeoDynamic'
 import EffectiveCpmHomeAds from './monetization/EffectiveCpmHomeAds'
+import PopularSearches from './PopularSearches'
 
 export default function Layout() {
   const location = useLocation()
@@ -18,6 +19,7 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
+      <PopularSearches />
       {!isHome && (
         <div className="cmp-container py-10 sm:py-12">
           <EffectiveCpmHomeAds />
