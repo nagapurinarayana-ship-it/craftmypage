@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 type SearchLink = { to: string; label: string }
 
@@ -13,7 +13,7 @@ const invoiceSearches: SearchLink[] = [
 const resumeSearches: SearchLink[] = [
   { to: '/tools/resume-builder', label: 'free ATS resume builder' },
   { to: '/guides/ats-friendly-resume', label: 'ATS-friendly resume format' },
-  { to: '/guides/ats-resume-keywords', label: 'ATS resume keywords' },
+  { to: '/guides/ats-resume-keywords/', label: 'ATS resume keywords' },
   { to: '/guides/fresher-resume-format', label: 'fresher resume format' },
   { to: '/guides/software-engineer-resume', label: 'software engineer resume' },
 ]
@@ -50,9 +50,9 @@ export default function PopularSearches() {
         </p>
         <nav className="mt-5 flex flex-wrap gap-2" aria-label="Popular CraftMyPage searches">
           {links.map((item) => (
-            <Link key={`${item.to}-${item.label}`} to={item.to} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700">
+            <a key={`${item.to}-${item.label}`} href={item.to} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700">
               {item.label}
-            </Link>
+            </a>
           ))}
         </nav>
       </div>
