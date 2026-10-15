@@ -175,6 +175,25 @@ export function isValidCategory(value: unknown): value is string {
   return typeof value === 'string' && validCategories.has(value)
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+function isBoundedNumber(value: unknown, min: number, max: number): value is number {
+  return isFiniteNumber(value) && value >= min && value <= max
+}
+
+function isSafeImageSource(value: unknown): boolean {
+  if (typeof value !== 'string' || value.length > 8_000_000) return false
+  if (/^data:image\/(jpeg|png|webp);base64,/i.test(value)) return true
+  try {
+    const parsed = new URL(value)
+    return (parsed.protocol === 'https:' || parsed.protocol === 'http:') && Boolean(parsed.hostname)
+  } catch {
+    return false
+  }
+}
+
 export function validateTemplate(obj: unknown): { valid: boolean; errors: string[] } {
   const errors: string[] = []
 
@@ -184,11 +203,11 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
 
   const t = obj as Record<string, unknown>
 
-  if (typeof t.id !== 'string' || t.id.length === 0) errors.push('id (non-empty string) is required')
+  if (typeof t.id !== 'string' || t.id.length === 0 || t.id.length > 200) errors.push('id (non-empty string up to 200 characters) is required')
   if (typeof t.category !== 'string' || !isValidCategory(t.category))
     errors.push(`category must be one of: ${[...validCategories].join(', ')}`)
-  if (typeof t.name !== 'string' || t.name.length === 0)
-    errors.push('name (non-empty string) is required')
+  if (typeof t.name !== 'string' || t.name.length === 0 || t.name.length > 500)
+    errors.push('name (non-empty string up to 500 characters) is required')
 
   if (!t.canvas || typeof t.canvas !== 'object') {
     errors.push('canvas (object) is required')
@@ -208,9 +227,27 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
     }
   }
 
+  if (t.background !== undefined) {
+    if (!t.background || typeof t.background !== 'object' || Array.isArray(t.background)) {
+      errors.push('background must be an object')
+    } else {
+      const background = t.background as Record<string, unknown>
+      for (const key of Object.keys(background)) {
+        if (!['fill', 'imageSrc'].includes(key)) errors.push('background has unknown field "' + key + '"')
+      }
+      if (background.fill !== undefined && (typeof background.fill !== 'string' || background.fill.length > 200)) {
+        errors.push('background.fill must be a string up to 200 characters')
+      }
+      if (background.imageSrc !== undefined && !isSafeImageSource(background.imageSrc)) {
+        errors.push('background.imageSrc must be a safe image URL or supported data URL')
+      }
+    }
+  }
+
   if (!Array.isArray(t.elements)) {
     errors.push('elements (array) is required')
   } else {
+    if (t.elements.length > 500) errors.push('elements must contain no more than 500 items')
     t.elements.forEach((el, i) => {
       if (!el || typeof el !== 'object') {
         errors.push(`elements[${i}] must be an object`)
@@ -225,10 +262,46 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
         return
       }
       const type = element.type as TemplateElementType
-      if (typeof element.key !== 'string' || element.key.length === 0)
-        errors.push(`elements[${i}].key (non-empty string) is required`)
+      if (typeof element.key !== 'string' || element.key.length === 0 || element.key.length > 200)
+        errors.push(\`elements[\${i}].key (non-empty string up to 200 characters) is required\`)
 
-      for (const key of Object.keys(element)) {
+      for (const [key, value] of Object.entries(element)) {
+        if (!allowedKeysByType[type].has(key)) {
+          errors.push(\`elements[\${i}] has unknown field "\${key}" for type "\${type}"\`)
+          continue
+        }
+        if (['editable', 'removable', 'visible'].includes(key) && value !== undefined && typeof value !== 'boolean') {
+          errors.push(\`elements[\${i}].\${key} must be a boolean\`)
+          continue
+        }
+        if (['x', 'y'].includes(key) && value !== undefined && !isBoundedNumber(value, -5000, 5000)) {
+          errors.push(\`elements[\${i}].\${key} must be a finite number between -5000 and 5000\`)
+          continue
+        }
+        if (['width', 'height'].includes(key) && value !== undefined && !isBoundedNumber(value, 0, 5000)) {
+          errors.push(\`elements[\${i}].\${key} must be a finite number between 0 and 5000\`)
+          continue
+        }
+        if (key === 'rotation' && value !== undefined && !isBoundedNumber(value, -3600, 3600)) {
+          errors.push(\`elements[\${i}].rotation must be a finite number between -3600 and 3600\`)
+          continue
+        }
+        if (['fontSize', 'lineHeight', 'maxLines', 'borderRadius', 'strokeWidth', 'cornerRadius', 'size'].includes(key) && value !== undefined && !isFiniteNumber(value)) {
+          errors.push(\`elements[\${i}].\${key} must be a finite number\`)
+          continue
+        }
+        if (key === 'fontSize' && value !== undefined && !isBoundedNumber(value, 1, 1000)) errors.push(\`elements[\${i}].fontSize must be between 1 and 1000\`)
+        if (key === 'lineHeight' && value !== undefined && !isBoundedNumber(value, 0.1, 20)) errors.push(\`elements[\${i}].lineHeight must be between 0.1 and 20\`)
+        if (key === 'maxLines' && value !== undefined && (!isBoundedNumber(value, 1, 100) || !Number.isInteger(value))) errors.push(\`elements[\${i}].maxLines must be an integer between 1 and 100\`)
+        if (['borderRadius', 'strokeWidth', 'cornerRadius', 'size'].includes(key) && value !== undefined && !isBoundedNumber(value, 0, 5000)) errors.push(\`elements[\${i}].\${key} must be between 0 and 5000\`)
+        if (['default', 'placeholder'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 5000)) errors.push(\`elements[\${i}].\${key} must be a string up to 5000 characters\`)
+        if (['fontFamily', 'alt', 'kind'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 200)) errors.push(\`elements[\${i}].\${key} must be a string up to 200 characters\`)
+        if (['fill', 'stroke', 'color'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 200)) errors.push(\`elements[\${i}].\${key} must be a string up to 200 characters\`)
+        if (key === 'fontWeight' && value !== undefined && !['normal', 'bold'].includes(String(value))) errors.push(\`elements[\${i}].fontWeight must be normal or bold\`)
+        if (key === 'align' && value !== undefined && !['left', 'center', 'right'].includes(String(value))) errors.push(\`elements[\${i}].align must be left, center or right\`)
+        if (key === 'shapeType' && value !== undefined && !['rect', 'circle', 'line'].includes(String(value))) errors.push(\`elements[\${i}].shapeType must be rect, circle or line\`)
+        if (key === 'src' && value !== undefined && !isSafeImageSource(value)) errors.push(\`elements[\${i}].src must be a safe image URL or supported data URL\`)
+      }
         if (!allowedKeysByType[type].has(key)) {
           errors.push(`elements[${i}] has unknown field "${key}" for type "${type}"`)
         }
