@@ -263,48 +263,45 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
       }
       const type = element.type as TemplateElementType
       if (typeof element.key !== 'string' || element.key.length === 0 || element.key.length > 200)
-        errors.push(\`elements[\${i}].key (non-empty string up to 200 characters) is required\`)
+        errors.push(`elements[${i}].key (non-empty string up to 200 characters) is required`)
 
       for (const [key, value] of Object.entries(element)) {
         if (!allowedKeysByType[type].has(key)) {
-          errors.push(\`elements[\${i}] has unknown field "\${key}" for type "\${type}"\`)
+          errors.push(`elements[${i}] has unknown field "${key}" for type "${type}"`)
           continue
         }
         if (['editable', 'removable', 'visible'].includes(key) && value !== undefined && typeof value !== 'boolean') {
-          errors.push(\`elements[\${i}].\${key} must be a boolean\`)
+          errors.push(`elements[${i}].${key} must be a boolean`)
           continue
         }
         if (['x', 'y'].includes(key) && value !== undefined && !isBoundedNumber(value, -5000, 5000)) {
-          errors.push(\`elements[\${i}].\${key} must be a finite number between -5000 and 5000\`)
+          errors.push(`elements[${i}].${key} must be a finite number between -5000 and 5000`)
           continue
         }
         if (['width', 'height'].includes(key) && value !== undefined && !isBoundedNumber(value, 0, 5000)) {
-          errors.push(\`elements[\${i}].\${key} must be a finite number between 0 and 5000\`)
+          errors.push(`elements[${i}].${key} must be a finite number between 0 and 5000`)
           continue
         }
         if (key === 'rotation' && value !== undefined && !isBoundedNumber(value, -3600, 3600)) {
-          errors.push(\`elements[\${i}].rotation must be a finite number between -3600 and 3600\`)
+          errors.push(`elements[${i}].rotation must be a finite number between -3600 and 3600`)
           continue
         }
         if (['fontSize', 'lineHeight', 'maxLines', 'borderRadius', 'strokeWidth', 'cornerRadius', 'size'].includes(key) && value !== undefined && !isFiniteNumber(value)) {
-          errors.push(\`elements[\${i}].\${key} must be a finite number\`)
+          errors.push(`elements[${i}].${key} must be a finite number`)
           continue
         }
-        if (key === 'fontSize' && value !== undefined && !isBoundedNumber(value, 1, 1000)) errors.push(\`elements[\${i}].fontSize must be between 1 and 1000\`)
-        if (key === 'lineHeight' && value !== undefined && !isBoundedNumber(value, 0.1, 20)) errors.push(\`elements[\${i}].lineHeight must be between 0.1 and 20\`)
-        if (key === 'maxLines' && value !== undefined && (!isBoundedNumber(value, 1, 100) || !Number.isInteger(value))) errors.push(\`elements[\${i}].maxLines must be an integer between 1 and 100\`)
-        if (['borderRadius', 'strokeWidth', 'cornerRadius', 'size'].includes(key) && value !== undefined && !isBoundedNumber(value, 0, 5000)) errors.push(\`elements[\${i}].\${key} must be between 0 and 5000\`)
-        if (['default', 'placeholder'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 5000)) errors.push(\`elements[\${i}].\${key} must be a string up to 5000 characters\`)
-        if (['fontFamily', 'alt', 'kind'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 200)) errors.push(\`elements[\${i}].\${key} must be a string up to 200 characters\`)
-        if (['fill', 'stroke', 'color'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 200)) errors.push(\`elements[\${i}].\${key} must be a string up to 200 characters\`)
-        if (key === 'fontWeight' && value !== undefined && !['normal', 'bold'].includes(String(value))) errors.push(\`elements[\${i}].fontWeight must be normal or bold\`)
-        if (key === 'align' && value !== undefined && !['left', 'center', 'right'].includes(String(value))) errors.push(\`elements[\${i}].align must be left, center or right\`)
-        if (key === 'shapeType' && value !== undefined && !['rect', 'circle', 'line'].includes(String(value))) errors.push(\`elements[\${i}].shapeType must be rect, circle or line\`)
-        if (key === 'src' && value !== undefined && !isSafeImageSource(value)) errors.push(\`elements[\${i}].src must be a safe image URL or supported data URL\`)
+        if (key === 'fontSize' && value !== undefined && !isBoundedNumber(value, 1, 1000)) errors.push(`elements[${i}].fontSize must be between 1 and 1000`)
+        if (key === 'lineHeight' && value !== undefined && !isBoundedNumber(value, 0.1, 20)) errors.push(`elements[${i}].lineHeight must be between 0.1 and 20`)
+        if (key === 'maxLines' && value !== undefined && (!isBoundedNumber(value, 1, 100) || !Number.isInteger(value))) errors.push(`elements[${i}].maxLines must be an integer between 1 and 100`)
+        if (['borderRadius', 'strokeWidth', 'cornerRadius', 'size'].includes(key) && value !== undefined && !isBoundedNumber(value, 0, 5000)) errors.push(`elements[${i}].${key} must be between 0 and 5000`)
+        if (['default', 'placeholder'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 5000)) errors.push(`elements[${i}].${key} must be a string up to 5000 characters`)
+        if (['fontFamily', 'alt', 'kind'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 200)) errors.push(`elements[${i}].${key} must be a string up to 200 characters`)
+        if (['fill', 'stroke', 'color'].includes(key) && value !== undefined && (typeof value !== 'string' || value.length > 200)) errors.push(`elements[${i}].${key} must be a string up to 200 characters`)
+        if (key === 'fontWeight' && value !== undefined && !['normal', 'bold'].includes(String(value))) errors.push(`elements[${i}].fontWeight must be normal or bold`)
+        if (key === 'align' && value !== undefined && !['left', 'center', 'right'].includes(String(value))) errors.push(`elements[${i}].align must be left, center or right`)
+        if (key === 'shapeType' && value !== undefined && !['rect', 'circle', 'line'].includes(String(value))) errors.push(`elements[${i}].shapeType must be rect, circle or line`)
+        if (key === 'src' && value !== undefined && !isSafeImageSource(value)) errors.push(`elements[${i}].src must be a safe image URL or supported data URL`)
       }
-        if (!allowedKeysByType[type].has(key)) {
-          errors.push(`elements[${i}] has unknown field "${key}" for type "${type}"`)
-        }
       }
     })
   }
