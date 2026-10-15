@@ -15,7 +15,7 @@
     "verify": "tsx ./scripts/verify-templates.js"
   },
   "dependencies": {
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.16",
     "idb": "^8.0.0",
     "konva": "^9.2.0",
     "pdf-lib": "^1.17.1",
