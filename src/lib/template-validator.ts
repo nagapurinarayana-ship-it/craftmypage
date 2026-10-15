@@ -203,11 +203,12 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
 
   const t = obj as Record<string, unknown>
 
-  if (typeof t.id !== 'string' || t.id.length === 0 || t.id.length > 200) errors.push('id (non-empty string up to 200 characters) is required')
+  if (typeof t.id !== 'string' || t.id.length === 0) errors.push('id (non-empty string) is required')
+  else if (t.id.length > 200) errors.push('id must be no more than 200 characters')
   if (typeof t.category !== 'string' || !isValidCategory(t.category))
     errors.push(`category must be one of: ${[...validCategories].join(', ')}`)
-  if (typeof t.name !== 'string' || t.name.length === 0 || t.name.length > 500)
-    errors.push('name (non-empty string up to 500 characters) is required')
+  if (typeof t.name !== 'string' || t.name.length === 0) errors.push('name (non-empty string) is required')
+  else if (t.name.length > 500) errors.push('name must be no more than 500 characters')
 
   if (!t.canvas || typeof t.canvas !== 'object') {
     errors.push('canvas (object) is required')
@@ -262,8 +263,9 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
         return
       }
       const type = element.type as TemplateElementType
-      if (typeof element.key !== 'string' || element.key.length === 0 || element.key.length > 200)
-        errors.push(`elements[${i}].key (non-empty string up to 200 characters) is required`)
+      if (typeof element.key !== 'string' || element.key.length === 0)
+        errors.push(`elements[${i}].key (non-empty string) is required`)
+      else if (element.key.length > 200) errors.push(`elements[${i}].key must be no more than 200 characters`)
 
       for (const [key, value] of Object.entries(element)) {
         if (!allowedKeysByType[type].has(key)) {
