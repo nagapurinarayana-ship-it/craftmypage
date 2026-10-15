@@ -27,8 +27,12 @@ jobs:
           cache: npm
       - name: Install current locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Apply non-breaking security updates
-        run: npm audit fix --no-fund
+      - name: Apply compatible security updates
+        run: |
+          npm audit fix --no-fund || true
+          npm install --no-audit --no-fund react-router-dom@^7.18.4
+          npm install --save-dev --no-audit --no-fund vitest@^5.0.4
+          npm audit fix --no-fund || true
       - name: Commit updated dependency lockfile
         run: |
           if git diff --quiet -- package.json package-lock.json; then
