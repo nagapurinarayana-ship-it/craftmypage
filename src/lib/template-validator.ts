@@ -247,8 +247,9 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
 
   if (!Array.isArray(t.elements)) {
     errors.push('elements (array) is required')
+  } else if (t.elements.length > 500) {
+    errors.push('elements must contain no more than 500 items')
   } else {
-    if (t.elements.length > 500) errors.push('elements must contain no more than 500 items')
     t.elements.forEach((el, i) => {
       if (!el || typeof el !== 'object') {
         errors.push(`elements[${i}] must be an object`)
