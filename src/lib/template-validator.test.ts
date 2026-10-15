@@ -63,7 +63,7 @@ describe('validateTemplate', () => {
       elements: [{ type: 'text' }],
     })
     expect(result.valid).toBe(false)
-    expect(result.errors).toEqual(['elements[0].key (non-empty string up to 200 characters) is required'])
+    expect(result.errors).toEqual(['elements[0].key (non-empty string) is required'])
   })
 
   it('rejects unknown element fields', () => {
