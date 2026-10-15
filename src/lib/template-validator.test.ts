@@ -75,6 +75,45 @@ describe('validateTemplate', () => {
     expect(result.errors).toContain('elements[0] has unknown field "bogusField" for type "text"')
   })
 
+  it('rejects imported templates with too many elements', () => {
+    const result = validateTemplate({ ...validTemplate, elements: Array.from({ length: 501 }, (_, i) => ({ type: 'text', key: 'item-' + i })) })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContain('elements must contain no more than 500 items')
+  })
+
+  it('rejects non-finite or extreme element geometry', () => {
+    const result = validateTemplate({
+      ...validTemplate,
+      elements: [{ type: 'text', key: 'x', x: Number.POSITIVE_INFINITY, width: -1 }],
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toEqual(expect.arrayContaining([
+      'elements[0].x must be a finite number between -5000 and 5000',
+      'elements[0].width must be a finite number between 0 and 5000',
+    ]))
+  })
+
+  it('rejects malformed element field types and unsupported image protocols', () => {
+    const result = validateTemplate({
+      ...validTemplate,
+      elements: [
+        { type: 'text', key: 'x', fontSize: 'huge' },
+        { type: 'image', key: 'image', src: 'javascript:alert(1)' },
+      ],
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toEqual(expect.arrayContaining([
+      'elements[0].fontSize must be a finite number',
+      'elements[1].src must be a safe image URL or supported data URL',
+    ]))
+  })
+
+  it('rejects unsupported background fields', () => {
+    const result = validateTemplate({ ...validTemplate, background: { fill: '#fff', onload: 'alert(1)' } })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContain('background has unknown field "onload"')
+  })
+
   it('rejects invalid canvas dimensions', () => {
     const result = validateTemplate({
       ...validTemplate,
