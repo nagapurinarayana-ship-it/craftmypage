@@ -1,24 +1,35 @@
 # CraftMyPage
 
-Free invitations, resumes and printable designs—created privately in your browser.
+CraftMyPage is a free, privacy-first browser app for creating invitations, invoices and ATS-friendly resumes. The live application is designed to let people create and export documents without creating an account or uploading their document contents to a server.
 
-CraftMyPage is planned as a completely free, privacy-first static web application:
+## Public tools
 
-- no account or login;
-- no database or cloud storage;
-- no document uploads;
-- no watermark or paid download gate;
-- local PDF and image generation;
-- mobile-friendly invitation and ATS-friendly resume tools.
+- **Invoice maker:** GST and freelancer invoice creation, editable line items and PDF export.
+- **Invitation maker:** invitation templates, custom text and print-ready PDF export.
+- **Resume builder:** ATS-friendly resume templates and PDF export.
+- **Guides and landing pages:** practical invoice, invitation and resume guidance for common user intents.
+- **Privacy and terms:** public policy pages describing the intended data handling and use of the application.
 
-## Development status
+## Privacy and data handling
 
-The repository is prepared for milestone-based development through pull requests. See [the Copilot instructions](.github/copilot-instructions.md) and repository issues for the implementation specification.
+- No mandatory account or login.
+- Document editing and export are designed to run in the browser.
+- No core document upload or cloud document storage is required.
+- Do not enter highly sensitive personal, financial or identity information into public demos or test fixtures.
 
-## Planned stack
+The privacy policy on the live site is the user-facing source of truth. Any new third-party integration, analytics, advertising, or storage behavior must be reflected in that policy before release.
 
-Vite, React, strict TypeScript, a browser canvas editor, local IndexedDB storage, PDF/PNG exports, Vitest, Playwright, GitHub Actions, and Cloudflare Pages.
+## Development and verification
 
-## Contribution workflow
+The project uses Vite, React, TypeScript and browser-based PDF/image generation. Quality gates include:
 
-Work on a focused branch, run all checks, and open a pull request. Do not push directly to `main`.
+- TypeScript type-checking and ESLint
+- Vitest unit tests and template validation
+- Production build and SEO shell verification
+- Playwright route smoke tests
+- Chromium document-export tests for invitation and resume PDFs
+- Production dependency audit for high/critical advisories and a full-tree critical-vulnerability gate on every CI run, with weekly scheduled checks
+
+## Contributing
+
+Work on a focused branch, run all checks, and open a pull request. Do not push directly to main. Never commit credentials, generated dependency directories, test artifacts, or private user documents.
