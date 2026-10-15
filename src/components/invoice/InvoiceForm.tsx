@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
 import type { Invoice, LineItem } from '../lib/invoice'
-import { generateId } from '../lib/invoice'
 
 interface InvoiceFormProps {
   invoice: Invoice
@@ -644,7 +643,7 @@ export default function InvoiceForm({
         <h2 className="text-xl font-semibold mb-4">Line Items</h2>
 
         <div className="space-y-4">
-          {invoice.lineItems.map((item, index) => (
+          {invoice.lineItems.map((item) => (
             <div key={item.id} className="border rounded-md p-4 bg-gray-50">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <div>
