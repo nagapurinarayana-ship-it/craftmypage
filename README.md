@@ -28,7 +28,7 @@ The project uses Vite, React, TypeScript and browser-based PDF/image generation.
 - Production build and SEO shell verification
 - Playwright route smoke tests
 - Chromium document-export tests for invitation and resume PDFs
-- Dependency vulnerability audit on every CI run and weekly scheduled checks
+- Production dependency audit for high/critical advisories and a full-tree critical-vulnerability gate on every CI run, with weekly scheduled checks
 
 ## Contributing
 
