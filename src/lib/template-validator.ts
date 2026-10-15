@@ -302,7 +302,6 @@ export function validateTemplate(obj: unknown): { valid: boolean; errors: string
         if (key === 'shapeType' && value !== undefined && !['rect', 'circle', 'line'].includes(String(value))) errors.push(`elements[${i}].shapeType must be rect, circle or line`)
         if (key === 'src' && value !== undefined && !isSafeImageSource(value)) errors.push(`elements[${i}].src must be a safe image URL or supported data URL`)
       }
-      }
     })
   }
 
